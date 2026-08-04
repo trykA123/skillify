@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>skillify — seven ways to think</title>
-<meta name="description" content="skillify — seven cognitive skills that chain into a pipeline for AI-assisted work. What each does, when to reach for it, how to invoke it.">
+<title>skillify — eight ways to think</title>
+<meta name="description" content="skillify — eight cognitive skills that chain into a pipeline for AI-assisted work. What each does, when to reach for it, how to invoke it.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
@@ -25,7 +25,7 @@
   /* skill colors — dark theme (all AA+ on the dark ground) */
   --sk-orientify:#d8a24a;--sk-explorify:#d97a4a;--sk-traceify:#7ba05a;
   --sk-undumbify:#4aa8a0;--sk-shapeify:#5b8ab5;--sk-shipify:#5a9ec5;
-  --sk-reviewify:#b58ab0;
+  --sk-reviewify:#b58ab0;--sk-librify:#c9707e;
   --disp:'Fraunces',Georgia,serif;
   --body:'Source Sans 3',ui-sans-serif,system-ui,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
@@ -53,7 +53,7 @@ html[data-theme="light"]{
   /* skill colors — light theme (darkened to AA on the light ground) */
   --sk-orientify:#8a6420;--sk-explorify:#a34d1e;--sk-traceify:#55702e;
   --sk-undumbify:#20655e;--sk-shapeify:#37597e;--sk-shipify:#2f6186;
-  --sk-reviewify:#755170;
+  --sk-reviewify:#755170;--sk-librify:#90404e;
 }
 /* font combinations — Editorial is the :root default; each swaps display / body / mono */
 html[data-font="grotesk"]{--disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;--body:'Literata',Georgia,serif}
@@ -265,13 +265,14 @@ footer .fline{flex:1;height:1px;background:var(--line)}
   <header class="masthead">
     <div>
       <div class="kicker">skillify · <b>the field guide</b> · harness-agnostic agent skills</div>
-      <h1>Seven ways<br><span class="thin">to think.</span></h1>
-      <p class="lede">Seven cognitive skills that chain into a <b>pipeline for AI-assisted work</b>. Each one is a mode of thinking; together they're a method — map it, explore it, sharpen it, plan it, build it, judge it. And when it breaks, fix it.</p>
+      <h1>Eight ways<br><span class="thin">to think.</span></h1>
+      <p class="lede">Eight cognitive skills that chain into a <b>pipeline for AI-assisted work</b>. Each one is a mode of thinking; together they're a method — map it, explore it, sharpen it, plan it, build it, judge it. And when it breaks, fix it. When you're done, learn from it.</p>
     </div>
     <div class="mast-side">
       <div><span class="pip" style="background:#d8a24a"></span><b>3</b> entry points</div>
       <div><span class="pip" style="background:#5b8ab5"></span><b>4</b> build pipeline</div>
-      <div style="margin-top:.6rem">skills <b>7</b> · one method</div>
+      <div><span class="pip" style="background:var(--sk-librify)"></span><b>1</b> library</div>
+      <div style="margin-top:.6rem">skills <b>8</b> · one method</div>
     </div>
   </header>
 
@@ -306,20 +307,20 @@ footer .fline{flex:1;height:1px;background:var(--line)}
 
 <span class="c"># or just reference a skill directly — the SKILL.md files ARE the prompts</span>
 When planning, follow: <span class="a">/path/to/skillify/pipeline/shapeify/SKILL.md</span></pre>
-    <p class="i-note">Once installed, invoke a skill by its <b>slash command</b> (<b>/traceify</b>, <b>/shapeify</b>, …) or just say its trigger phrase and the right skill picks itself up. <b>orientify</b> waits for an explicit call; the rest chain on their own.</p>
+    <p class="i-note">Once installed, invoke a skill by its <b>slash command</b> (<b>/traceify</b>, <b>/shapeify</b>, …) or just say its trigger phrase and the right skill picks itself up. Two skills — <b>orientify</b> and <b>librify</b> — wait for an explicit call; the rest chain on their own.</p>
   </section>
 
   <footer>
     <span class="fmark">skillify</span>
     <span class="fline"></span>
-    <span>seven skills · one pipeline · MIT</span>
+    <span>eight skills · one pipeline · MIT</span>
   </footer>
   </section>
 
 </div>
 
 <script>
-/* ── the seven skills ── */
+/* ── the eight skills ── */
 var SK=[
  {id:'orientify',emoji:'🧭',mode:'cartographic',fam:'entry',color:'var(--sk-orientify)',no:'01',x:40,y:96,
   does:'Maps a codebase you don\u2019t know <b>before</b> you touch it — vocabulary, architecture, hot spots, seams, landmines — into one Codebase Brief. Touch nothing, see everything.',
@@ -356,10 +357,17 @@ var SK=[
   when:['\u201cReview this\u201d / a PR or diff','After shipify completes a slice','Before merging anything risky'],
   invoke:'/reviewify',trig:'\u201creview this\u201d · \u201cjudge it against the packet\u201d',
   io:'a diff + packet <b>→</b> verdict + findings',conn:'fixes <b>→ shipify</b> · replan <b>→ shapeify</b>'},
+ {id:'librify',emoji:'📚',mode:'curatorial',fam:'memory',color:'var(--sk-librify)',no:'12',x:520,y:350,
+  does:'Compiles verified lessons into <b>the library</b> (Shoin) — evidence-linked, valenced (what worked <b>and</b> what failed), sanitized entries you can look up. Recall is bounded: top-k summaries, flagged, never full dumps. Write-only librarian; agents read, never self-publish.',
+  when:['\u201cCheck the library\u201d','\u201cWhat did we learn about X?\u201d','Post-run compile \u00b7 owner feedback capture'],
+  invoke:'/librify',trig:'\u201ccheck the library\u201d \u00b7 \u201cwhat did we learn about X?\u201d',explicit:true,
+  io:'verified artifacts + feedback <b>→</b> curated entries · a query <b>→</b> top-k summaries',
+  conn:'harvests <b>verified artifacts</b> · feeds <b>planning</b> (bounded lookup)'},
 ];
 var FAM={
  entry:{name:'the entry points',sub:'standalone · start anywhere',color:'var(--sk-orientify)'},
- pipe:{name:'the build pipeline',sub:'undumbify → shapeify → shipify → reviewify',color:'var(--sk-shapeify)'}
+ pipe:{name:'the build pipeline',sub:'undumbify → shapeify → shipify → reviewify',color:'var(--sk-shapeify)'},
+ memory:{name:'the library',sub:'institutional memory · harvest → recall',color:'var(--sk-librify)'}
 };
 /* the handoffs: [from, to, label, kind] */
 var FLOWS=[
@@ -372,7 +380,8 @@ var FLOWS=[
 var ROUTES=[
  ['something broke','traceify'],['I just landed in this repo','orientify'],
  ['I don\u2019t know what I want yet','explorify'],['it\u2019s vague — sharpen it','undumbify'],
- ['plan this','shapeify'],['build this','shipify'],['review this','reviewify']
+ ['plan this','shapeify'],['build this','shipify'],['review this','reviewify'],
+ ['check the library','librify'],['what did we learn about X','librify']
 ];
 
 var NS='http://www.w3.org/2000/svg';
@@ -445,7 +454,7 @@ function gotoSkill(id){
 
 /* dossiers, grouped by family */
 var host=document.getElementById('dossiers');
-var order=['entry','pipe'];
+var order=['entry','pipe','memory'];
 order.forEach(function(fk){
   var f=FAM[fk];
   var skills=SK.filter(function(s){return s.fam===fk;});

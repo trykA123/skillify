@@ -1,12 +1,13 @@
 # skillify
 
-Seven interlocking skills for AI-assisted work. Harness-agnostic — works with Qwen Code,
+Eight interlocking skills for AI-assisted work. Harness-agnostic — works with Qwen Code,
 Claude Code, Cursor, OpenCode, Codex, Windsurf, or any agent that reads markdown.
 
 ## What's Inside
 
-- **Seven skills** — three entry points (`orientify`, `explorify`, `traceify`) and the
-  four-step build pipeline (`undumbify`, `shapeify`, `shipify`, `reviewify`). Each folder
+- **Eight skills** — three entry points (`orientify`, `explorify`, `traceify`), the
+  four-step build pipeline (`undumbify`, `shapeify`, `shipify`, `reviewify`), and the
+  library (`librify`). Each folder
   holds one `SKILL.md` — the skills ARE the prompts. Catalog below.
 - **Docs** — [`docs/index.html`](docs/index.html) — the pipeline as spec-sheet dossiers.
 
@@ -20,6 +21,7 @@ Claude Code, Cursor, OpenCode, Codex, Windsurf, or any agent that reads markdown
 | `shipify` | Disciplined — execute with adaptive validation | "Build this" |
 | `reviewify` | Critical — judge against intent, not taste | "Review this" |
 | `traceify` | Abductive — infer cause from symptoms | "Something broke" |
+| `librify` | Curatorial — compile & recall evidence-linked lessons | "Check the library" |
 
 They chain: `orientify → explorify → undumbify → shapeify → shipify → reviewify`
 (map → diverge → converge → plan → build → judge). `traceify` is the debug entry.
@@ -31,6 +33,8 @@ entry/      the entry points — standalone, start anywhere
             orientify · explorify · traceify
 pipeline/   the build pipeline
             undumbify · shapeify · shipify · reviewify
+memory/     the library — institutional memory
+            librify
 ```
 Start anywhere: an entry skill on its own is a complete session; the pipeline is the
 sequence to run when the work is "build this thing".
@@ -88,13 +92,15 @@ skillify/
 ├── docs/                  # the pipeline as spec-sheet dossiers
 ├── entry/                 # entry points — standalone, start anywhere
 │   ├── orientify/  explorify/  traceify/
-└── pipeline/              # the build pipeline
-    └── undumbify/  shapeify/  shipify/  reviewify/
+├── pipeline/              # the build pipeline
+│   └── undumbify/  shapeify/  shipify/  reviewify/
+└── memory/                # the library — institutional memory
+    └── librify/
 ```
 
 ## No Secrets
 No credentials — no API keys, tokens, or auth URLs. No personal data, no
-private-infrastructure identifiers. The seven skills are the entire content of this
+private-infrastructure identifiers. The eight skills are the entire content of this
 repository.
 
 ## Design Principles
