@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>skillify — seven ways to think</title>
+<meta name="description" content="skillify — seven cognitive skills that chain into a pipeline for AI-assisted work. What each does, when to reach for it, how to invoke it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════ skillify · the cognitive pipeline · field guide ═══════════
+   Opens with the living flow, because the pipeline IS the subject.
+   Each skill is a spec-sheet dossier, not a feature card. */
+:root{
+  color-scheme:dark;
+  --bg:oklch(15% 0.02 260);
+  --bg-2:oklch(18% 0.022 260);
+  --bg-3:oklch(21% 0.024 260);
+  --ink:oklch(94% 0.01 250);
+  --ink-soft:oklch(74% 0.015 250);
+  --ink-faint:oklch(62% 0.02 250);
+  --line:oklch(94% 0.01 250 / .12);
+  --line-strong:oklch(94% 0.01 250 / .26);
+  /* skill colors — dark theme (all AA+ on the dark ground) */
+  --sk-orientify:#d8a24a;--sk-explorify:#d97a4a;--sk-traceify:#7ba05a;
+  --sk-undumbify:#4aa8a0;--sk-shapeify:#5b8ab5;--sk-shipify:#5a9ec5;
+  --sk-reviewify:#b58ab0;
+  --disp:'Fraunces',Georgia,serif;
+  --body:'Source Sans 3',ui-sans-serif,system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  /* type scale — Major Third (1.250) on a 20px base */
+  --fs-xs:.64rem;   /* 12.8px */
+  --fs-s:.8rem;     /* 16px   */
+  --fs-0:1rem;      /* 20px — body */
+  --fs-1:1.25rem;   /* 25px   */
+  --fs-2:1.5625rem; /* 31.25px */
+  --fs-3:1.953rem;  /* 39px   */
+  --fs-4:2.441rem;  /* 48.8px */
+  --fs-5:3.052rem;  /* 61px   */
+  --fs-6:3.815rem;  /* 76.3px */
+}
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:oklch(97% 0.006 250);
+  --bg-2:oklch(99% 0.004 250);
+  --bg-3:oklch(94% 0.008 250);
+  --ink:oklch(20% 0.02 250);
+  --ink-soft:oklch(42% 0.02 250);
+  --ink-faint:oklch(46% 0.02 250);
+  --line:oklch(20% 0.02 250 / .14);
+  --line-strong:oklch(20% 0.02 250 / .3);
+  /* skill colors — light theme (darkened to AA on the light ground) */
+  --sk-orientify:#8a6420;--sk-explorify:#a34d1e;--sk-traceify:#55702e;
+  --sk-undumbify:#20655e;--sk-shapeify:#37597e;--sk-shipify:#2f6186;
+  --sk-reviewify:#755170;
+}
+/* font combinations — Editorial is the :root default; each swaps display / body / mono */
+html[data-font="grotesk"]{--disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;--body:'Literata',Georgia,serif}
+html[data-font="technical"]{--disp:'Space Grotesk',ui-sans-serif,sans-serif;--body:'IBM Plex Sans',ui-sans-serif,sans-serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace}
+html[data-font="hyperlegible"]{--disp:'Atkinson Hyperlegible',ui-sans-serif,sans-serif;--body:'Atkinson Hyperlegible',ui-sans-serif,sans-serif}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;font-size:125%} /* 20px base = 1.25em */
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.6;overflow-x:hidden}
+::selection{background:var(--c,#d8a24a);color:var(--bg)}
+
+/* layered ground: blueprint grid + multi-hue glows + drifting sparks */
+.ground{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:58px 58px;opacity:.4;
+  -webkit-mask-image:radial-gradient(1100px 700px at 50% 0%,#000 0%,transparent 82%);
+          mask-image:radial-gradient(1100px 700px at 50% 0%,#000 0%,transparent 82%);}
+.glow{position:fixed;z-index:0;pointer-events:none;border-radius:50%;filter:blur(100px)}
+.glow.a{width:640px;height:640px;left:-8%;top:-12%;background:oklch(78% 0.13 75 / .10)}
+.glow.b{width:560px;height:560px;right:-6%;top:22%;background:oklch(72% 0.10 240 / .10)}
+.glow.c{width:520px;height:520px;left:24%;bottom:-18%;background:oklch(72% 0.11 180 / .08)}
+/* unified appearance menu — theme + typeface in one native panel */
+.appear{position:fixed;top:18px;right:30px;z-index:20}
+.appear-btn{display:flex;align-items:center;gap:.6rem;
+  border:1px solid var(--line-strong);background:var(--bg-2);color:var(--ink);
+  padding:.5rem .8rem .5rem .95rem;cursor:pointer;border-radius:9px;
+  transition:border-color .2s,box-shadow .2s}
+.appear-btn:hover{border-color:var(--ink-faint);box-shadow:0 8px 22px -8px color-mix(in srgb,var(--ink) 28%,transparent)}
+.appear-aa{font-family:var(--disp);font-weight:700;font-size:1rem;line-height:1}
+.appear-mode{font-size:.8rem;color:var(--ink-faint);line-height:1}
+.appear-chev{font-size:.64rem;color:var(--ink-faint);transition:transform .25s}
+.appear.open .appear-chev{transform:rotate(180deg)}
+.appear-panel{position:absolute;top:calc(100% + 10px);right:0;width:274px;
+  background:var(--bg-2);border:1px solid var(--line-strong);padding:14px;border-radius:12px;
+  opacity:0;visibility:hidden;transform:translateY(-8px);
+  transition:opacity .24s,transform .24s,visibility .24s;
+  box-shadow:0 22px 50px -16px color-mix(in srgb,var(--ink) 40%,transparent)}
+.appear.open .appear-panel{opacity:1;visibility:visible;transform:none}
+.appear-lab{font-family:var(--mono);font-size:.64rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+.appear-themes{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.appear-themes button{display:flex;align-items:center;justify-content:center;gap:.5rem;
+  background:none;border:1px solid var(--line);border-radius:7px;color:var(--ink-soft);
+  font-family:var(--mono);font-size:.8rem;font-weight:600;padding:.5rem .4rem;cursor:pointer;
+  transition:background .15s,color .15s,border-color .15s}
+.appear-themes button:hover{border-color:var(--ink-faint);color:var(--ink)}
+.appear-themes button.on{background:color-mix(in srgb,var(--ink) 14%,transparent);border-color:var(--line-strong);color:var(--ink)}
+.appear-div{height:1px;background:var(--line);margin:13px 0}
+.appear-fonts{display:flex;flex-direction:column;gap:3px}
+.appear-fonts button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;
+  background:none;border:0;border-radius:7px;padding:.5rem .6rem;cursor:pointer;text-align:left;transition:background .15s}
+.appear-fonts button:hover{background:color-mix(in srgb,var(--ink) 10%,transparent)}
+.appear-fonts button.on{background:color-mix(in srgb,var(--ink) 14%,transparent)}
+.appear-fonts .fm-name{font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--ink)}
+.appear-fonts button.on .fm-name::after{content:" ✓";color:var(--sk-traceify)}
+.appear-fonts .fm-hint{font-family:var(--mono);font-size:.64rem;color:var(--ink-faint);letter-spacing:.02em}
+#sparks{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+.wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 24px}
+
+/* ── masthead ── */
+.masthead{display:grid;grid-template-columns:1fr auto;gap:2.5rem;align-items:end;padding:4.2rem 0 2.6rem}
+.kicker{font-family:var(--mono);font-size:.64rem;letter-spacing:.34em;text-transform:uppercase;color:var(--ink-faint)}
+.kicker b{color:#d8a24a}
+h1{font-family:var(--disp);font-weight:800;letter-spacing:-.025em;line-height:.98;
+  font-size:clamp(var(--fs-5),8vw,var(--fs-6));margin:.7rem 0 .9rem}
+h1 .thin{font-weight:500;color:var(--ink-soft)}
+.lede{font-size:var(--fs-1);color:var(--ink-soft);max-width:36rem}
+.lede b{color:var(--ink)}
+.mast-side{text-align:right;font-family:var(--mono);font-size:.64rem;color:var(--ink-faint);letter-spacing:.1em;line-height:2}
+.mast-side b{color:var(--ink);font-size:1rem}
+.mast-side .pip{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px;vertical-align:1px}
+
+/* ── the flow ── */
+.flow-shell{border:1px solid var(--line);border-radius:14px;background:var(--bg-2);
+  padding:1.4rem 1.4rem .9rem;margin-bottom:1.2rem;position:relative;overflow:hidden}
+.flow-head{display:flex;align-items:baseline;gap:1rem;margin-bottom:.4rem}
+.flow-head h2{font-family:var(--mono);font-size:.64rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-soft)}
+.flow-head .note{font-family:var(--mono);font-size:.64rem;color:var(--ink-faint);letter-spacing:.08em;margin-left:auto}
+svg#flow{width:100%;height:auto;display:block}
+.fnode{cursor:pointer}
+.fnode rect{fill:color-mix(in srgb, var(--nc) 13%, var(--bg-2));stroke:var(--nc);stroke-width:1.5;transition:filter .25s,stroke-width .25s}
+.fnode:hover rect{stroke-width:2.5;filter:drop-shadow(0 0 12px var(--nc))}
+.fnode.lit rect{stroke-width:3;filter:drop-shadow(0 0 16px var(--nc))}
+.fnode text{pointer-events:none;user-select:none}
+.fnode .fname{fill:var(--ink);font-family:var(--disp);font-weight:700;font-size:.8rem}
+.fnode .fmode{fill:var(--nc);font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase}
+.fedge{fill:none;stroke-width:1.8;stroke-linecap:round}
+.fedge.flow-anim{stroke-dasharray:3 9;animation:dash 1.4s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-12}}
+.fedge-label{font-family:var(--mono);font-size:.64rem;letter-spacing:.06em}
+
+/* ── router ── */
+.router{margin:0 0 3.2rem}
+.router .r-lab{font-family:var(--mono);font-size:.64rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:.8rem}
+.router .r-lab b{color:var(--ink-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:.55rem}
+.chip{font-family:var(--mono);font-size:.8rem;padding:.5rem .95rem;border-radius:3px;cursor:pointer;
+  border:1px solid var(--line-strong);background:var(--bg-2);color:var(--ink-soft);
+  transition:transform .18s,border-color .18s,color .18s,box-shadow .18s}
+.chip:hover{transform:translateY(-2px);color:var(--ink)}
+.chip.on{border-color:var(--c);color:var(--c);box-shadow:0 0 14px color-mix(in srgb,var(--c) 35%,transparent)}
+
+/* ── family headers + dossiers ── */
+.family{margin:3.4rem 0 1.2rem;display:flex;align-items:center;gap:1.1rem}
+.family .fno{font-family:var(--disp);font-weight:800;font-size:2.441rem;line-height:1;color:var(--fc)}
+.family h2{font-family:var(--disp);font-weight:700;font-size:var(--fs-3);letter-spacing:-.01em}
+.family .fsub{font-family:var(--mono);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint)}
+.family .fline{flex:1;height:1px;background:var(--line)}
+
+.dossier{display:grid;grid-template-columns:290px 1fr;gap:0;border:1px solid var(--line);border-radius:12px;
+  background:var(--bg-2);margin-bottom:1rem;overflow:hidden;
+  transition:transform .25s,border-color .25s,box-shadow .25s}
+.dossier:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--c) 55%,var(--line));
+  box-shadow:0 18px 44px -22px color-mix(in srgb,var(--c) 45%,transparent)}
+.dossier.flash{border-color:var(--c);
+  box-shadow:0 0 0 2px var(--c),0 20px 48px -18px color-mix(in srgb,var(--c) 55%,transparent)}
+.d-id{padding:1.5rem 1.6rem;border-right:1px solid var(--line);position:relative;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--c) 10%,var(--bg-2)),var(--bg-2) 65%)}
+.d-id::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c)}
+.d-id .d-emoji{font-size:1.5625rem;line-height:1}
+.d-id h3{font-family:var(--disp);font-weight:800;font-size:var(--fs-4);letter-spacing:-.02em;line-height:1.05;margin:.5rem 0 .3rem}
+.d-id .d-mode{display:inline-block;font-family:var(--mono);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--c);border:1px solid color-mix(in srgb,var(--c) 50%,transparent);padding:3px 10px;border-radius:2px}
+.d-id .d-no{position:absolute;top:1.1rem;right:1.2rem;font-family:var(--disp);font-weight:800;font-size:1rem;color:var(--ink-faint);opacity:.55}
+.d-body{padding:1.4rem 1.7rem}
+.d-does{font-size:1rem;color:var(--ink);line-height:1.55;margin-bottom:1rem}
+.d-does b{color:var(--c)}
+.d-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem 1.6rem}
+.d-block .d-lab{font-family:var(--mono);font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:.45rem}
+.d-block ul{list-style:none}
+.d-block li{font-size:var(--fs-s);color:var(--ink-soft);padding-left:1rem;position:relative;margin-bottom:.3rem;line-height:1.45}
+.d-block li::before{content:"▸";position:absolute;left:0;color:var(--c)}
+.d-invoke{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.cmd{font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,var(--bg-3));border:1px solid color-mix(in srgb,var(--c) 45%,transparent);
+  padding:.32rem .7rem;border-radius:4px}
+.trig{font-family:var(--mono);font-size:.8rem;color:var(--ink-soft);font-style:italic}
+.d-io{font-family:var(--mono);font-size:.8rem;color:var(--ink-soft)}
+.d-io b{color:var(--c)}
+.d-conn{font-family:var(--mono);font-size:.8rem;color:var(--ink-faint)}
+.d-conn b{color:var(--ink-soft)}
+
+/* ── install ── */
+.install{margin:4rem 0 0;border:1px solid var(--line);border-radius:14px;background:var(--bg-2);overflow:hidden}
+.install .i-head{display:flex;align-items:center;gap:.7rem;padding:.8rem 1.2rem;border-bottom:1px solid var(--line);background:var(--bg-3)}
+.install .i-head .dot{width:10px;height:10px;border-radius:50%}
+.install .i-head span{font-family:var(--mono);font-size:.64rem;color:var(--ink-faint);letter-spacing:.14em}
+.install pre{padding:1.3rem 1.4rem;font-family:var(--mono);font-size:.8rem;line-height:1.9;color:var(--ink-soft);overflow-x:auto}
+.install pre .c{color:var(--ink-faint)}
+.install pre .g{color:#7ba05a}
+.install pre .a{color:#d8a24a}
+.install .i-note{padding:0 1.4rem 1.3rem;font-size:.8rem;color:var(--ink-faint)}
+.install .i-note b{color:var(--ink-soft)}
+
+footer{margin:3.6rem 0 4rem;display:flex;align-items:center;gap:1rem;font-family:var(--mono);font-size:.64rem;color:var(--ink-faint);letter-spacing:.12em}
+footer .fmark{font-family:var(--disp);font-weight:800;font-size:1rem;color:var(--ink-soft)}
+footer .fline{flex:1;height:1px;background:var(--line)}
+
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+@media (max-width:860px){
+  .masthead{grid-template-columns:1fr}
+  .mast-side{text-align:left}
+  .dossier{grid-template-columns:1fr}
+  .d-id{border-right:0;border-bottom:1px solid var(--line)}
+  .d-cols{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="ground" aria-hidden="true"></div>
+<div class="glow a" aria-hidden="true"></div>
+<div class="glow b" aria-hidden="true"></div>
+<div class="glow c" aria-hidden="true"></div>
+<canvas id="sparks" aria-hidden="true"></canvas>
+<div class="appear" id="appear">
+  <button class="appear-btn" id="appear-btn" aria-haspopup="true" aria-expanded="false" aria-label="appearance — theme and typeface">
+    <span class="appear-aa">Aa</span><span class="appear-mode" id="appear-mode">☾</span><span class="appear-chev">▾</span>
+  </button>
+  <div class="appear-panel" id="appear-panel">
+    <div class="appear-sec">
+      <div class="appear-lab">theme</div>
+      <div class="appear-themes">
+        <button data-theme-choice="dark" class="on">☾ Dark</button>
+        <button data-theme-choice="light">☀ Light</button>
+      </div>
+    </div>
+    <div class="appear-div"></div>
+    <div class="appear-sec">
+      <div class="appear-lab">typeface</div>
+      <div class="appear-fonts" role="listbox" aria-label="font combinations">
+        <button role="option" data-font="editorial"><span class="fm-name">Editorial</span><span class="fm-hint">Fraunces · Source Sans 3 · JetBrains Mono</span></button>
+        <button role="option" data-font="grotesk"><span class="fm-name">Grotesk</span><span class="fm-hint">Bricolage Grotesque · Literata · JetBrains Mono</span></button>
+        <button role="option" data-font="technical"><span class="fm-name">Technical</span><span class="fm-hint">Space Grotesk · IBM Plex Sans · IBM Plex Mono</span></button>
+        <button role="option" data-font="hyperlegible"><span class="fm-name">Legible</span><span class="fm-hint">Atkinson Hyperlegible · JetBrains Mono</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section id="pane-skills" aria-label="skills">
+  <header class="masthead">
+    <div>
+      <div class="kicker">skillify · <b>the field guide</b> · harness-agnostic agent skills</div>
+      <h1>Seven ways<br><span class="thin">to think.</span></h1>
+      <p class="lede">Seven cognitive skills that chain into a <b>pipeline for AI-assisted work</b>. Each one is a mode of thinking; together they're a method — map it, explore it, sharpen it, plan it, build it, judge it. And when it breaks, fix it.</p>
+    </div>
+    <div class="mast-side">
+      <div><span class="pip" style="background:#d8a24a"></span><b>3</b> entry points</div>
+      <div><span class="pip" style="background:#5b8ab5"></span><b>4</b> build pipeline</div>
+      <div style="margin-top:.6rem">skills <b>7</b> · one method</div>
+    </div>
+  </header>
+
+  <!-- the living flow -->
+  <section class="flow-shell reveal">
+    <div class="flow-head">
+      <h2>the cognitive pipeline</h2>
+      <span class="note">click a node to jump to its dossier · pulses show the handoff direction</span>
+    </div>
+    <svg id="flow" viewBox="0 0 1380 450" preserveAspectRatio="xMidYMid meet" aria-label="the skillify pipeline"></svg>
+  </section>
+
+  <!-- route by situation -->
+  <section class="router reveal">
+    <div class="r-lab">which one do I reach for? <b>— start from your situation</b></div>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <div id="dossiers"></div>
+
+  <!-- install -->
+  <section class="install reveal">
+    <div class="i-head">
+      <span class="dot" style="background:#7ba05a"></span><span class="dot" style="background:#d8a24a"></span><span class="dot" style="background:#5b8ab5"></span>
+      <span>get it — works with any agent that reads markdown</span>
+    </div>
+    <pre><span class="c"># install for every detected agent (Claude Code, Cursor, Qwen, Codex, …)</span>
+<span class="g">npx</span> skills add <span class="a">trykA123/skillify</span> -g
+
+<span class="c"># or target specific agents</span>
+<span class="g">npx</span> skills add <span class="a">trykA123/skillify</span> -g -a claude-code -a cursor
+
+<span class="c"># or just reference a skill directly — the SKILL.md files ARE the prompts</span>
+When planning, follow: <span class="a">/path/to/skillify/pipeline/shapeify/SKILL.md</span></pre>
+    <p class="i-note">Once installed, invoke a skill by its <b>slash command</b> (<b>/traceify</b>, <b>/shapeify</b>, …) or just say its trigger phrase and the right skill picks itself up. <b>orientify</b> waits for an explicit call; the rest chain on their own.</p>
+  </section>
+
+  <footer>
+    <span class="fmark">skillify</span>
+    <span class="fline"></span>
+    <span>seven skills · one pipeline · MIT</span>
+  </footer>
+  </section>
+
+</div>
+
+<script>
+/* ── the seven skills ── */
+var SK=[
+ {id:'orientify',emoji:'🧭',mode:'cartographic',fam:'entry',color:'var(--sk-orientify)',no:'01',x:40,y:96,
+  does:'Maps a codebase you don\u2019t know <b>before</b> you touch it — vocabulary, architecture, hot spots, seams, landmines — into one Codebase Brief. Touch nothing, see everything.',
+  when:['Dropped into a repo for the first time','Returning after weeks away','Before planning, when the codebase is the subject'],
+  invoke:'/orientify',trig:'\u201cI just landed in this repo\u201d',explicit:true,
+  io:'a repo <b>→</b> Codebase Brief',conn:'feeds <b>explorify · undumbify</b>'},
+ {id:'explorify',emoji:'🔭',mode:'divergent',fam:'entry',color:'var(--sk-explorify)',no:'02',x:280,y:40,
+  does:'Expands the possibility space when you don\u2019t have a direction yet. Generates options that differ on a <b>fundamental axis</b> — not three costumes of the same idea — each with a sketch you can react to.',
+  when:['\u201cReimagine this\u201d / \u201cwhat if…\u201d','You reject a proposal but can\u2019t say why','The first idea would be a trap'],
+  invoke:'/explorify',trig:'\u201cshow me options\u201d · \u201cI don\u2019t know what I want yet\u201d',
+  io:'a vague desire <b>→</b> Direction Brief',conn:'feeds <b>undumbify</b>'},
+ {id:'traceify',emoji:'🩺',mode:'abductive',fam:'entry',color:'var(--sk-traceify)',no:'03',x:280,y:250,
+  does:'A tight repair loop for when something broke: capture symptoms, form <b>falsifiable</b> hypotheses, run the cheapest test first, name the root cause, fix it minimally, prove it\u2019s fixed. No stacked workarounds.',
+  when:['Errors, crashes, 502s, silent failures','\u201cIt was working yesterday\u201d','A regression you can\u2019t explain'],
+  invoke:'/traceify',trig:'\u201csomething broke\u201d · \u201cthis error makes no sense\u201d',
+  io:'a symptom <b>→</b> Diagnosis Report',conn:'trivial → done · non-trivial <b>→ undumbify / shapeify</b>'},
+ {id:'undumbify',emoji:'🎯',mode:'convergent',fam:'pipe',color:'var(--sk-undumbify)',no:'04',x:520,y:96,
+  does:'Extracts intent from ambiguity along six dimensions — constraints, anti-examples, priorities, feeling-of-done — gated by the <b>Materiality Gate</b>: never ask what you already know, never ask what doesn\u2019t matter.',
+  when:['You have a direction but it\u2019s vague','Pressure-testing a plan before building','Handing off to shapeify'],
+  invoke:'/undumbify',trig:'\u201cI have a direction but it\u2019s vague\u201d',
+  io:'ambiguity <b>→</b> Intent Brief',conn:'feeds <b>shapeify</b> · fed by <b>explorify · traceify</b>'},
+ {id:'shapeify',emoji:'📐',mode:'structural',fam:'pipe',color:'var(--sk-shapeify)',no:'05',x:760,y:40,
+  does:'Turns intent into a plan a worker can execute without guessing — a <b>Worker Packet</b> with requirements, invariants, risk register, and acceptance checks. Lite for small work, full when it\u2019s earned.',
+  when:['\u201cPlan this\u201d','Multi-step or risky work','Dispatching to a subagent'],
+  invoke:'/shapeify',trig:'\u201cplan this\u201d · \u201cbreak it into slices\u201d',
+  io:'Intent Brief <b>→</b> Worker Packet',conn:'feeds <b>shipify</b> · revised by <b>reviewify</b>'},
+ {id:'shipify',emoji:'🚀',mode:'disciplined',fam:'pipe',color:'var(--sk-shipify)',no:'06',x:1000,y:96,
+  does:'Executes the packet with <b>adaptive granularity</b> — isolate the risky steps, batch the safe ones, verify with evidence. When a step\u2019s premise breaks, it stops and asks for a revision instead of improvising.',
+  when:['\u201cBuild this\u201d / \u201cimplement this\u201d','Running a Worker Packet or slice','Work that must stay green'],
+  invoke:'/shipify',trig:'\u201cbuild this\u201d · \u201cimplement the packet\u201d',
+  io:'Worker Packet <b>→</b> Completion Report',conn:'feeds <b>reviewify</b> · revises <b>shapeify</b>'},
+ {id:'reviewify',emoji:'🔍',mode:'critical',fam:'pipe',color:'var(--sk-reviewify)',no:'07',x:1240,y:40,
+  does:'Judges the work against <b>intent, not taste</b> — through a few deep lenses, with findings that carry a location, a fix, and a way to verify. Solo mode hands you a punch list, not a report.',
+  when:['\u201cReview this\u201d / a PR or diff','After shipify completes a slice','Before merging anything risky'],
+  invoke:'/reviewify',trig:'\u201creview this\u201d · \u201cjudge it against the packet\u201d',
+  io:'a diff + packet <b>→</b> verdict + findings',conn:'fixes <b>→ shipify</b> · replan <b>→ shapeify</b>'},
+];
+var FAM={
+ entry:{name:'the entry points',sub:'standalone · start anywhere',color:'var(--sk-orientify)'},
+ pipe:{name:'the build pipeline',sub:'undumbify → shapeify → shipify → reviewify',color:'var(--sk-shapeify)'}
+};
+/* the handoffs: [from, to, label, kind] */
+var FLOWS=[
+ ['orientify','explorify','','solid'],['explorify','undumbify','direction','solid'],
+ ['undumbify','shapeify','intent','solid'],['shapeify','shipify','packet','solid'],
+ ['shipify','reviewify','report','solid'],['reviewify','shapeify','replan','dashed'],
+ ['traceify','undumbify','root cause','dashed']
+];
+/* situation → skill, for the router */
+var ROUTES=[
+ ['something broke','traceify'],['I just landed in this repo','orientify'],
+ ['I don\u2019t know what I want yet','explorify'],['it\u2019s vague — sharpen it','undumbify'],
+ ['plan this','shapeify'],['build this','shipify'],['review this','reviewify']
+];
+
+var NS='http://www.w3.org/2000/svg';
+var flow=document.getElementById('flow');
+function el(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+function byId(id){for(var i=0;i<SK.length;i++)if(SK[i].id===id)return SK[i];}
+
+/* edges first (under the nodes) */
+FLOWS.forEach(function(f){
+  var a=byId(f[0]),b=byId(f[1]);
+  var x1=a.x+70,y1=a.y+31,x2=b.x+70,y2=b.y+31;
+  var mx=(x1+x2)/2,my=(y1+y2)/2;
+  var d='M '+x1+' '+y1+' Q '+mx+' '+((y1+y2)/2+((y2>y1)?-26:26))+' '+x2+' '+y2;
+  var col=b.color;
+  var p=el('path',{d:d,'class':'fedge'+(f[3]==='solid'?' flow-anim':''),opacity:f[3]==='solid'?0.55:0.3});
+  p.style.stroke=col;
+  if(f[3]==='dashed')p.setAttribute('stroke-dasharray','4 6');
+  flow.appendChild(p);
+  if(f[2]){
+    var t=el('text',{x:mx,y:my+(y2>y1?-19:7),'text-anchor':'middle','class':'fedge-label',opacity:.75});
+    t.style.fill=col;
+    t.textContent=f[2];flow.appendChild(t);
+  }
+});
+
+/* nodes */
+SK.forEach(function(s,i){
+  var g=el('g',{'class':'fnode','data-id':s.id});
+  g.style.setProperty('--nc',s.color);
+  g.appendChild(el('rect',{x:s.x,y:s.y,width:140,height:62,rx:9}));
+  var em=el('text',{x:s.x+13,y:s.y+26,'font-size':16});em.textContent=s.emoji;g.appendChild(em);
+  var nm=el('text',{x:s.x+36,y:s.y+27,'class':'fname'});nm.textContent=s.id;g.appendChild(nm);
+  var md=el('text',{x:s.x+13,y:s.y+47,'class':'fmode'});md.textContent=s.mode;g.appendChild(md);
+  g.addEventListener('click',function(){ gotoSkill(s.id); });
+  g.addEventListener('mouseenter',function(){ lightChip(s.id,true); });
+  g.addEventListener('mouseleave',function(){ lightChip(s.id,false); });
+  flow.appendChild(g);
+});
+
+/* router chips */
+var chips=document.getElementById('chips');
+ROUTES.forEach(function(r){
+  var s=byId(r[1]);
+  var c=document.createElement('button');
+  c.className='chip';c.textContent=r[0];
+  c.style.setProperty('--c',s.color);
+  c.addEventListener('click',function(){ gotoSkill(s.id); });
+  c.setAttribute('data-skill',s.id);
+  chips.appendChild(c);
+});
+function lightChip(id,on){
+  document.querySelectorAll('.chip').forEach(function(c){
+    if(c.getAttribute('data-skill')===id)c.classList.toggle('on',on);
+  });
+  document.querySelectorAll('.fnode').forEach(function(n){
+    if(n.getAttribute('data-id')===id)n.classList.toggle('lit',on);
+  });
+}
+function gotoSkill(id){
+  var s=byId(id);
+  lightChip(id,true);
+  var t=document.getElementById('d-'+id);
+  if(t){
+    t.scrollIntoView({behavior:'smooth',block:'center'});
+    t.classList.add('flash');
+    setTimeout(function(){ t.classList.remove('flash'); },1900);
+  }
+  setTimeout(function(){ lightChip(id,false); },1600);
+}
+
+/* dossiers, grouped by family */
+var host=document.getElementById('dossiers');
+var order=['entry','pipe'];
+order.forEach(function(fk){
+  var f=FAM[fk];
+  var skills=SK.filter(function(s){return s.fam===fk;});
+  var fh=document.createElement('div');
+  fh.className='family reveal';
+  fh.style.setProperty('--fc',f.color);
+  fh.innerHTML='<span class="fno">'+f.name.split(' ')[0]+'</span><div><h2>'+f.name+'</h2><div class="fsub">'+f.sub+'</div></div><span class="fline"></span>';
+  host.appendChild(fh);
+  skills.forEach(function(s){
+    var d=document.createElement('article');
+    d.className='dossier reveal';
+    d.id='d-'+s.id;
+    d.style.setProperty('--c',s.color);
+    var when=s.when.map(function(w){return '<li>'+w+'</li>';}).join('');
+    d.innerHTML=
+      '<div class="d-id">'+
+        '<span class="d-no">'+s.no+'</span>'+
+        '<div class="d-emoji">'+s.emoji+'</div>'+
+        '<h3>'+s.id+'</h3>'+
+        '<span class="d-mode">'+s.mode+'</span>'+
+      '</div>'+
+      '<div class="d-body">'+
+        '<p class="d-does">'+s.does+'</p>'+
+        '<div class="d-cols">'+
+          '<div class="d-block"><div class="d-lab">reach for it when</div><ul>'+when+'</ul></div>'+
+          '<div class="d-block">'+
+            '<div class="d-lab">invoke'+(s.explicit?' · explicit only':'')+'</div>'+
+            '<div class="d-invoke"><span class="cmd">'+s.invoke+'</span><span class="trig">'+s.trig+'</span></div>'+
+            '<div class="d-lab" style="margin-top:.9rem">input → output</div>'+
+            '<div class="d-io">'+s.io+'</div>'+
+            '<div class="d-lab" style="margin-top:.9rem">wiring</div>'+
+            '<div class="d-conn">'+s.conn+'</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    host.appendChild(d);
+  });
+});
+
+/* scroll reveals */
+if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(function(x){io.observe(x);});
+}else{
+  document.querySelectorAll('.reveal').forEach(function(x){x.classList.add('in');});
+}
+
+/* drifting sparks in the skill colors */
+var cv=document.getElementById('sparks'),cx=cv.getContext('2d');
+var HUES=[[216,160,74],[91,138,181],[123,160,90],[74,168,160],[181,138,176]];
+var sparks=[],W2,H2;
+function sizeBg(){W2=cv.width=innerWidth;H2=cv.height=innerHeight;}
+function initSparks(){
+  sparks=[];var n=Math.min(42,Math.floor(innerWidth/30));
+  for(var i=0;i<n;i++){var h=HUES[i%HUES.length];
+    sparks.push({x:Math.random()*W2,y:Math.random()*H2,vy:-(0.06+Math.random()*0.22),vx:(Math.random()-.5)*0.1,r:1+Math.random()*1.8,c:h,a:0.12+Math.random()*0.3});}
+}
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tick(){
+  cx.clearRect(0,0,W2,H2);
+  sparks.forEach(function(p){
+    p.y+=p.vy;p.x+=p.vx;
+    if(p.y<-10){p.y=H2+10;p.x=Math.random()*W2;}
+    if(p.x<-10)p.x=W2+10;if(p.x>W2+10)p.x=-10;
+    cx.fillStyle='rgba('+p.c[0]+','+p.c[1]+','+p.c[2]+','+p.a+')';
+    cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fill();
+  });
+  if(!reduce)requestAnimationFrame(tick);
+}
+sizeBg();initSparks();tick();
+addEventListener('resize',function(){sizeBg();initSparks();if(reduce)tick();});
+
+/* appearance menu — theme + typeface in one native panel, persisted */
+var appear=document.getElementById('appear');
+var abtn=document.getElementById('appear-btn');
+var amode=document.getElementById('appear-mode');
+function applyTheme(t){
+  if(t==='light')document.documentElement.setAttribute('data-theme','light');
+  else document.documentElement.removeAttribute('data-theme');
+  try{localStorage.setItem('skillify-guide-theme',t);}catch(e){}
+  amode.textContent=(t==='light')?'☀':'☾';
+  appear.querySelectorAll('[data-theme-choice]').forEach(function(b){
+    b.classList.toggle('on',b.getAttribute('data-theme-choice')===t);
+  });
+}
+function applyFont(f){
+  if(f==='editorial')document.documentElement.removeAttribute('data-font');
+  else document.documentElement.setAttribute('data-font',f);
+  try{localStorage.setItem('skillify-guide-font',f);}catch(e){}
+  appear.querySelectorAll('[data-font]').forEach(function(b){
+    var on=(b.getAttribute('data-font')||'editorial')===f;
+    b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false');
+  });
+}
+var sTheme='dark',sFont='editorial';
+try{sTheme=localStorage.getItem('skillify-guide-theme')||'dark';}catch(e){}
+try{sFont=localStorage.getItem('skillify-guide-font')||'editorial';}catch(e){}
+applyTheme(sTheme);applyFont(sFont);
+abtn.addEventListener('click',function(e){
+  e.stopPropagation();
+  var open=appear.classList.toggle('open');
+  abtn.setAttribute('aria-expanded',open);
+});
+appear.querySelectorAll('[data-theme-choice]').forEach(function(b){
+  b.addEventListener('click',function(){applyTheme(b.getAttribute('data-theme-choice'));});
+});
+appear.querySelectorAll('[data-font]').forEach(function(b){
+  b.addEventListener('click',function(){applyFont(b.getAttribute('data-font')||'editorial');});
+});
+document.addEventListener('click',function(e){
+  if(!appear.contains(e.target)){appear.classList.remove('open');abtn.setAttribute('aria-expanded','false');}
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){appear.classList.remove('open');abtn.setAttribute('aria-expanded','false');}
+});
+</script>
+</body>
+</html>
