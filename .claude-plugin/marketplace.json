@@ -1,0 +1,22 @@
+{
+  "name": "skillify",
+  "owner": {
+    "name": "Claudiu Tancau",
+    "url": "https://github.com/trykA123"
+  },
+  "description": "The official Skillify marketplace.",
+  "plugins": [
+    {
+      "name": "skillify",
+      "source": "./",
+      "description": "The complete Skillify skill set as a managed Claude Code plugin.",
+      "category": "development",
+      "keywords": [
+        "agent-skills",
+        "engineering",
+        "planning",
+        "review"
+      ]
+    }
+  ]
+}

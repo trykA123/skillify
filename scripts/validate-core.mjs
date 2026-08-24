@@ -444,6 +444,41 @@ const installedSkills = [...installerList].sort();
 if (JSON.stringify(sourceSkills) !== JSON.stringify(installedSkills)) {
   fail(`install.sh: SKILLS does not match source skills\n  source: ${sourceSkills.join(", ")}\n  installer: ${installedSkills.join(", ")}`);
 }
+for (const option of ["--skill", "--family", "--exclude", "--update", "--status", "--dry-run", "--agents-only", "--agents-target"]) {
+  if (!installer.includes(option)) fail(`install.sh: missing public option ${option}`);
+}
+for (const preset of ["[claude]", "[opencode]"]) {
+  if (!installer.includes(preset)) fail(`install.sh: missing required preset ${preset}`);
+}
+
+const claudePluginPath = join(root, ".claude-plugin", "plugin.json");
+const claudeMarketplacePath = join(root, ".claude-plugin", "marketplace.json");
+const claudePlugin = await json(claudePluginPath, ".claude-plugin/plugin.json");
+const claudeMarketplace = await json(claudeMarketplacePath, ".claude-plugin/marketplace.json");
+if (claudePlugin?.name !== "skillify") fail(".claude-plugin/plugin.json: name must be skillify");
+if (!/^\d+\.\d+\.\d+$/.test(claudePlugin?.version ?? "")) {
+  fail(".claude-plugin/plugin.json: version must be semantic x.y.z");
+}
+if (claudePlugin?.repository !== "https://github.com/trykA123/skillify") {
+  fail(".claude-plugin/plugin.json: repository must reference the public repository");
+}
+const pluginSkills = [];
+for (const target of claudePlugin?.skills ?? []) {
+  const skillDirectory = resolve(root, target);
+  const skillFile = join(skillDirectory, "SKILL.md");
+  if (!(await exists(skillFile))) {
+    fail(`.claude-plugin/plugin.json: missing skill target ${target}`);
+  } else {
+    pluginSkills.push(skillDirectory.split(sep).at(-1));
+  }
+}
+if (JSON.stringify(pluginSkills.sort()) !== JSON.stringify(sourceSkills)) {
+  fail(`.claude-plugin/plugin.json: skills do not match source skills\n  source: ${sourceSkills.join(", ")}\n  plugin: ${pluginSkills.sort().join(", ")}`);
+}
+const marketplacePlugin = claudeMarketplace?.plugins?.find((entry) => entry.name === "skillify");
+if (claudeMarketplace?.name !== "skillify" || marketplacePlugin?.source !== "./") {
+  fail(".claude-plugin/marketplace.json: skillify must publish the repository-root plugin");
+}
 
 if (failures.length) {
   console.error(`Skillify contract validation failed (${failures.length}):`);

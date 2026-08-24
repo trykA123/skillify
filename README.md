@@ -188,6 +188,7 @@ detail.
 
 ```text
 skillify/
+├── .claude-plugin/ # optional runtime packaging adapter
 ├── entry/       # orient, diagnose, research, audit
 ├── pipeline/    # clarify, plan, build, review
 ├── teaching/    # coach, explain, record
@@ -234,57 +235,131 @@ flowchart LR
 
 ## Install skills
 
-Clone the repository:
+Choose one installation style. Do not install the same skill through multiple styles in
+the same harness; duplicate names make ownership and updates ambiguous.
+
+### Interactive installer — quickest
+
+The open [`skills` CLI](https://github.com/vercel-labs/skills) can discover this
+repository, let you select skills and targets, and install to Claude Code, OpenCode,
+Codex, Cursor, and many other compatible agents:
+
+```bash
+npx skills@latest add trykA123/skillify
+```
+
+Non-interactive example for every Skillify skill in Claude Code and OpenCode:
+
+```bash
+npx skills@latest add trykA123/skillify \
+  --skill '*' \
+  --agent claude-code \
+  --agent opencode \
+  --global \
+  --yes
+```
+
+> [!NOTE]
+> This option downloads and runs the external `skills` package. Review that tool before
+> using it in a restricted environment. Skillify does not depend on it at runtime.
+
+### Repository installer — deterministic and offline
+
+Clone the repository, then use the bundled installer:
 
 ```bash
 git clone https://github.com/trykA123/skillify.git
 cd skillify
-```
-
-Auto-detect known local harnesses and create symlinks:
-
-```bash
-./install.sh
-```
-
-Install for selected harnesses:
-
-```bash
-./install.sh --harness codex,claude,qwen
-```
-
-Install into a project instead of your global configuration:
-
-```bash
-./install.sh --project --harness universal
-```
-
-Use an arbitrary skill directory:
-
-```bash
-./install.sh --target /path/to/skills
-```
-
-Copy instead of link:
-
-```bash
-./install.sh --copy --harness codex
+./install.sh --harness claude,opencode
 ```
 
 Symlinks are the default. Pulling a new revision updates linked skills immediately.
-Copied skills change only when you install them again.
+Copied skills change only when you run the installer again with `--update`.
+
+<details>
+<summary><strong>Selection, safety, and inspection examples</strong></summary>
+
+Install two skills only:
+
+```bash
+./install.sh --harness claude,opencode --skill traceify,skillify
+```
+
+Install one family except one skill:
+
+```bash
+./install.sh --harness codex --family pipeline --exclude reviewify
+```
+
+Preview without writing:
+
+```bash
+./install.sh --harness claude,opencode --dry-run
+```
+
+Inspect current installations:
+
+```bash
+./install.sh --harness claude,opencode --status
+```
+
+Refresh managed copies or repoint same-name symlinks safely:
+
+```bash
+./install.sh --harness claude,opencode --update
+```
+
+Install into a project or an arbitrary compatible directory:
+
+```bash
+./install.sh --project --harness universal --copy
+./install.sh --target /path/to/skills
+```
+
+</details>
 
 > [!NOTE]
 > Presets only resolve installation directories. They do not put vendor or model logic
 > into the portable skill and role contracts.
 
-The installer supports these presets:
+The bundled installer currently provides 22 presets plus aliases. Inspect their exact
+global and project paths before installation:
 
-```text
-universal · qwen · claude · cursor · opencode · codex · windsurf · copilot
+```bash
+./install.sh --list
+./install.sh --list-skills
 ```
 
-Run `./install.sh --list` to see the resolved presets.
+Use `--target` when a harness is absent from the list or uses a customized path.
+
+### Claude Code managed plugin
+
+Claude Code users can subscribe to the complete skill bundle through the repository's
+plugin marketplace adapter:
+
+```text
+/plugin marketplace add trykA123/skillify
+/plugin install skillify@skillify
+```
+
+The plugin follows [Claude Code's native skill and marketplace
+format](https://code.claude.com/docs/en/plugin-marketplaces). Choose either the plugin
+or a direct `~/.claude/skills` installation, not both.
+
+### OpenCode native path
+
+The `opencode` preset installs global skills to `~/.config/opencode/skills` and project
+skills to `.opencode/skills`, matching [OpenCode's native skill discovery
+paths](https://opencode.ai/docs/skills/):
+
+```bash
+./install.sh --harness opencode --update
+./install.sh --project --harness opencode --copy
+```
+
+The separation between a managed Claude plugin and an editable multi-agent install was
+inspired by [mattpocock/skills](https://github.com/mattpocock/skills). Skillify keeps its
+own contracts, installer implementation, evals, and runtime-neutral architecture.
 
 ## Install the portable agent fleet
 
@@ -292,6 +367,13 @@ Add `--with-agents`:
 
 ```bash
 ./install.sh --harness codex --with-agents
+```
+
+Install or inspect only the fleet package:
+
+```bash
+./install.sh --agents-only --agents-target /path/to/fleets/skillify
+./install.sh --agents-only --status
 ```
 
 This installs the portable fleet package under `.agents/fleets/skillify` at project
@@ -459,6 +541,12 @@ Run the privacy-gate tests:
 
 ```bash
 bun test teaching/recordify/sanitize.test.mjs
+```
+
+Exercise installer selection, dry-run, status, update safety, and fleet handling:
+
+```bash
+bash scripts/test-installer.sh
 ```
 
 ## Add or change a skill

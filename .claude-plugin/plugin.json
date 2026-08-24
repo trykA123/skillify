@@ -1,0 +1,34 @@
+{
+  "name": "skillify",
+  "version": "0.1.0",
+  "description": "Portable, evaluated skills for disciplined AI-assisted work, with independent rigor, verbosity, and explanation controls.",
+  "author": {
+    "name": "Claudiu Tancau",
+    "url": "https://github.com/trykA123"
+  },
+  "repository": "https://github.com/trykA123/skillify",
+  "license": "MIT",
+  "keywords": [
+    "agent-skills",
+    "engineering",
+    "planning",
+    "review",
+    "research",
+    "teaching"
+  ],
+  "skills": [
+    "./entry/orientify",
+    "./pipeline/undumbify",
+    "./pipeline/shapeify",
+    "./pipeline/shipify",
+    "./pipeline/reviewify",
+    "./entry/traceify",
+    "./teaching/promptify",
+    "./teaching/explainify",
+    "./teaching/skillify",
+    "./teaching/recordify",
+    "./entry/researchify",
+    "./memory/librify",
+    "./entry/audify"
+  ]
+}
