@@ -31,6 +31,33 @@
               "verbosity": { "enum": ["Terse", "Concise", "Detailed"] },
               "explanation": { "enum": ["Layman", "Operational", "Expert"] },
               "choiceCard": { "enum": ["required", "optional", "forbidden"] },
+              "customization": {
+                "type": "object",
+                "required": ["weight", "verbosity", "explanation", "ownership"],
+                "additionalProperties": false,
+                "properties": {
+                  "weight": { "enum": ["Light", "Standard", "Heavy"] },
+                  "verbosity": { "enum": ["Terse", "Concise", "Detailed"] },
+                  "explanation": { "enum": ["Layman", "Operational", "Expert"] },
+                  "ownership": { "enum": ["Solo", "Team", "Custom team"] },
+                  "roles": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "string", "minLength": 1 },
+                    "uniqueItems": true
+                  }
+                },
+                "allOf": [
+                  {
+                    "if": { "properties": { "ownership": { "const": "Custom team" } } },
+                    "then": { "required": ["roles"] }
+                  },
+                  {
+                    "if": { "properties": { "ownership": { "enum": ["Solo", "Team"] } } },
+                    "then": { "not": { "required": ["roles"] } }
+                  }
+                ]
+              },
               "behaviors": {
                 "type": "array",
                 "minItems": 1,

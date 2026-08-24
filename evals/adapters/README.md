@@ -30,9 +30,20 @@ node scripts/run-evals.mjs --adapter claude --suite teachify --limit 1 --out /tm
 node scripts/run-evals.mjs --adapter opencode --suite teachify --limit 1 --out /tmp/opencode.jsonl
 ```
 
+Target one exact behavior while iterating:
+
+```bash
+node scripts/run-evals.mjs --adapter codex --suite skillify \
+  --case skillify-custom-controls-team --out /tmp/custom.jsonl
+```
+
 Each native run uses the installed harness's authentication and may consume paid model
 usage. The runner keeps the evaluated session read-only, but the grader is another model
 call. Use `--repeat` only after the one-case run succeeds.
+
+Cases with `customization` exercise the complete conversation: initial route card,
+second-stage four-axis selector, exact team proposal when applicable, ownership
+confirmation, execution response, and semantic grading.
 
 Compare two runs made with the same adapter, model, and repetition count:
 

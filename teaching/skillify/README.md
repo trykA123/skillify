@@ -6,7 +6,7 @@
 
 Skillify is the repository's teaching and routing skill. It helps a user learn which
 method owns the current problem, whether a separate agent role adds value, and how to
-set Weight, Verbosity, and Explanation independently.
+set Weight, Verbosity, Explanation, and Ownership independently.
 
 ## Lesson modes
 
@@ -24,7 +24,7 @@ flowchart TB
     Task[Your real task] --> Stage[Name the current stage]
     Stage --> Skill[Choose the method-owning skill]
     Skill --> Role{Separate ownership needed?}
-    Role -->|no| Controls[Set three controls]
+    Role -->|no| Controls[Set four independent axes]
     Role -->|yes| Agent[Add the narrowest role]
     Agent --> Controls
     Controls --> Prompt[Copy-ready invocation]
@@ -44,3 +44,16 @@ Give me two or three concrete routes, recommend one, and let me choose before co
 
 Expected route: start with Traceify; add Worker only when the repair becomes an approved
 implementation task; add Reviewer when risk requires independent proof.
+
+## Customize without writing a control block
+
+Choose `Customize` in the first route card. The second card explains and preselects
+Weight, Verbosity, Explanation, and Ownership. Reply with all selections or only changes:
+
+```text
+W1 V2 E2 O2
+```
+
+This means Light, Concise, Operational, and Team. The harness then proposes the exact
+smallest team and names whether the parent or an Orchestrator coordinates it. No role is
+dispatched until the user confirms that ownership map.

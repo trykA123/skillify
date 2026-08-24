@@ -42,12 +42,19 @@ write the labels unless they want an exact override or machine-readable handoff.
 | Weight | Light · Standard · Heavy | How much rigor, recovery, and proof does risk require? |
 | Verbosity | Terse · Concise · Detailed | How much result should appear in the response? |
 | Explanation | Layman · Operational · Expert | What knowledge may the response assume? |
+| Ownership | Solo · Team · Custom team | Does a real ownership boundary justify separate roles? |
 
 Examples:
 
 - `Heavy + Terse + Expert`: deep evidence, short expert-facing response.
 - `Light + Detailed + Layman`: small task, carefully explained without assumed jargon.
 - `Standard + Concise + Operational`: default feature or multi-file change.
+
+When the user chooses Customize, show one second-stage selector with inferred values
+preselected and brief definitions. Accept all values or only changes, such as
+`W1 V2 E2 O2`. For Team, propose the exact smallest role map and coordinator, then wait
+for confirmation. Do not add an Orchestrator when the parent can coordinate a simple
+handoff.
 
 ## Common routes
 

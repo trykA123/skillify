@@ -73,6 +73,8 @@ How should I map login?
 
 3. Quick map — Identify only the entry point, major handoffs, and tests.
    Orientify · Light · Terse · Operational · Solo
+
+4. Customize — Choose rigor, response length, explanation, and ownership.
 ```
 
 Reply with `1`, `option 1`, or a natural adjustment:
@@ -84,6 +86,113 @@ Reply with `1`, `option 1`, or a natural adjustment:
 That is the normal interaction. The compact second line is a receipt, not homework.
 
 ## 2. Understand the controls without memorizing them
+
+### Customize, click by click
+
+Use this path when none of the ready-made routes has the combination you want.
+
+**Step 1 — Choose the last entry in the first card:**
+
+```text
+4
+```
+
+`Customize` does not start work. It opens a second selector:
+
+```text
+Customize this run
+
+Weight
+W1 Light — Small, reversible work with focused verification.
+W2 Standard — Normal implementation rigor and evidence.
+W3 Heavy — High-risk work with recovery and stronger review.
+
+Verbosity
+V1 Terse — Outcome and critical information only.
+V2 Concise — Outcome, evidence, and important deviations.
+V3 Detailed — Adds reasoning, alternatives, and uncertainty.
+
+Explanation
+E1 Layman — No specialist knowledge assumed.
+E2 Operational — Explain what changes actions and risks.
+E3 Expert — Assume domain fluency.
+
+Ownership
+O1 Solo — One owner completes the task.
+O2 Team — The harness proposes the smallest useful team.
+O3 Custom team — You name the exact roles.
+
+Current: W2 · V2 · E2 · O1
+```
+
+**Step 2 — Reply with all four choices or only the values you want to change:**
+
+```text
+W1 V2 E2 O2
+```
+
+Read that as:
+
+| Code | Selected value | Effect |
+|---|---|---|
+| `W1` | Light | Focused verification for a small reversible task |
+| `V2` | Concise | Short result with decisive evidence |
+| `E2` | Operational | Explain information that changes action or risk |
+| `O2` | Team | Propose separate owners where they add value |
+
+Words work too: `Light, Concise, Operational, Team` means the same thing.
+
+**Step 3 — Inspect the exact team before anyone starts:**
+
+```text
+Suggested team
+
+Scout — read-only; locates the exact code path.
+Worker — the only code writer; applies and verifies the change.
+
+Coordinator: parent session
+Orchestrator: not needed for this simple handoff
+
+Confirm this ownership map?
+```
+
+Selecting Team does not automatically start an Orchestrator. The parent coordinates
+simple routes such as `Scout → Worker` or `Planner → Worker`. A dedicated Orchestrator is
+added only for substantial coordination: parallel lanes, branching handoffs, several
+roles, integration ownership, or an iterative repair and review loop.
+
+**Step 4 — Confirm or adjust the map:**
+
+```text
+Confirm
+```
+
+The harness returns a final receipt before execution:
+
+```text
+Selected: Light · Concise · Operational · Team
+Team: Scout → Worker
+Coordinator: parent session
+```
+
+### Choose the roles yourself
+
+Use `O3` when you know which roles you want:
+
+```text
+W3 V1 E3 O3 roles=Scout,Worker,Reviewer
+```
+
+The harness checks that Worker is the only code writer, Reviewer remains independent,
+every role has the necessary capabilities, and no unrelated role was added. It shows the
+validated ownership map and waits for confirmation exactly as it does for Team.
+
+> [!WARNING]
+> Custom values tune the task; they do not grant authority. A requested Light weight
+> cannot override a risk-triggered minimum, and a selected team cannot approve destructive
+> work.
+
+### You can still use normal language
 
 Say what you mean in ordinary language:
 
@@ -97,6 +206,8 @@ Say what you mean in ordinary language:
 - **Weight** controls rigor, recovery, and proof.
 - **Verbosity** controls how much response text you receive.
 - **Explanation** controls what background knowledge may be assumed.
+- **Ownership** controls whether bounded roles work Solo, as a suggested Team, or as a
+  user-selected Custom team.
 
 `Heavy` does not mean verbose. `Layman` does not mean shallow or childish. Exact labels
 remain available when you want them, but they are never required:

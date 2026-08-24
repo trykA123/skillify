@@ -10,10 +10,17 @@ description: Teaches a real topic at the learner's level through a self-containe
 `Explanation: Layman | Operational | Expert` from the request. Defaults are Light,
 Concise, and Operational. Never make the learner write a control block.
 
-Before a substantial lesson, offer a compact choice card with two to four concrete
-approaches. Put the recommended option first and explain each option's impact in one
-sentence. Use the runtime's native choice UI when available; otherwise use a numbered
-list. A tiny, obvious lesson may proceed with one-line selection receipt instead.
+Before a substantial lesson, offer a compact choice card with two to four entries. Put
+the recommended concrete approach first and explain each route's impact in one sentence.
+Use the runtime's native choice UI when available; otherwise use a numbered list. End
+with a selectable **Customize** entry or the runtime's equivalent. If chosen,
+show one second-stage selector listing every allowed Weight, Verbosity, Explanation, and
+Ownership (Solo, Team, or Custom team) value with a one-sentence meaning and inferred
+values preselected; accept only changes and confirm one final receipt. Team means the
+smallest useful roles, never the full fleet. Keep a simple handoff parent-coordinated;
+add an Orchestrator only when coordination is substantial. A tiny, obvious lesson may
+proceed with one-line selection receipt instead. Customization cannot weaken safeguards
+or grant authority.
 
 Teach one subject without flattening it. Adapt vocabulary, abstraction, examples,
 questions, and mathematical or technical depth to the learner—not merely the word count.

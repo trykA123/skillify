@@ -127,6 +127,11 @@ for (const family of skillFamilies) {
     if (!source.includes("choice") && !source.includes("Choice")) {
       fail(`${relative(root, skillPath)}: missing natural-language choice behavior`);
     }
+    if (!source.includes("**Customize**") ||
+        !source.includes("Ownership (Solo, Team, or Custom team)") ||
+        !source.includes("parent-coordinated")) {
+      fail(`${relative(root, skillPath)}: missing second-stage customization behavior`);
+    }
 
     const guidePath = join(familyRoot, entry.name, "README.md");
     if (!(await exists(guidePath))) {
@@ -191,8 +196,40 @@ const invocationRules = new Set(["required", "forbidden"]);
 const deliveryWeights = new Set(["Light", "Standard", "Heavy"]);
 const verbosityLevels = new Set(["Terse", "Concise", "Detailed"]);
 const explanationLevels = new Set(["Layman", "Operational", "Expert"]);
+const ownershipLevels = new Set(["Solo", "Team", "Custom team"]);
 const choiceCardRules = new Set(["required", "optional", "forbidden"]);
 const evalIds = new Set();
+let skillCustomizationCases = 0;
+
+function validateCustomization(expected, caseLabel) {
+  const customization = expected.customization;
+  if (customization === undefined) return;
+  if (expected.choiceCard !== "required") {
+    fail(`${caseLabel}: customization requires a choiceCard`);
+  }
+  if (!deliveryWeights.has(customization.weight)) {
+    fail(`${caseLabel}: unknown customization weight ${customization.weight ?? "missing"}`);
+  }
+  if (!verbosityLevels.has(customization.verbosity)) {
+    fail(`${caseLabel}: unknown customization verbosity ${customization.verbosity ?? "missing"}`);
+  }
+  if (!explanationLevels.has(customization.explanation)) {
+    fail(`${caseLabel}: unknown customization explanation ${customization.explanation ?? "missing"}`);
+  }
+  if (!ownershipLevels.has(customization.ownership)) {
+    fail(`${caseLabel}: unknown customization ownership ${customization.ownership ?? "missing"}`);
+  }
+  if (customization.roles !== undefined &&
+      (!Array.isArray(customization.roles) || customization.roles.length === 0)) {
+    fail(`${caseLabel}: customization roles must be a non-empty array`);
+  }
+  if (customization.ownership === "Custom team" && !customization.roles?.length) {
+    fail(`${caseLabel}: Custom team requires explicit roles`);
+  }
+  if (customization.roles?.length && customization.ownership !== "Custom team") {
+    fail(`${caseLabel}: explicit roles require Custom team ownership`);
+  }
+}
 
 for (const [skillName, skillPath] of skills) {
   const suitePath = join(evalRoot, skillName, "cases.json");
@@ -243,6 +280,10 @@ for (const [skillName, skillPath] of skills) {
     if (expected.choiceCard !== undefined && !choiceCardRules.has(expected.choiceCard)) {
       fail(`${caseLabel}: unknown choiceCard rule ${expected.choiceCard}`);
     }
+    if (expected.customization !== undefined) {
+      skillCustomizationCases += 1;
+      validateCustomization(expected, caseLabel);
+    }
     if (!Array.isArray(expected.behaviors) || expected.behaviors.length === 0) {
       fail(`${caseLabel}: expected.behaviors must be non-empty`);
     }
@@ -264,6 +305,10 @@ for (const [skillName, skillPath] of skills) {
   }
 }
 
+if (skillCustomizationCases < 1) {
+  fail("evals: at least one skill customization case is required");
+}
+
 const manifestPath = join(root, "agents", "manifest.json");
 const manifest = await json(manifestPath, "agents/manifest.json");
 if (!manifest) process.exit(1);
@@ -275,6 +320,7 @@ if (JSON.stringify(Object.keys(manifest.weights ?? {})) !== JSON.stringify(expec
 }
 const verbosityConfig = manifest.outputControls?.verbosity ?? {};
 const explanationConfig = manifest.outputControls?.explanation ?? {};
+const ownershipConfig = manifest.ownership ?? {};
 if (verbosityConfig.default !== "Concise" ||
     JSON.stringify(verbosityConfig.levels) !== JSON.stringify(["Terse", "Concise", "Detailed"])) {
   fail("agents/manifest.json: verbosity must define Terse, Concise and Detailed with Concise default");
@@ -282,6 +328,10 @@ if (verbosityConfig.default !== "Concise" ||
 if (explanationConfig.default !== "Operational" ||
     JSON.stringify(explanationConfig.levels) !== JSON.stringify(["Layman", "Operational", "Expert"])) {
   fail("agents/manifest.json: explanation must define Layman, Operational and Expert with Operational default");
+}
+if (ownershipConfig.default !== "Solo" ||
+    JSON.stringify(ownershipConfig.levels) !== JSON.stringify(["Solo", "Team", "Custom team"])) {
+  fail("agents/manifest.json: ownership must define Solo, Team and Custom team with Solo default");
 }
 
 for (const [contractName, contractTarget] of Object.entries(manifest.contracts ?? {})) {
@@ -401,6 +451,7 @@ const agentEvalCategories = new Set(["selection", "authority", "handoff", "topol
 const coveredAgents = new Set();
 let agentEvalCount = 0;
 let agentChoiceCases = 0;
+let agentCustomizationCases = 0;
 
 if (agentSuite) {
   if (agentSuite.schemaVersion !== 1) fail("evals/agents/cases.json: schemaVersion must be 1");
@@ -443,6 +494,15 @@ if (agentSuite) {
         fail(`${caseLabel}: unknown choiceCard rule ${expected.choiceCard}`);
       }
       if (expected.choiceCard === "required") agentChoiceCases += 1;
+      if (expected.customization !== undefined) {
+        agentCustomizationCases += 1;
+        validateCustomization(expected, caseLabel);
+        for (const role of expected.customization.roles ?? []) {
+          if (!manifest.agents?.[role]) {
+            fail(`${caseLabel}: customization references unknown role ${role}`);
+          }
+        }
+      }
       if (!Array.isArray(expected.behaviors) || expected.behaviors.length === 0) {
         fail(`${caseLabel}: expected.behaviors must be non-empty`);
       }
@@ -453,6 +513,7 @@ if (agentSuite) {
   }
 }
 if (agentChoiceCases < 4) fail("evals/agents/cases.json: at least four choice-card cases are required");
+if (agentCustomizationCases < 1) fail("evals/agents/cases.json: at least one customization case is required");
 for (const agentName of Object.keys(manifest.agents ?? {})) {
   if (!coveredAgents.has(agentName)) fail(`evals/agents/cases.json: no case covers ${agentName}`);
 }

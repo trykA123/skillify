@@ -21,6 +21,7 @@ flowchart TB
     Choices --> Recon[Recon → Planner]
     Choices --> Full[Planner → Worker → Reviewer]
     Choices --> Teach[Teacher → HTML lesson]
+    Choices --> Custom[Customize four axes]
     Full --> Proof[Verified handoff]
 ```
 
@@ -28,13 +29,20 @@ The choice card shows plain impact first and compact controls second. It never g
 mutation authority. A tiny reversible task may use a one-line selection receipt and
 continue.
 
-## Shared controls
+Choosing Customize opens Weight, Verbosity, Explanation, and Ownership. `Team` asks the
+parent to propose an exact minimal role map; `Custom team` lets the user name roles. The
+map shows each role's mutability and its coordinator, then waits for confirmation. A
+simple sequential handoff stays parent-coordinated. Team selection alone never adds an
+Orchestrator.
+
+## Shared customization axes
 
 | Axis | Values | Controls |
 |---|---|---|
-| Weight | Light · Standard · Heavy | Rigor, recovery, evidence, topology |
+| Weight | Light · Standard · Heavy | Rigor, recovery, and evidence |
 | Verbosity | Terse · Concise · Detailed | User-facing output length |
 | Explanation | Layman · Operational · Expert | Assumed subject knowledge |
+| Ownership | Solo · Team · Custom team | Bounded role topology |
 
 Heavy work can remain Terse. Layman output can still use Heavy proof. These axes are
 independent and carried unchanged through handoffs.
@@ -89,7 +97,7 @@ A native adapter must:
 4. make required capabilities available or fail before dispatch;
 5. load the role's method skills;
 6. enforce mutability;
-7. carry selection, weight, verbosity, and explanation through every handoff;
+7. carry selection, weight, verbosity, explanation, and ownership through every handoff;
 8. return unresolved decisions to the parent or user.
 
 Generate supported adapters without choosing models:

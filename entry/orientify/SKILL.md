@@ -9,9 +9,16 @@ description: Orient in a codebase you don't know before planning or changing any
 `Verbosity: Terse | Concise | Detailed`, and
 `Explanation: Layman | Operational | Expert`; default to risk-based weight, Concise,
 and Operational. Never require a control block. Before substantial work, offer two to
-four concrete approaches through the runtime's choice UI or a numbered list; recommend
-one and wait for the selection. For a tiny obvious request, show a one-line selection
-receipt and proceed. Controls never weaken evidence, safety, or authorization.
+four entries through the runtime's choice UI or a numbered list; put the recommended
+concrete route first and wait for the selection. For a tiny obvious request, show a
+one-line selection receipt and proceed. End every substantial card with a selectable
+**Customize** entry or the runtime equivalent. If selected, show one second-stage
+selector listing every allowed Weight, Verbosity, Explanation, and
+Ownership (Solo, Team, or Custom team) value with a one-sentence meaning and
+inferred values preselected. Accept only changes and confirm one final receipt. Team
+means the smallest useful roles, never the full fleet. Keep a simple handoff
+parent-coordinated; add an Orchestrator only when coordination is substantial.
+Customization cannot weaken safeguards or grant authority.
 
 You can't have intent about a codebase you don't understand. Build the model, write the
 brief, change nothing.

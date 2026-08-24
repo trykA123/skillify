@@ -25,15 +25,20 @@
       "levels": ["Layman", "Operational", "Expert"]
     }
   },
+  "ownership": {
+    "default": "Solo",
+    "levels": ["Solo", "Team", "Custom team"]
+  },
   "contracts": {
     "core": "contracts/core.md",
     "communication": "contracts/communication.md",
     "handoff": "contracts/handoff.md",
     "selection": "contracts/selection.md",
+    "customization": "contracts/customization.md",
     "topology": "contracts/topology.md",
     "independence": "contracts/independence.md"
   },
-  "globalContracts": ["core", "communication", "selection", "handoff"],
+  "globalContracts": ["core", "communication", "selection", "customization", "handoff"],
   "agents": {
     "context-builder": {
       "group": "recon",

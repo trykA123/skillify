@@ -78,7 +78,7 @@
       "id": "agent-selection-card-substantial",
       "category": "communication",
       "prompt": "Coordinate a production authentication change, but first let me choose how much process and separation I want.",
-      "expected": { "role": "orchestrator", "weight": "Heavy", "choiceCard": "required", "behaviors": ["offers two to four mutually exclusive routes", "puts the recommended route first", "shows method controls and topology compactly"], "forbidden": ["requires a configuration block", "dispatches before selection"] }
+      "expected": { "role": "orchestrator", "weight": "Heavy", "choiceCard": "required", "behaviors": ["offers two to four mutually exclusive entries", "puts the recommended route first", "shows method controls and topology compactly", "uses Customize as the last selectable entry"], "forbidden": ["renders Customize as a detached label", "requires a configuration block", "dispatches before selection"] }
     },
     {
       "id": "agent-selection-does-not-authorize",
@@ -109,6 +109,41 @@
       "category": "communication",
       "prompt": "Apply one reversible documented constant change and run its direct test. The method and owner are obvious.",
       "expected": { "role": "worker", "weight": "Light", "verbosity": "Concise", "explanation": "Operational", "choiceCard": "optional", "behaviors": ["uses a compact selection receipt or a very small choice", "keeps one writer"], "forbidden": ["forces a four-option ceremony", "creates a full fleet"] }
+    },
+    {
+      "id": "agent-custom-team-controls",
+      "category": "topology",
+      "prompt": "Let me customize this small documentation change. I select Light, Concise, Operational, and Team; propose only the roles that add real ownership value.",
+      "expected": {
+        "role": "orchestrator",
+        "choiceCard": "required",
+        "customization": {
+          "weight": "Light",
+          "verbosity": "Concise",
+          "explanation": "Operational",
+          "ownership": "Team"
+        },
+        "behaviors": ["shows Customize as a selectable entry in the route card before the customization selector", "lists every allowed value with a brief explanation and preselects all four customization axes", "proposes the smallest useful team", "states whether the parent or an orchestrator coordinates", "waits for confirmation of the exact ownership map", "carries the selected controls and topology through handoffs", "preserves the single-writer rule"],
+        "forbidden": ["renders Customize as a detached label", "requires the custom control block in the original request", "adds an orchestrator when the parent can coordinate a simple handoff", "expands Team to the full fleet", "uses Team selection as additional authority"]
+      }
+    },
+    {
+      "id": "agent-custom-role-map",
+      "category": "topology",
+      "prompt": "I choose Custom team with Scout, Worker, and Reviewer for a risky change. Validate the exact role map before anyone starts.",
+      "expected": {
+        "role": "orchestrator",
+        "choiceCard": "required",
+        "customization": {
+          "weight": "Heavy",
+          "verbosity": "Terse",
+          "explanation": "Expert",
+          "ownership": "Custom team",
+          "roles": ["scout", "worker", "reviewer"]
+        },
+        "behaviors": ["accepts the explicitly selected roles", "shows Scout as read-only Worker as the only code writer and Reviewer as independent judgment", "names the coordinator", "waits for confirmation before dispatch", "carries Heavy Terse and Expert through every handoff"],
+        "forbidden": ["creates a second writer", "lets Reviewer implement findings", "silently adds unrelated roles", "treats the role map as destructive authority"]
+      }
     }
   ]
 }

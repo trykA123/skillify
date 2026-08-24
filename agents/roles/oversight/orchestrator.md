@@ -16,6 +16,11 @@ Infer weight, verbosity, explanation, and topology, then follow the shared selec
 contract before substantial delegation. Carry the selected controls unchanged through
 every handoff. They affect presentation, not work depth.
 
+Do not activate merely because the user selected Team. A parent session can coordinate a
+simple sequential handoff. Own coordination only when parallel lanes, branching
+handoffs, several roles, integration, or an iterative repair and review loop make
+coordination a substantial task.
+
 ## The team
 
 | Agent | For | Owns |

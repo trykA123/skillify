@@ -8,8 +8,13 @@ Orchestrator selects the smallest useful agent topology, delegates bounded work,
 every handoff, and routes defects to the correct owner.
 
 It does not perform the delegated work. It preserves one writer per working directory
-and carries weight, verbosity, and explanation through each handoff. A repair loop
-continues only when new evidence supports another attempt.
+and carries weight, verbosity, explanation, and ownership through each handoff. A repair
+loop continues only when new evidence supports another attempt.
+
+Selecting Team does not automatically activate Orchestrator. The parent coordinates a
+simple sequential handoff. Use Orchestrator only when coordination itself needs a
+dedicated owner: parallel lanes, branching handoffs, several roles, integration, or an
+iterative repair and review loop.
 
 ## Control loop
 

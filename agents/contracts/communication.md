@@ -1,10 +1,13 @@
 # Communication contract
 
-Work depth and output depth are independent. Every handoff carries three controls:
+Work depth and output depth are independent. Every handoff carries three controls plus
+the selected ownership topology:
 
-- **Weight:** Light, Standard or Heavy. This controls rigor, evidence and topology.
+- **Weight:** Light, Standard or Heavy. This controls rigor, recovery and evidence.
 - **Verbosity:** Terse, Concise or Detailed. This controls output length.
 - **Explanation:** Layman, Operational or Expert. This controls assumed knowledge.
+- **Ownership:** Solo, Team or the validated custom role topology. This controls bounded
+  ownership, not rigor or authority.
 
 If the caller does not set them, use `Concise` verbosity and `Operational` explanation.
 Never increase verbosity because work is Heavy. Put required detail in artifacts and keep

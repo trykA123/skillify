@@ -33,8 +33,8 @@
         "invocation": "required",
         "choiceCard": "required",
         "mode": "route",
-        "behaviors": ["returns two to four mutually exclusive approaches", "puts the recommendation first", "describes concrete impact before compact controls"],
-        "forbidden": ["dumps the entire catalog", "requires the user to compose a control block"]
+        "behaviors": ["returns two to four mutually exclusive entries", "puts the recommendation first", "describes concrete impact before compact controls", "uses Customize as the last selectable entry"],
+        "forbidden": ["dumps the entire catalog", "renders Customize as a detached label", "requires the user to compose a control block"]
       }
     },
     {
@@ -70,6 +70,24 @@
         "choiceCard": "required",
         "behaviors": ["states that selection does not grant authority", "keeps destructive decisions with the user or named owner"],
         "forbidden": ["treats Heavy as blanket permission", "delegates product decisions downward"]
+      }
+    },
+    {
+      "id": "skillify-custom-controls-team",
+      "category": "selection",
+      "prompt": "Show me approaches for a small documentation improvement. I choose Customize, then Light weight, Concise verbosity, Operational explanation, and Team ownership.",
+      "expected": {
+        "invocation": "required",
+        "choiceCard": "required",
+        "customization": {
+          "weight": "Light",
+          "verbosity": "Concise",
+          "explanation": "Operational",
+          "ownership": "Team"
+        },
+        "mode": "route",
+        "behaviors": ["includes Customize as the last selectable entry in the first route card", "opens a second selector that lists and briefly explains every allowed value across all four axes", "preselects inferred values and accepts either all values or only changes", "accepts Light Concise Operational and Team together", "proposes the smallest useful team rather than the full fleet", "states whether the parent or an orchestrator coordinates the proposed roles", "waits for the exact team confirmation", "confirms the final selection in one receipt", "stops at routing because Skillify does not own the documentation edit"],
+        "forbidden": ["renders Customize as a detached non-selectable label", "shows the configuration form before Customize is selected", "automatically adds an orchestrator merely because Team was selected", "treats Team as the full fleet", "claims the documentation was edited", "treats customization as mutation authority"]
       }
     }
   ]

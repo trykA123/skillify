@@ -9,9 +9,16 @@ description: Teaches users how to choose and combine Skillify skills, portable a
 `Verbosity: Terse | Concise | Detailed`, and
 `Explanation: Layman | Operational | Expert`; default to risk-based weight, Concise,
 and Operational. Never require a control block. Before substantial work, offer two to
-four concrete approaches through the runtime's choice UI or a numbered list; recommend
-one and wait for the selection. For a tiny obvious request, show a one-line selection
-receipt and proceed. Controls never weaken evidence, safety, or authorization.
+four entries through the runtime's choice UI or a numbered list; put the recommended
+concrete route first and wait for the selection. For a tiny obvious request, show a
+one-line selection receipt and proceed. End every substantial card with a selectable
+**Customize** entry or the runtime equivalent. If selected, show one second-stage
+selector listing every allowed Weight, Verbosity, Explanation, and
+Ownership (Solo, Team, or Custom team) value with a one-sentence meaning and
+inferred values preselected. Accept only changes and confirm one final receipt. Team
+means the smallest useful roles, never the full fleet. Keep a simple handoff
+parent-coordinated; add an Orchestrator only when coordination is substantial.
+Customization cannot weaken safeguards or grant authority.
 
 Teach the system through the user's real task. The learner should leave knowing what to
 invoke, why it fits, what not to add, and how to express the request portably.
@@ -36,9 +43,9 @@ or Practice mode. Do not load it for an obvious single-skill route.
    required.
 3. Add agent roles only when separate ownership, context isolation, concurrency, or
    reviewer independence improves the task. One agent using one skill is valid.
-4. Infer the three independent controls: Weight for rigor, Verbosity for response length,
-   and Explanation for assumed knowledge. Express them through concrete choices, not a
-   configuration form.
+4. Infer four independent axes: Weight for rigor, Verbosity for response length,
+   Explanation for assumed knowledge, and Ownership for task topology. Express them
+   through concrete choices, not an initial configuration form.
 5. Explain the decisive reason in one sentence and provide a natural portable prompt.
 
 Prefer a direct skill over a fleet when one owner can finish safely. Never recommend the
@@ -71,4 +78,4 @@ name why plausible alternatives are unnecessary. Avoid catalog dumps, orchestrat
 narration, vendor-specific syntax, model tiers, and claims that a role grants permission.
 
 Done means the learner can state: “use this method now, add that role only if this
-condition appears, and use these three controls for this reason.”
+condition appears, and use these four axes for this reason.”

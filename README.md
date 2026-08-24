@@ -72,7 +72,7 @@ contracts.
 
 ## Choice cards
 
-For substantial work, the harness presents two to four mutually exclusive approaches.
+For substantial work, the harness presents two to four mutually exclusive entries.
 The recommended option comes first. Each option says what changes in plain language; the
 compact technical selection is secondary.
 
@@ -89,13 +89,31 @@ How should I handle the login idea?
 3. Guided — Explain each missing decision without assuming authentication knowledge.
    Undumbify · Standard · Detailed · Layman · Solo
 
-4. Team — Separate context building and planning so the packet stands alone.
-   Context Builder → Planner · Standard · Concise · Operational
+4. Customize — Choose rigor, response length, explanation, and ownership.
 ```
 
-Choose `1`, click the option in a harness with native choice controls, or describe a
-custom preference. The selected route does not grant destructive authority or transfer a
-product decision away from the user.
+Choose `1`, click an option in a native UI, or choose `4` to open the explained second
+stage:
+
+```text
+Customize this run
+
+Weight:      W1 Light · W2 Standard · W3 Heavy
+Verbosity:   V1 Terse · V2 Concise · V3 Detailed
+Explanation: E1 Layman · E2 Operational · E3 Expert
+Ownership:   O1 Solo · O2 Team · O3 Custom team
+
+Current: W2 · V2 · E2 · O1
+Reply with all values or only changes. Example: W1 V2 E2 O2
+```
+
+The real selector gives a one-sentence meaning for every value. `Team` produces the
+smallest exact role proposal for confirmation; it does not automatically add an
+Orchestrator or the full fleet. The selected route never grants destructive authority or
+transfers a product decision away from the user.
+
+See the portable [selection contract](agents/contracts/selection.md) and
+[customization contract](agents/contracts/customization.md).
 
 Tiny, reversible tasks may skip the menu:
 
@@ -138,6 +156,18 @@ Default: **Concise**.
 | **Expert** | Assume domain fluency; define only local or surprising terms |
 
 Default: **Operational**.
+
+### Ownership controls topology
+
+| Ownership | Meaning |
+|---|---|
+| **Solo** | The current owner completes the task |
+| **Team** | The harness proposes the smallest useful role map for confirmation |
+| **Custom team** | You name roles; the harness validates capabilities and writer boundaries |
+
+The parent can coordinate a simple handoff. An Orchestrator is added only when
+coordination itself is substantial, such as parallel lanes, branching handoffs, several
+roles, integration ownership, or an iterative repair and review loop.
 
 > [!TIP]
 > `Heavy + Terse + Expert` means deep evidence and a short expert-facing answer.
@@ -327,6 +357,8 @@ node scripts/run-evals.mjs --adapter codex --suite teachify --limit 1 --out /tmp
 node scripts/run-evals.mjs --adapter claude --suite teachify --limit 1 --out /tmp/claude.jsonl
 node scripts/run-evals.mjs --adapter opencode --suite teachify --limit 1 --out /tmp/opencode.jsonl
 ```
+
+Target one exact case with `--case <case-id>` while iterating on a behavior.
 
 Compare equal settings across revisions:
 
