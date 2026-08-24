@@ -26,7 +26,7 @@ flowchart TB
 | **Skill** | How to do a kind of work well |
 | **Agent role** | Who owns a bounded piece and what it may change |
 | **Controls** | Rigor, answer length, and assumed knowledge |
-| **Harness** | Codex, Claude Code, OpenCode, or another compatible runtime |
+| **Harness** | Codex, Claude Code, OpenCode, VS Code/Copilot, or another compatible runtime |
 
 ## 0. Install it
 
@@ -34,8 +34,8 @@ From this repository:
 
 ```bash
 ./install.sh \
-  --harness codex,claude,opencode \
-  --native-agents codex,claude,opencode \
+  --harness codex,claude,opencode,copilot \
+  --native-agents codex,claude,opencode,copilot \
   --with-agents \
   --update
 ```
@@ -43,12 +43,35 @@ From this repository:
 Restart an already-open harness so it reloads its catalog. Check the installation:
 
 ```bash
-./install.sh --native-agents codex,claude,opencode --status
+./install.sh --native-agents codex,claude,opencode,copilot --status
 ```
 
 > [!NOTE]
 > Install only what you use. For example, `--harness codex --native-agents codex` is a
 > complete Codex-only installation.
+
+### If you use VS Code at work
+
+Run this on that machine after cloning the repository:
+
+```bash
+./install.sh --harness vscode --native-agents copilot --with-agents --update
+./install.sh --harness vscode --native-agents copilot --status
+```
+
+Then restart VS Code and perform this two-minute check:
+
+1. Type `/skills`, or open **Chat: Open Customizations → Skills**; confirm that Orientify,
+   Undumbify, Shipify, and the other Skillify skills appear.
+2. Type `/agents`; confirm that **Orchestrator** appears in the agent list.
+3. Keep the normal Copilot agent selected for ordinary solo requests. Select
+   **Orchestrator** only when you want Team or Custom team ownership.
+4. Send the request in section 1. The first response must be a 2–4 option card ending in
+   Customize. No repository inspection should begin until you choose.
+
+The nine bounded roles stay out of the dropdown on purpose. Orchestrator can invoke them
+as subagents with reduced prompts and exact tool limits. Personal files live under
+`~/.copilot`; project-local files live under `.github`.
 
 ## 1. Make your first natural request
 
@@ -84,6 +107,34 @@ Reply with `1`, `option 1`, or a natural adjustment:
 ```
 
 That is the normal interaction. The compact second line is a receipt, not homework.
+
+### The choice happens once
+
+The root session owns the choice. After you confirm it, every child receives the same
+controls, assignment boundary, and exact role map:
+
+```mermaid
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 40, "rankSpacing": 45}}}%%
+flowchart TB
+    Request[Your request] --> Card[Root shows 2–4 choices]
+    Card --> Confirm[You confirm one route]
+    Confirm --> Receipt[Confirmed controls + exact topology]
+    Receipt --> Scout[Scout inherits; no new menu]
+    Scout --> Worker[Worker inherits; no new menu]
+    Worker --> Result[Evidence + result]
+```
+
+For example, a delegated Scout may receive:
+
+```text
+Confirmed: Orientify · Standard · Concise · Operational · Team
+Boundary: locate the login entry and return exact paths only
+Topology: parent coordinator → Scout (artifacts only)
+```
+
+The Scout starts that bounded assignment. It does not ask you to select Standard or Team
+again. A child stops and returns to the parent only when it discovers a new material
+decision outside the confirmed boundary.
 
 ## 2. Understand the controls without memorizing them
 
@@ -359,6 +410,7 @@ node scripts/validate-core.mjs
 bash scripts/test-installer.sh
 bash scripts/test-agent-adapters.sh
 bash scripts/test-eval-runner.sh
+bash scripts/test-token-footprint.sh
 node teaching/teachify/scripts/validate-lesson.mjs teaching/teachify/assets/lesson-template.html
 node scripts/test-teachify-interaction.mjs
 ```
@@ -368,13 +420,25 @@ Run one real behavioral case before spending tokens on a matrix:
 ```bash
 node scripts/run-evals.mjs \
   --adapter codex \
-  --suite teachify \
-  --limit 1 \
+  --installed \
+  --suite orientify \
+  --case orientify-login-natural-pause \
+  --repeat 3 \
   --out /tmp/skillify-codex.jsonl
 ```
 
-Replace `codex` with `claude` or `opencode`. Native evaluations use your installed
-authentication and may consume paid model usage.
+Installed natural-pause event enforcement currently supports Codex only. Claude Code and
+OpenCode use the non-installed phased commands in the [adapter guide](evals/adapters/README.md).
+Native evaluations use your installed authentication and may consume paid model usage.
+
+Check prompt size without pretending bytes are exact model tokens:
+
+```bash
+node scripts/report-token-footprint.mjs --check
+```
+
+The report separates eager skill instructions from conditional references and direct
+agent prompts from smaller delegated prompts.
 
 ## Pocket guide
 

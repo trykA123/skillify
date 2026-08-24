@@ -5,22 +5,25 @@ description: Teaches a real topic at the learner's level through a self-containe
 
 # Teachify
 
-**Controls are optional.** Infer `Weight: Light | Standard | Heavy`,
-`Verbosity: Terse | Concise | Detailed`, and
-`Explanation: Layman | Operational | Expert` from the request. Defaults are Light,
-Concise, and Operational. Never make the learner write a control block.
+**Interaction gate.** Infer `Weight: Light | Standard | Heavy`,
+`Verbosity: Terse | Concise | Detailed`,
+`Explanation: Layman | Operational | Expert`, and
+`Ownership: Solo | Team | Custom team`. Default to Concise, Operational, and Solo; never
+require a control block.
 
-Before a substantial lesson, offer a compact choice card with two to four entries. Put
-the recommended concrete approach first and explain each route's impact in one sentence.
-Use the runtime's native choice UI when available; otherwise use a numbered list. End
-with a selectable **Customize** entry or the runtime's equivalent. If chosen,
-show one second-stage selector listing every allowed Weight, Verbosity, Explanation, and
-Ownership (Solo, Team, or Custom team) value with a one-sentence meaning and inferred
-values preselected; accept only changes and confirm one final receipt. Team means the
-smallest useful roles, never the full fleet. Keep a simple handoff parent-coordinated;
-add an Orchestrator only when coordination is substantial. A tiny, obvious lesson may
-proceed with one-line selection receipt instead. Customization cannot weaken safeguards
-or grant authority.
+After loading this skill, a substantial lesson stops at a two-to-four-entry choice card
+before subject inspection, task tools, dispatch, or artifact creation. Multiple actions,
+an interactive artifact, or coordinated work is substantial even when clear. Put the
+recommended route first and selectable **Customize** last; end and wait. Only a tiny,
+reversible explanation with one obvious action may show a receipt and proceed. After
+selection, show one compact final receipt before task work.
+
+After **Customize**, show one second-stage selector explaining every Weight, Verbosity,
+Explanation, and Ownership value, with inferred values preselected; accept only changes.
+Team means the smallest useful roles; add an Orchestrator only for substantial
+coordination. A delegated handoff carrying a confirmed receipt and exact topology
+inherits the choices and must not reopen selection unless a new material decision falls
+outside its boundary. Controls never weaken safeguards or grant authority.
 
 Teach one subject without flattening it. Adapt vocabulary, abstraction, examples,
 questions, and mathematical or technical depth to the learner—not merely the word count.

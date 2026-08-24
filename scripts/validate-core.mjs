@@ -128,8 +128,10 @@ for (const family of skillFamilies) {
       fail(`${relative(root, skillPath)}: missing natural-language choice behavior`);
     }
     if (!source.includes("**Customize**") ||
-        !source.includes("Ownership (Solo, Team, or Custom team)") ||
-        !source.includes("parent-coordinated")) {
+        !source.includes("one second-stage selector") ||
+        !source.includes("Ownership value") ||
+        !source.includes("smallest useful roles") ||
+        !source.includes("confirmed receipt")) {
       fail(`${relative(root, skillPath)}: missing second-stage customization behavior`);
     }
 
@@ -200,6 +202,7 @@ const ownershipLevels = new Set(["Solo", "Team", "Custom team"]);
 const choiceCardRules = new Set(["required", "optional", "forbidden"]);
 const evalIds = new Set();
 let skillCustomizationCases = 0;
+let skillNaturalPauseCases = 0;
 
 function validateCustomization(expected, caseLabel) {
   const customization = expected.customization;
@@ -280,6 +283,12 @@ for (const [skillName, skillPath] of skills) {
     if (expected.choiceCard !== undefined && !choiceCardRules.has(expected.choiceCard)) {
       fail(`${caseLabel}: unknown choiceCard rule ${expected.choiceCard}`);
     }
+    if (expected.naturalPause !== undefined) {
+      if (expected.naturalPause !== "required" || expected.choiceCard !== "required") {
+        fail(`${caseLabel}: naturalPause requires a required choiceCard`);
+      }
+      skillNaturalPauseCases += 1;
+    }
     if (expected.customization !== undefined) {
       skillCustomizationCases += 1;
       validateCustomization(expected, caseLabel);
@@ -307,6 +316,9 @@ for (const [skillName, skillPath] of skills) {
 
 if (skillCustomizationCases < 1) {
   fail("evals: at least one skill customization case is required");
+}
+if (skillNaturalPauseCases < 1) {
+  fail("evals: at least one unforced natural-pause case is required");
 }
 
 const manifestPath = join(root, "agents", "manifest.json");
@@ -350,6 +362,30 @@ for (const contractName of manifest.globalContracts ?? []) {
   if (!contractNames.has(contractName)) {
     fail(`agents/manifest.json: unknown global contract ${contractName}`);
   }
+}
+
+const expectedContractProfiles = {
+  base: ["core", "communication"],
+  interactive: ["selection", "customization"],
+  delegated: ["handoff"],
+};
+for (const [profile, expected] of Object.entries(expectedContractProfiles)) {
+  const actual = manifest.contractProfiles?.[profile];
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    fail(`agents/manifest.json: ${profile} contract profile must be ${expected.join(", ")}`);
+  }
+  if (new Set(actual ?? []).size !== (actual ?? []).length) {
+    fail(`agents/manifest.json: ${profile} contract profile contains duplicates`);
+  }
+  for (const contractName of actual ?? []) {
+    if (!contractNames.has(contractName)) {
+      fail(`agents/manifest.json: ${profile} profile references unknown contract ${contractName}`);
+    }
+  }
+}
+const profiledContracts = [...new Set(Object.values(manifest.contractProfiles ?? {}).flat())];
+if (JSON.stringify(profiledContracts) !== JSON.stringify(manifest.globalContracts ?? [])) {
+  fail("agents/manifest.json: contract profiles must cover globalContracts once and in order");
 }
 
 const referencedRoles = new Set();
@@ -448,6 +484,7 @@ if (agentEvalSchema?.properties?.schemaVersion?.const !== 1) {
   fail("evals/agents/schema.json: schemaVersion contract must be 1");
 }
 const agentEvalCategories = new Set(["selection", "authority", "handoff", "topology", "communication", "capability"]);
+const agentEntryContexts = new Set(["root", "delegated"]);
 const coveredAgents = new Set();
 let agentEvalCount = 0;
 let agentChoiceCases = 0;
@@ -494,6 +531,12 @@ if (agentSuite) {
         fail(`${caseLabel}: unknown choiceCard rule ${expected.choiceCard}`);
       }
       if (expected.choiceCard === "required") agentChoiceCases += 1;
+      if (expected.entryContext !== undefined && !agentEntryContexts.has(expected.entryContext)) {
+        fail(`${caseLabel}: unknown entryContext ${expected.entryContext}`);
+      }
+      if (expected.entryContext === "delegated" && expected.choiceCard !== "forbidden") {
+        fail(`${caseLabel}: delegated entryContext must forbid a choiceCard`);
+      }
       if (expected.customization !== undefined) {
         agentCustomizationCases += 1;
         validateCustomization(expected, caseLabel);
@@ -535,12 +578,15 @@ for (const requiredFile of [
   "scripts/compare-evals.mjs",
   "scripts/test-agent-adapters.sh",
   "scripts/test-eval-runner.sh",
+  "scripts/report-token-footprint.mjs",
+  "scripts/test-token-footprint.sh",
+  "evals/token-budgets.json",
   "teaching/teachify/scripts/validate-lesson.mjs",
   "teaching/teachify/assets/lesson-template.html",
 ]) {
   if (!(await exists(join(root, requiredFile)))) fail(`${requiredFile}: required reliability component is missing`);
 }
-for (const preset of ["[claude]", "[opencode]"]) {
+for (const preset of ["[claude]", "[opencode]", "[copilot]", "[vscode]=copilot", ".github/skills", ".copilot/skills"]) {
   if (!installer.includes(preset)) fail(`install.sh: missing required preset ${preset}`);
 }
 

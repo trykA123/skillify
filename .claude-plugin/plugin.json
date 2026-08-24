@@ -1,6 +1,6 @@
 {
   "name": "skillify",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Portable evaluated skills with natural choice cards, independent controls, native agent adapters, and interactive teaching.",
   "author": {
     "name": "Claudiu Tancau",

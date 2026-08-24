@@ -18,13 +18,15 @@ jobs:
       - name: Validate portable contracts
         run: node scripts/validate-core.mjs
       - name: Validate shell syntax
-        run: bash -n install.sh scripts/test-installer.sh scripts/test-agent-adapters.sh scripts/test-eval-runner.sh
+        run: bash -n install.sh scripts/test-installer.sh scripts/test-agent-adapters.sh scripts/test-eval-runner.sh scripts/test-token-footprint.sh
       - name: Test installer safety
         run: bash scripts/test-installer.sh
       - name: Test native agent adapters
         run: bash scripts/test-agent-adapters.sh
       - name: Test executable eval runner
         run: bash scripts/test-eval-runner.sh
+      - name: Enforce prompt footprint budgets
+        run: bash scripts/test-token-footprint.sh
       - name: Validate interactive lesson template
         run: node teaching/teachify/scripts/validate-lesson.mjs teaching/teachify/assets/lesson-template.html
       - name: Test interactive lesson behavior

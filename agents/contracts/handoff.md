@@ -14,3 +14,9 @@ Return, in the lightest form the task weight permits:
 Do not return raw internal narration, a success claim without evidence, or a question
 that should have been escalated while work was still active. Light may keep this inline;
 Standard and Heavy preserve it with the task's durable artifacts.
+
+The receiver treats a handoff containing the parent-confirmed receipt, assignment
+boundary, and exact topology as inherited selection. It begins only its bounded work and
+does not show another route or customization card. If a new material decision falls
+outside the boundary, it stops and returns that decision to the parent instead of
+silently choosing or reopening the original route.

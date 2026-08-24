@@ -8,6 +8,63 @@ trap 'rm -rf -- "$TEST_ROOT"' EXIT
 SKILL_TARGET="$TEST_ROOT/skills"
 FLEET_TARGET="$TEST_ROOT/fleet"
 
+mkdir -p "$TEST_ROOT/copilot-project"
+(
+  cd "$TEST_ROOT/copilot-project"
+  "$REPO_DIR/install.sh" \
+    --project \
+    --harness vscode \
+    --skill orientify \
+    --native-agents copilot \
+    --copy >/dev/null
+)
+[[ -f "$TEST_ROOT/copilot-project/.github/skills/orientify/SKILL.md" ]]
+[[ -f "$TEST_ROOT/copilot-project/.github/agents/orchestrator.agent.md" ]]
+[[ -f "$TEST_ROOT/copilot-project/.github/agents/.skillify-native.json" ]]
+copilot_project_status="$(
+  cd "$TEST_ROOT/copilot-project"
+  "$REPO_DIR/install.sh" \
+    --project \
+    --harness vscode \
+    --skill orientify \
+    --native-agents copilot \
+    --status
+)"
+grep -q 'fresh: 10 copilot agents' <<<"$copilot_project_status"
+(
+  cd "$TEST_ROOT/copilot-project"
+  "$REPO_DIR/install.sh" \
+    --project \
+    --harness vscode \
+    --skill orientify \
+    --native-agents copilot \
+    --uninstall >/dev/null
+)
+[[ ! -e "$TEST_ROOT/copilot-project/.github/skills/orientify" ]]
+[[ ! -e "$TEST_ROOT/copilot-project/.github/agents/.skillify-native.json" ]]
+
+mkdir -p "$TEST_ROOT/copilot-home"
+HOME="$TEST_ROOT/copilot-home" "$REPO_DIR/install.sh" \
+  --harness vscode \
+  --skill orientify \
+  --native-agents copilot \
+  --update >/dev/null
+[[ -f "$TEST_ROOT/copilot-home/.copilot/skills/orientify/SKILL.md" ]]
+[[ -f "$TEST_ROOT/copilot-home/.copilot/agents/orchestrator.agent.md" ]]
+copilot_status="$(HOME="$TEST_ROOT/copilot-home" "$REPO_DIR/install.sh" \
+  --harness vscode \
+  --skill orientify \
+  --native-agents copilot \
+  --status)"
+grep -q 'fresh: 10 copilot agents' <<<"$copilot_status"
+HOME="$TEST_ROOT/copilot-home" "$REPO_DIR/install.sh" \
+  --harness vscode \
+  --skill orientify \
+  --native-agents copilot \
+  --uninstall >/dev/null
+[[ ! -e "$TEST_ROOT/copilot-home/.copilot/skills/orientify" ]]
+[[ ! -e "$TEST_ROOT/copilot-home/.copilot/agents/.skillify-native.json" ]]
+
 "$REPO_DIR/install.sh" \
   --target "$SKILL_TARGET" \
   --family teaching \

@@ -39,6 +39,11 @@
     "independence": "contracts/independence.md"
   },
   "globalContracts": ["core", "communication", "selection", "customization", "handoff"],
+  "contractProfiles": {
+    "base": ["core", "communication"],
+    "interactive": ["selection", "customization"],
+    "delegated": ["handoff"]
+  },
   "agents": {
     "context-builder": {
       "group": "recon",

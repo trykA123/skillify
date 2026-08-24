@@ -32,6 +32,7 @@
               "verbosity": { "enum": ["Terse", "Concise", "Detailed"] },
               "explanation": { "enum": ["Layman", "Operational", "Expert"] },
               "choiceCard": { "enum": ["required", "optional", "forbidden"] },
+              "naturalPause": { "enum": ["required"] },
               "customization": {
                 "type": "object",
                 "required": ["weight", "verbosity", "explanation", "ownership"],

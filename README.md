@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-0f766e.svg)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-10-2563eb.svg)](#skills)
 [![Roles](https://img.shields.io/badge/agent_roles-10-7c3aed.svg)](#agent-roles)
-[![Harnesses](https://img.shields.io/badge/native_agents-Codex%20%7C%20Claude%20%7C%20OpenCode-e11d48.svg)](#native-agent-adapters)
+[![Harnesses](https://img.shields.io/badge/native_agents-Codex%20%7C%20Claude%20%7C%20OpenCode%20%7C%20Copilot-e11d48.svg)](#native-agent-adapters)
 
 > **Natural requests first. Choice cards before ceremony. Portable methods underneath.**
 
@@ -41,6 +41,7 @@ The harness infers the method and controls, then lets you choose how to proceed.
 - [Installation](#installation)
 - [Native agent adapters](#native-agent-adapters)
 - [Behavioral evaluations](#behavioral-evaluations)
+- [Prompt footprint](#prompt-footprint)
 - [Repository structure](#repository-structure)
 - [Contributing](#contributing)
 
@@ -75,6 +76,11 @@ contracts.
 For substantial work, the harness presents two to four mutually exclusive entries.
 The recommended option comes first. Each option says what changes in plain language; the
 compact technical selection is secondary.
+
+The gate happens after the skill is loaded but before subject inspection or task tools.
+A clear multi-step request is still substantial: clarity removes ambiguity, not the
+user's choice. After the user confirms a route, delegated agents inherit it instead of
+opening another menu.
 
 ```text
 How should I handle the login idea?
@@ -247,13 +253,13 @@ Clone the repository and inspect the plan first:
 ```bash
 git clone https://github.com/trykA123/skillify.git
 cd skillify
-./install.sh --harness codex,claude,opencode --dry-run
+./install.sh --harness codex,claude,opencode,copilot --dry-run
 ```
 
 Install or update skills globally:
 
 ```bash
-./install.sh --harness codex,claude,opencode --update
+./install.sh --harness codex,claude,opencode,copilot --update
 ```
 
 Install one family or skill:
@@ -314,20 +320,56 @@ Generate native, model-neutral agent definitions:
 
 ```bash
 ./install.sh \
-  --harness codex,claude,opencode \
-  --native-agents codex,claude,opencode \
+  --harness codex,claude,opencode,copilot \
+  --native-agents codex,claude,opencode,copilot \
   --with-agents \
   --update
 ```
 
-The generator composes global contracts, role-specific contracts, and role instructions.
-It maps capabilities to native tools where supported, never chooses a model, records file
-hashes, refuses to overwrite unmanaged definitions, and removes stale managed roles.
+The generator composes context-specific contract profiles, role-specific contracts, and
+role instructions. Delegated definitions omit root-only selection and customization.
+Direct OpenCode roles retain the interactive profile; Claude loads it only through the
+direct-session `initialPrompt`; VS Code exposes Orchestrator as the interactive team
+entry point and keeps the other roles available only as subagents. The generator maps
+capabilities to native tools where supported, never chooses a model, records file hashes,
+refuses to overwrite unmanaged definitions, and removes stale managed roles.
+
+### VS Code and GitHub Copilot
+
+Install personal skills and agents with the `vscode` alias:
+
+```bash
+./install.sh \
+  --harness vscode \
+  --native-agents copilot \
+  --with-agents \
+  --update
+```
+
+Restart VS Code. Type `/skills` to verify skill discovery (or open **Chat: Open
+Customizations → Skills**) and `/agents` to open agent configuration. Use the normal
+Copilot agent for ordinary skill-routed work. Select
+**Orchestrator** when you want Team or Custom team ownership; Scout, Planner, Worker,
+Reviewer, and the other bounded roles are intentionally hidden from the dropdown and are
+available to Orchestrator as subagents.
+
+Personal installs use `~/.copilot/skills` and `~/.copilot/agents`. For a repository-local
+install, run the installer from the target workspace:
+
+```bash
+cd /path/to/your-project
+/path/to/skillify/install.sh --project --harness vscode --native-agents copilot --update
+```
+
+This writes `.github/skills` and `.github/agents`. These locations and `.agent.md` files
+follow the official [VS Code skill](https://code.visualstudio.com/docs/agent-customization/agent-skills)
+and [custom-agent](https://code.visualstudio.com/docs/agent-customization/custom-agents)
+conventions.
 
 Check freshness:
 
 ```bash
-./install.sh --native-agents codex,claude,opencode --status
+./install.sh --native-agents codex,claude,opencode,copilot --status
 ```
 
 ## Behavioral evaluations
@@ -360,6 +402,21 @@ node scripts/run-evals.mjs --adapter opencode --suite teachify --limit 1 --out /
 
 Target one exact case with `--case <case-id>` while iterating on a behavior.
 
+Natural-pause cases can exercise installed instructions without pasting the contract into
+the candidate prompt:
+
+```bash
+node scripts/run-evals.mjs \
+  --adapter codex \
+  --installed \
+  --suite orientify \
+  --case orientify-login-natural-pause \
+  --repeat 3
+```
+
+For Codex, this mode inspects native JSON events. Loading the selected `SKILL.md` is
+allowed setup; a workspace command before the route choice fails the case.
+
 Compare equal settings across revisions:
 
 ```bash
@@ -369,6 +426,21 @@ node scripts/compare-evals.mjs baseline.jsonl candidate.jsonl
 See the [adapter guide](evals/adapters/README.md). Real harness runs use installed
 authentication and may consume paid model usage.
 
+## Prompt footprint
+
+Markdown modularity helps maintenance, but it saves input only when the current context
+does not load the module. Skillify measures eager entrypoints separately from conditional
+references and root agents separately from delegated agents:
+
+```bash
+node scripts/report-token-footprint.mjs
+node scripts/report-token-footprint.mjs --check
+```
+
+The report uses deterministic UTF-8 bytes and whitespace-delimited words. These are
+cross-model proxies, not exact token counts. Reviewed limits live in
+[`evals/token-budgets.json`](evals/token-budgets.json) and run in CI.
+
 ## Verification
 
 ```bash
@@ -376,6 +448,7 @@ node scripts/validate-core.mjs
 bash scripts/test-installer.sh
 bash scripts/test-agent-adapters.sh
 bash scripts/test-eval-runner.sh
+bash scripts/test-token-footprint.sh
 node teaching/teachify/scripts/validate-lesson.mjs teaching/teachify/assets/lesson-template.html
 node scripts/test-teachify-interaction.mjs
 ```
@@ -394,7 +467,8 @@ skillify/
 │   ├── roles/             # portable role contracts
 │   ├── guides/            # human documentation
 │   └── manifest.json      # capabilities and mutability
-├── evals/                 # portable behavioral cases and schemas
+├── evals/                 # behavioral cases, schemas, and footprint budgets
+├── plans/                 # cross-session implementation packets and evidence
 ├── scripts/               # validation, adapters, eval execution, tests
 ├── .claude-plugin/        # optional Claude packaging adapter
 ├── install.sh

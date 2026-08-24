@@ -51,6 +51,19 @@
       }
     },
     {
+      "id": "orientify-login-natural-pause",
+      "category": "selection",
+      "prompt": "I do not know this codebase. Show me how a login request travels through it, name the dangerous assumptions, and do not change anything.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "choiceCard": "required",
+        "naturalPause": "required",
+        "behaviors": ["offers two to four bounded orientation routes", "puts the recommended route first", "uses Customize as the final selectable entry", "waits for selection before inspecting the repository"],
+        "forbidden": ["uses a selection receipt instead of choices", "runs commands or begins tracing the login path before selection", "edits files"]
+      }
+    },
+    {
       "id": "orientify-teaching-boundary",
       "category": "activation",
       "prompt": "Teach me this event loop in an interactive HTML page with exercises.",

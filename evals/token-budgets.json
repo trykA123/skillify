@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "measurement": "UTF-8 bytes and whitespace-delimited words; not exact model tokens",
+  "budgets": {
+    "discovery": { "maxBytes": 6000 },
+    "skillEntrypoint": {
+      "defaultMaxBytes": 8000,
+      "exceptions": {
+        "audify": {
+          "maxBytes": 8500,
+          "reason": "Audit evidence and report requirements are unusually broad; visual details remain conditional."
+        }
+      }
+    },
+    "rootAgent": { "defaultMaxBytes": 14000 },
+    "delegatedAgent": { "defaultMaxBytes": 9000 }
+  }
+}

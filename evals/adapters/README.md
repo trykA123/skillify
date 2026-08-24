@@ -45,6 +45,19 @@ Cases with `customization` exercise the complete conversation: initial route car
 second-stage four-axis selector, exact team proposal when applicable, ownership
 confirmation, execution response, and semantic grading.
 
+Cases marked `naturalPause` also support an installed/native path:
+
+```bash
+node scripts/run-evals.mjs --adapter codex --installed --suite orientify \
+  --case orientify-login-natural-pause --repeat 3
+```
+
+Unlike phased card-quality tests, this sends only the original user request through the
+installed instructions. The Codex adapter inspects JSON events and rejects subject tools
+before selection. It permits the required read of the activated `SKILL.md`. Ensure the
+candidate revision is installed or linked before comparing revisions; the JSONL records
+whether input came from `contract` or `installed` mode.
+
 Compare two runs made with the same adapter, model, and repetition count:
 
 ```bash

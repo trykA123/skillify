@@ -35,6 +35,11 @@ map shows each role's mutability and its coordinator, then waits for confirmatio
 simple sequential handoff stays parent-coordinated. Team selection alone never adds an
 Orchestrator.
 
+Selection happens once at the root. A child receives the confirmed receipt, its bounded
+assignment, and the exact topology in the handoff. It starts that assignment without a
+new card. Only a new material decision outside the boundary returns to the parent for a
+fresh choice.
+
 ## Shared customization axes
 
 | Axis | Values | Controls |
@@ -91,23 +96,43 @@ Only Worker has `code` mutability. The validator rejects a broader manifest.
 
 A native adapter must:
 
-1. compose every global contract;
-2. add the role-specific contracts;
-3. add the selected role file;
-4. make required capabilities available or fail before dispatch;
-5. load the role's method skills;
-6. enforce mutability;
-7. carry selection, weight, verbosity, explanation, and ownership through every handoff;
-8. return unresolved decisions to the parent or user.
+1. compose the `base` contract profile;
+2. add `interactive` only for a direct/root-capable definition, or `delegated` for a
+   child definition;
+3. add the role-specific contracts;
+4. add the selected role file;
+5. make required capabilities available or fail before dispatch;
+6. load the role's method skills;
+7. enforce mutability;
+8. carry selection, weight, verbosity, explanation, and ownership through every handoff;
+9. return unresolved decisions to the parent or user.
+
+`globalContracts` remains the backward-compatible complete list. New adapters should use
+`contractProfiles`: `base + delegated` for subagents and
+`base + interactive + delegated` for definitions that can receive a user request
+directly. Moving a contract into a separate file does not save input tokens unless the
+adapter omits that profile from the generated prompt.
 
 Generate supported adapters without choosing models:
 
 ```bash
-./install.sh --native-agents codex,claude,opencode --update
+./install.sh --native-agents codex,claude,opencode,copilot --update
 ```
 
 The generator stores hashes in `.skillify-native.json`, refuses unmanaged collisions,
 checks freshness, and removes stale managed definitions.
+
+| Adapter | Direct/root interaction | Delegated behavior |
+|---|---|---|
+| Codex | Main session discovers skills | Native roles use base + handoff |
+| Claude Code | `--agent` receives selection through `initialPrompt` | The same role body omits root-only contracts |
+| OpenCode | Questar and Teacher retain the interactive profile | Subagent-mode roles use base + handoff |
+| VS Code/Copilot | Orchestrator is the visible interactive team entry | Nine hidden roles are model-invocable subagents |
+
+The Copilot adapter writes personal `.agent.md` files to `~/.copilot/agents` or project
+files to `.github/agents`. Its capability map grants `read` + `search` for inspection,
+`web` for external research, `execute` for shell work, `edit` only to declared writers or
+artifact owners, and `agent` only to roles that may delegate.
 
 ## Writer topology
 

@@ -29,12 +29,14 @@ declare -A NATIVE_AGENT_GLOBAL_DIR=(
   [codex]="$CODEX_BASE/agents"
   [claude]="$CLAUDE_BASE/agents"
   [opencode]="$CONFIG_BASE/opencode/agents"
+  [copilot]="$HOME/.copilot/agents"
 )
 
 declare -A NATIVE_AGENT_PROJECT_DIR=(
   [codex]=".codex/agents"
   [claude]=".claude/agents"
   [opencode]=".opencode/agents"
+  [copilot]=".github/agents"
 )
 
 # Paths track current public agent conventions. Use --target when a runtime moves or
@@ -77,7 +79,7 @@ declare -A PROJECT_DIR=(
   [cursor]=".cursor/skills"
   [droid]=".factory/skills"
   [gemini]=".agents/skills"
-  [copilot]=".github/copilot/skills"
+  [copilot]=".github/skills"
   [goose]=".goose/skills"
   [kilo]=".kilocode/skills"
   [opencode]=".opencode/skills"
@@ -118,6 +120,7 @@ declare -A HARNESS_ALIAS=(
   [claude-code]=claude
   [gemini-cli]=gemini
   [github-copilot]=copilot
+  [vscode]=copilot
   [qwen-code]=qwen
   [roo-code]=roo
 )
@@ -157,7 +160,7 @@ Selection:
   --exclude NAME[,NAME]   Exclude named skills from the selection
   --with-agents           Also install the portable agent fleet package
   --agents-only           Install only the portable agent fleet package
-  --native-agents NAMES   Generate native agents for codex, claude, or opencode
+  --native-agents NAMES   Generate native agents for codex, claude, opencode, or copilot
 
 Actions and safety:
   --link                  Create symlinks into this checkout (default)
@@ -179,7 +182,7 @@ Examples:
   ./install.sh --project --family pipeline --exclude reviewify --copy
   ./install.sh --target /path/to/skills --dry-run
   ./install.sh --harness claude,opencode --status
-  ./install.sh --harness codex,claude,opencode --native-agents codex,claude,opencode --update
+  ./install.sh --harness codex,claude,opencode,copilot --native-agents codex,claude,opencode,copilot --update
 EOF
 }
 
@@ -549,7 +552,7 @@ for native_harness in "${NATIVE_AGENT_REQUESTS[@]}"; do
   else
     native_target="${NATIVE_AGENT_PROJECT_DIR[$native_harness]:-}"
   fi
-  [[ -n "$native_target" ]] || { echo "install: native agents are supported for codex, claude, and opencode; got '$native_harness'" >&2; exit 2; }
+  [[ -n "$native_target" ]] || { echo "install: native agents are supported for codex, claude, opencode, and copilot; got '$native_harness'" >&2; exit 2; }
   native_args=(--harness "$native_harness" --dest "$native_target")
   [[ "$DRY_RUN" -eq 0 ]] || native_args+=(--dry-run)
   [[ "$FORCE" -eq 0 ]] || native_args+=(--force)

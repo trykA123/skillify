@@ -5,20 +5,25 @@ description: Audits a subject that came with no contract — a repo, a discussio
 
 # Audify
 
-**Controls are optional.** Infer `Weight: Light | Standard | Heavy`,
-`Verbosity: Terse | Concise | Detailed`, and
-`Explanation: Layman | Operational | Expert`; default to risk-based weight, Concise,
-and Operational. Never require a control block. Before substantial work, offer two to
-four entries through the runtime's choice UI or a numbered list; put the recommended
-concrete route first and wait for the selection. For a tiny obvious request, show a
-one-line selection receipt and proceed. End every substantial card with a selectable
-**Customize** entry or the runtime equivalent. If selected, show one second-stage
-selector listing every allowed Weight, Verbosity, Explanation, and
-Ownership (Solo, Team, or Custom team) value with a one-sentence meaning and
-inferred values preselected. Accept only changes and confirm one final receipt. Team
-means the smallest useful roles, never the full fleet. Keep a simple handoff
-parent-coordinated; add an Orchestrator only when coordination is substantial.
-Customization cannot weaken safeguards or grant authority.
+**Interaction gate.** Infer `Weight: Light | Standard | Heavy`,
+`Verbosity: Terse | Concise | Detailed`,
+`Explanation: Layman | Operational | Expert`, and
+`Ownership: Solo | Team | Custom team`. Default to Concise, Operational, and Solo; never
+require a control block.
+
+After loading this skill, substantial work stops at a two-to-four-entry choice card before
+subject inspection, task tools, dispatch, or mutation. Multiple actions, a durable
+artifact, or coordinated work is substantial even when clear. Put the recommended route
+first and selectable **Customize** last; end and wait. Only a tiny, reversible request
+with one obvious action may show a receipt and proceed. After selection, show one compact
+final receipt before task work.
+
+After **Customize**, show one second-stage selector explaining every Weight, Verbosity,
+Explanation, and Ownership value, with inferred values preselected; accept only changes.
+Team means the smallest useful roles; add an Orchestrator only for substantial
+coordination. A delegated handoff carrying a confirmed receipt and exact topology
+inherits the choices and must not reopen selection unless a new material decision falls
+outside its boundary. Controls never weaken safeguards or grant authority.
 
 **A subject in, a defensible account of its condition out.**
 
@@ -115,47 +120,14 @@ which parts are sound is what makes the rest safe to change.
 ## 5. The page
 
 One self-contained HTML file: inline CSS and JS, no CDN, no external fonts or images, no
-network at runtime. It gets opened from disk, mailed around, and read a year later.
+network at runtime. It gets opened from disk, mailed around, and read a year later. After
+the evidence and findings are settled, read [the HTML report module](references/html-report.md)
+fully before building the page. It owns the required structure, interaction, visual
+semantics, responsive behavior, and render check.
 
-**Required structure:**
-
-- **The verdict, readable in ten seconds** — the subject, the boundary, the date, one
-  sentence on its condition, and the counts by quadrant. Someone who reads only this
-  block should know whether to worry.
-- **The standard** — the criteria from step 1, stated plainly, so the reader can dispute
-  the yardstick rather than only the findings.
-- **The action grid** — the severity × effort matrix as the report's navigation. Clicking
-  a quadrant filters the findings below it. This is the one interaction worth building.
-- **Findings** — each with severity, effort, location, the measurement or observation,
-  its provenance, the reproduction method, and a concrete first step. Evidence collapsed
-  by default, one click away.
-- **What's sound** — the healthy part, short.
-- **Coverage** — what you looked at, what you sampled, **and what you did not examine.**
-  This is the honesty field. A report without it implies total coverage it doesn't have.
-
-**Making it worth reading.** Boring is the reader bouncing off in the first screen, and
-the cure is density and navigability, not decoration. Give the page **one structural
-idea** — the grid — and execute it properly, rather than fifteen effects competing.
-Findings should be scannable at a glance and deep on demand. A real type scale, a
-generous measure, monospace confined to code and commands.
-
-Colour in **OKLCH**, always. Two palettes that must not blur: severity is a status ramp,
-categories are a categorical set — a category rendered in the red of "critical" reads as
-critical, and that's a chart lying. Both palettes need to survive a greyscale print and
-the common colour-vision deficiencies, so never carry meaning in hue alone.
-
-Charts only where a count is genuinely easier to see than to read: a distribution across
-time, a composition, findings per area. Hand-write inline SVG from the real numbers —
-never a chart library, never a pie chart of more than four things, never a chart of
-three values a sentence would carry better. Every chart states its n.
-
-Dark and light both, via `prefers-color-scheme`. Responsive enough for a laptop; tables
-and wide blocks scroll inside their own container, never the page.
-
-Write it to `audits/<date>-<subject-slug>.html` unless the user names a path, and tell
-them the path plus the one-sentence verdict in chat. **Open it and look at it before you
-call it done** — an audit delivered unrendered is a claim you didn't verify, in a
-document about not doing that.
+Write to `audits/<date>-<subject-slug>.html` unless the user names a path. Return the path
+and one-sentence verdict in chat. The page is not complete until you open and inspect the
+rendered artifact.
 
 ## Sanitize when it travels
 

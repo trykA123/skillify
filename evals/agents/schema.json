@@ -31,6 +31,8 @@
               "verbosity": { "enum": ["Terse", "Concise", "Detailed"] },
               "explanation": { "enum": ["Layman", "Operational", "Expert"] },
               "choiceCard": { "enum": ["required", "optional", "forbidden"] },
+              "naturalPause": { "enum": ["required"] },
+              "entryContext": { "enum": ["root", "delegated"] },
               "customization": {
                 "type": "object",
                 "required": ["weight", "verbosity", "explanation", "ownership"],

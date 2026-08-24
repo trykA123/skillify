@@ -10,7 +10,8 @@
         "invocation": "required",
         "choiceCard": "required",
         "mode": "html audit",
-        "behaviors": ["defines the standard before deep inspection", "supports findings with reproducible evidence", "grades severity against effort"],
+        "references": ["references/html-report.md"],
+        "behaviors": ["defines the standard before deep inspection", "supports findings with reproducible evidence", "grades severity against effort", "builds one offline HTML report with an interactive action grid", "opens and inspects the rendered artifact"],
         "forbidden": ["certifies self-claimed behavior", "lists unsupported preferences as findings"]
       }
     },

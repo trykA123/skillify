@@ -111,6 +111,21 @@
       "expected": { "role": "worker", "weight": "Light", "verbosity": "Concise", "explanation": "Operational", "choiceCard": "optional", "behaviors": ["uses a compact selection receipt or a very small choice", "keeps one writer"], "forbidden": ["forces a four-option ceremony", "creates a full fleet"] }
     },
     {
+      "id": "agent-delegated-inherits-selection",
+      "category": "handoff",
+      "prompt": "Parent-confirmed receipt: Orientify · Standard · Concise · Operational · Team. Assignment boundary: locate the login entry and return exact paths only. Exact topology: parent coordinator → Scout (artifacts only). Begin the bounded assignment.",
+      "expected": {
+        "role": "scout",
+        "entryContext": "delegated",
+        "weight": "Standard",
+        "verbosity": "Concise",
+        "explanation": "Operational",
+        "choiceCard": "forbidden",
+        "behaviors": ["inherits the confirmed controls and topology", "acknowledges only the bounded scout assignment", "continues without another user selection"],
+        "forbidden": ["shows a new route card", "offers Customize again", "expands the assignment boundary", "simulates repository evidence before inspection", "edits product files"]
+      }
+    },
+    {
       "id": "agent-custom-team-controls",
       "category": "topology",
       "prompt": "Let me customize this small documentation change. I select Light, Concise, Operational, and Team; propose only the roles that add real ownership value.",

@@ -6,7 +6,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import process from "node:process";
 
 const STATE = ".skillify-native.json";
-const harnesses = new Set(["codex", "claude", "opencode"]);
+const harnesses = new Set(["codex", "claude", "opencode", "copilot"]);
 
 function usage(code = 0) {
   const stream = code ? process.stderr : process.stdout;
@@ -69,11 +69,43 @@ function compose(contracts, role) {
   return sections.join("\n\n");
 }
 
+function openCodeMode(name) {
+  return ["questar", "teacher"].includes(name) ? "all" : "subagent";
+}
+
+function isDirectCapable(harnessName, name) {
+  return (harnessName === "opencode" && openCodeMode(name) === "all") ||
+    (harnessName === "copilot" && name === "orchestrator");
+}
+
+function contractNamesFor(manifest, harnessName, name, spec) {
+  const profiles = manifest.contractProfiles;
+  if (!profiles) return [...manifest.globalContracts, ...(spec.contracts ?? [])];
+  for (const profile of ["base", "interactive", "delegated"]) {
+    if (!Array.isArray(profiles[profile])) {
+      throw new Error(`manifest contractProfiles.${profile} must be an array`);
+    }
+  }
+  const directCapable = isDirectCapable(harnessName, name);
+  const profileNames = directCapable
+    ? ["base", "interactive", "delegated"]
+    : ["base", "delegated"];
+  return [...new Set([
+    ...profileNames.flatMap((profile) => profiles[profile] ?? []),
+    ...(spec.contracts ?? []),
+  ])];
+}
+
 const capabilityTools = {
   claude: {
     inspect: ["Glob", "Grep", "Read"], shell: ["Bash"], "artifact-write": ["Write"],
     "code-edit": ["Edit", "Write"], "web-research": ["WebFetch", "WebSearch"],
     delegate: ["Agent"], escalate: [],
+  },
+  copilot: {
+    inspect: ["read", "search"], shell: ["execute"], "artifact-write": ["edit"],
+    "code-edit": ["edit"], "web-research": ["web"],
+    delegate: ["agent"], escalate: [],
   },
   opencode: {},
   codex: {},
@@ -85,8 +117,29 @@ function claudeTools(spec) {
   return [...new Set(result)].sort();
 }
 
+function toolsFor(harnessName, spec) {
+  const result = [];
+  for (const capability of spec.capabilities) {
+    result.push(...(capabilityTools[harnessName]?.[capability] ?? []));
+  }
+  return [...new Set(result)].sort();
+}
+
 function yamlString(value) {
   return JSON.stringify(value);
+}
+
+function yamlBlock(value) {
+  return value.split("\n").map((line) => `  ${line}`).join("\n");
+}
+
+function interactiveRootPrompt(contracts) {
+  const sections = contracts.map(({ name, text }) =>
+    `## Interactive root contract: ${name}\n\n${text.trim()}`);
+  return `This role is the direct owner of the current session. Apply the following ` +
+    `interaction contracts before task work. They are supplied as the initial prompt so ` +
+    `delegated uses of the same definition do not pay for or reopen root selection.\n\n` +
+    sections.join("\n\n");
 }
 
 function render(harnessName, name, description, source, spec) {
@@ -99,28 +152,51 @@ function render(harnessName, name, description, source, spec) {
   if (harnessName === "claude") {
     const tools = claudeTools(spec);
     return `---\nname: ${name}\ndescription: ${yamlString(description)}\n` +
+      `initialPrompt: |-\n${yamlBlock(interactiveRootPrompt(source.interactiveContracts))}\n` +
       `tools: ${tools.join(", ")}\n---\n\n${body}\n`;
   }
-  const mode = ["questar", "teacher"].includes(name) ? "all" : "subagent";
+  if (harnessName === "copilot") {
+    const tools = toolsFor("copilot", spec);
+    const agents = spec.capabilities.includes("delegate") ? `agents: ["*"]\n` : "";
+    const userInvocable = isDirectCapable("copilot", name);
+    const disableModelInvocation = userInvocable;
+    return `---\nname: ${yamlString(name)}\ndescription: ${yamlString(description)}\n` +
+      `target: vscode\nuser-invocable: ${userInvocable}\ndisable-model-invocation: ${disableModelInvocation}\n` +
+      `tools: ${JSON.stringify(tools)}\n${agents}---\n\n${body}\n`;
+  }
+  const mode = openCodeMode(name);
   return `---\ndescription: ${description}\nmode: ${mode}\n---\n\n${body}\n`;
 }
 
 const manifestPath = join(fleet, "manifest.json");
 const manifest = await json(manifestPath);
-const extension = harness === "codex" ? ".toml" : ".md";
+const extension = harness === "codex" ? ".toml" : harness === "copilot" ? ".agent.md" : ".md";
 const outputs = new Map();
+
+const interactiveContracts = [];
+if (harness === "claude" && manifest.contractProfiles) {
+  for (const contractName of manifest.contractProfiles.interactive ?? []) {
+    const target = manifest.contracts[contractName];
+    if (!target) throw new Error(`unknown interactive contract: ${contractName}`);
+    interactiveContracts.push({ name: contractName, text: await readFile(join(fleet, target), "utf8") });
+  }
+}
 
 for (const [name, spec] of Object.entries(manifest.agents).sort(([a], [b]) => a.localeCompare(b))) {
   const rolePath = join(fleet, spec.role);
   const parsed = splitFrontmatter(await readFile(rolePath, "utf8"));
   if (parsed.meta.name !== name) throw new Error(`${spec.role}: role name must be ${name}`);
-  const contractNames = [...manifest.globalContracts, ...(spec.contracts ?? [])];
+  const contractNames = contractNamesFor(manifest, harness, name, spec);
   const contracts = [];
   for (const contractName of contractNames) {
     const target = manifest.contracts[contractName];
     contracts.push({ name: contractName, text: await readFile(join(fleet, target), "utf8") });
   }
-  const text = render(harness, name, parsed.meta.description ?? "", { contracts, role: parsed.body }, spec);
+  const text = render(harness, name, parsed.meta.description ?? "", {
+    contracts,
+    interactiveContracts,
+    role: parsed.body,
+  }, spec);
   outputs.set(name, { file: `${name}${extension}`, text, hash: digest(text) });
 }
 

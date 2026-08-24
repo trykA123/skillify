@@ -49,4 +49,46 @@ node "$REPO_DIR/scripts/run-evals.mjs" \
 
 [[ "$(wc -l < "$TEST_ROOT/one-case.jsonl")" -eq 1 ]]
 
+node "$REPO_DIR/scripts/run-evals.mjs" \
+  --adapter fixture \
+  --installed \
+  --suite orientify \
+  --case orientify-login-natural-pause \
+  --out "$TEST_ROOT/natural-pause.jsonl" >/dev/null
+
+grep -q '"passed":true' "$TEST_ROOT/natural-pause.jsonl"
+grep -q 'Customize' "$TEST_ROOT/natural-pause.jsonl"
+
+if SKILLIFY_FIXTURE_NATURAL_RESPONSE=receipt node "$REPO_DIR/scripts/run-evals.mjs" \
+  --adapter fixture \
+  --installed \
+  --suite orientify \
+  --case orientify-login-natural-pause \
+  --out "$TEST_ROOT/natural-receipt.jsonl" >/dev/null 2>&1; then
+  echo "eval runner test: natural-flow receipt incorrectly passed" >&2
+  exit 1
+fi
+
+for invalid_response in recommendation-late continues; do
+  if SKILLIFY_FIXTURE_NATURAL_RESPONSE="$invalid_response" node "$REPO_DIR/scripts/run-evals.mjs" \
+    --adapter fixture \
+    --installed \
+    --suite orientify \
+    --case orientify-login-natural-pause \
+    --out "$TEST_ROOT/natural-$invalid_response.jsonl" >/dev/null 2>&1; then
+    echo "eval runner test: invalid natural flow '$invalid_response' incorrectly passed" >&2
+    exit 1
+  fi
+done
+
+if node "$REPO_DIR/scripts/run-evals.mjs" \
+  --adapter claude \
+  --installed \
+  --suite orientify \
+  --case orientify-login-natural-pause \
+  --dry-run >/dev/null 2>&1; then
+  echo "eval runner test: unsupported installed adapter was accepted" >&2
+  exit 1
+fi
+
 printf 'Skillify evaluation runner tests passed.\n'
