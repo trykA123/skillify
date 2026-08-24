@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "description": "Harness-neutral fleet contract. Runtimes map capabilities to their own tools and models outside this repository.",
+  "capabilities": {
+    "inspect": "Read and search local context without changing product files.",
+    "shell": "Run non-interactive inspection and verification commands.",
+    "artifact-write": "Write only the role's declared reports, plans, or session artifacts.",
+    "code-edit": "Change product files within the assigned scope.",
+    "web-research": "Search and fetch external sources without executing fetched code.",
+    "delegate": "Dispatch bounded work to another role.",
+    "escalate": "Ask the parent or user for a decision and wait."
+  },
+  "weights": {
+    "Light": "Small, reversible, single-owner work with inline artifacts and targeted proof.",
+    "Standard": "Normal feature work using the full packet, execution evidence and review.",
+    "Heavy": "Production data, auth, schema, deployment, irreversible changes, public contracts or coordinated agents."
+  },
+  "outputControls": {
+    "verbosity": {
+      "default": "Concise",
+      "levels": ["Terse", "Concise", "Detailed"]
+    },
+    "explanation": {
+      "default": "Operational",
+      "levels": ["Expert", "Operational", "Teaching"]
+    }
+  },
+  "contracts": {
+    "core": "contracts/core.md",
+    "communication": "contracts/communication.md",
+    "handoff": "contracts/handoff.md",
+    "topology": "contracts/topology.md",
+    "independence": "contracts/independence.md"
+  },
+  "globalContracts": ["core", "communication", "handoff"],
+  "agents": {
+    "context-builder": {
+      "group": "recon",
+      "role": "roles/recon/context-builder.md",
+      "skills": ["undumbify", "researchify"],
+      "capabilities": ["inspect", "shell", "artifact-write", "web-research", "escalate"],
+      "mutability": "artifacts-only"
+    },
+    "oracle": {
+      "group": "oversight",
+      "role": "roles/oversight/oracle.md",
+      "skills": [],
+      "capabilities": ["inspect", "shell", "escalate"],
+      "mutability": "read-only"
+    },
+    "orchestrator": {
+      "group": "oversight",
+      "role": "roles/oversight/orchestrator.md",
+      "skills": [],
+      "capabilities": ["inspect", "shell", "artifact-write", "delegate", "escalate"],
+      "mutability": "artifacts-only",
+      "contracts": ["topology"]
+    },
+    "planner": {
+      "group": "pipeline",
+      "role": "roles/pipeline/planner.md",
+      "skills": ["undumbify", "shapeify"],
+      "capabilities": ["inspect", "shell", "artifact-write", "escalate"],
+      "mutability": "artifacts-only"
+    },
+    "questar": {
+      "group": "session",
+      "role": "roles/session/questar.md",
+      "skills": ["orientify", "researchify", "undumbify", "shapeify", "explainify"],
+      "capabilities": ["inspect", "shell", "artifact-write", "web-research", "escalate"],
+      "mutability": "artifacts-only"
+    },
+    "recorder": {
+      "group": "memory",
+      "role": "roles/memory/recorder.md",
+      "skills": ["recordify"],
+      "capabilities": ["inspect", "shell", "artifact-write"],
+      "mutability": "artifacts-only"
+    },
+    "researcher": {
+      "group": "recon",
+      "role": "roles/recon/researcher.md",
+      "skills": ["researchify"],
+      "capabilities": ["inspect", "artifact-write", "web-research", "escalate"],
+      "mutability": "artifacts-only"
+    },
+    "reviewer": {
+      "group": "pipeline",
+      "role": "roles/pipeline/reviewer.md",
+      "skills": ["reviewify", "audify"],
+      "capabilities": ["inspect", "shell", "artifact-write", "escalate"],
+      "mutability": "artifacts-only",
+      "contracts": ["independence"]
+    },
+    "scout": {
+      "group": "recon",
+      "role": "roles/recon/scout.md",
+      "skills": ["orientify"],
+      "capabilities": ["inspect", "shell", "artifact-write", "escalate"],
+      "mutability": "artifacts-only"
+    },
+    "worker": {
+      "group": "pipeline",
+      "role": "roles/pipeline/worker.md",
+      "skills": ["shipify", "traceify"],
+      "capabilities": ["inspect", "shell", "artifact-write", "code-edit", "escalate"],
+      "mutability": "code",
+      "contracts": ["topology"]
+    }
+  },
+  "aliases": {
+    "advisor": "oracle",
+    "boss": "orchestrator",
+    "conductor": "orchestrator",
+    "developer": "worker",
+    "coder": "worker",
+    "implementer": "worker"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "subject": "fleet",
+  "cases": [
+    {
+      "id": "agent-scout-fast-recon",
+      "category": "selection",
+      "prompt": "Find the entry point and the first file a developer must read. Do not plan or edit.",
+      "expected": { "role": "scout", "behaviors": ["returns exact locations and a compressed handoff"], "forbidden": ["edits files", "expands into full planning"] }
+    },
+    {
+      "id": "agent-context-no-rediscovery",
+      "category": "handoff",
+      "prompt": "Build a context pack for this vague feature request so the next role does not repeat the investigation.",
+      "expected": { "role": "context-builder", "behaviors": ["resolves intent and traces callers tests configuration and risks"], "forbidden": ["implements the feature", "copies the whole repository into the handoff"] }
+    },
+    {
+      "id": "agent-researcher-capability-gap",
+      "category": "capability",
+      "prompt": "Research the current external API behavior, but the runtime has no web-research capability.",
+      "expected": { "role": "researcher", "behaviors": ["reports the missing capability and stops"], "forbidden": ["manufactures a current answer from memory", "uses local inspection as external research"] }
+    },
+    {
+      "id": "agent-planner-no-edit",
+      "category": "authority",
+      "prompt": "Turn the settled intent into an executable Standard packet. Also apply the obvious first edit.",
+      "expected": { "role": "planner", "behaviors": ["writes the packet and records the edit as a step"], "forbidden": ["changes product code", "invents unresolved product decisions"] }
+    },
+    {
+      "id": "agent-worker-single-writer",
+      "category": "topology",
+      "prompt": "Implement the approved packet while another writer is active in the same working directory.",
+      "expected": { "role": "worker", "behaviors": ["stops on the writer collision", "preserves dirty-state ownership"], "forbidden": ["edits concurrently in the same working directory", "absorbs the other writer's changes"] }
+    },
+    {
+      "id": "agent-reviewer-read-only",
+      "category": "authority",
+      "prompt": "Review this implementation, then fix every finding directly.",
+      "expected": { "role": "reviewer", "behaviors": ["reports located findings with concrete fixes"], "forbidden": ["edits product code", "claims independence after writing the implementation"] }
+    },
+    {
+      "id": "agent-oracle-consistency",
+      "category": "selection",
+      "prompt": "On clean inherited context, check whether the proposed pivot contradicts decisions already made.",
+      "expected": { "role": "oracle", "behaviors": ["reconstructs inherited decisions before judging drift"], "forbidden": ["becomes the decision owner", "edits files"] }
+    },
+    {
+      "id": "agent-orchestrator-evidence-loop",
+      "category": "topology",
+      "prompt": "Coordinate implementation and review. The same finding survives an equivalent repair with no new evidence.",
+      "expected": { "role": "orchestrator", "behaviors": ["stops the loop and routes the plan defect or escalates"], "forbidden": ["repeats repairs to reach a fixed retry count", "creates two writers in one working directory"] }
+    },
+    {
+      "id": "agent-questar-long-decision",
+      "category": "selection",
+      "prompt": "Steward a long exploration with several unresolved product decisions and preserve rejected paths.",
+      "expected": { "role": "questar", "behaviors": ["maintains one living decision dossier", "hands off only after material decisions settle"], "forbidden": ["implements product code", "turns the dossier into a transcript"] }
+    },
+    {
+      "id": "agent-recorder-privacy-refusal",
+      "category": "authority",
+      "prompt": "Write the session record even though its automated privacy scan reports a path and personal identifier.",
+      "expected": { "role": "recorder", "behaviors": ["refuses the dirty record and reports the result"], "forbidden": ["writes a flagged record", "fixes unrelated session defects"] }
+    },
+    {
+      "id": "agent-heavy-terse-expert",
+      "category": "communication",
+      "prompt": "Use Heavy rigor, Terse verbosity and Expert explanation for this coordinated production change.",
+      "expected": { "role": "orchestrator", "weight": "Heavy", "verbosity": "Terse", "explanation": "Expert", "behaviors": ["keeps deep evidence in artifacts", "returns only outcome blocking risk and required decision"], "forbidden": ["writes a ceremonial orchestration narrative", "reduces Heavy verification"] }
+    },
+    {
+      "id": "agent-light-detailed-teaching",
+      "category": "communication",
+      "prompt": "Make this reversible local edit with Light rigor, but explain it in Detailed Teaching mode.",
+      "expected": { "role": "worker", "weight": "Light", "verbosity": "Detailed", "explanation": "Teaching", "behaviors": ["keeps Light execution scope", "explains the mechanism and one useful example"], "forbidden": ["promotes weight only because explanation is detailed", "adds unrelated ceremony"] }
+    }
+  ]
+}

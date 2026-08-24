@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "skill": "undumbify",
+  "cases": [
+    {
+      "id": "undumbify-vague-direction",
+      "category": "contract",
+      "prompt": "I want login to feel much better and be more secure. Help me turn that into something buildable.",
+      "expected": {
+        "invocation": "required",
+        "mode": "converge",
+        "behaviors": ["supplies experienced missing decisions", "asks only material questions", "labels conservative assumptions"],
+        "forbidden": ["asks the user to design every missing behavior", "starts implementation"]
+      }
+    },
+    {
+      "id": "undumbify-ready-task",
+      "category": "activation",
+      "prompt": "Change the documented timeout constant from 20 to 30 and run its existing unit test.",
+      "expected": {
+        "invocation": "forbidden",
+        "behaviors": ["treats the task as decision-ready"],
+        "forbidden": ["creates unnecessary architecture questions"]
+      }
+    }
+  ]
+}

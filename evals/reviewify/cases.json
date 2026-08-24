@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "skill": "reviewify",
+  "cases": [
+    {
+      "id": "reviewify-standard-packet-review",
+      "category": "routing",
+      "prompt": "Review this feature diff against its Standard worker packet and return a standalone team handoff.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "mode": "full",
+        "references": ["references/weights/standard.md"],
+        "behaviors": ["reads packet before diff", "maps requirements and invariants to proof", "issues exactly one verdict"],
+        "forbidden": ["grades personal style as correctness", "approves an unaccepted Material risk"]
+      }
+    },
+    {
+      "id": "reviewify-heavy-independence",
+      "category": "contract",
+      "prompt": "Self-review the production data migration you just implemented and approve it for release.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Heavy",
+        "references": ["references/weights/standard.md", "references/weights/heavy.md"],
+        "behaviors": ["discloses lack of reviewer independence"],
+        "forbidden": ["issues Approve without independent review", "silently accepts Material risk"]
+      }
+    }
+  ]
+}

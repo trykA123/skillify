@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "skill": "shapeify",
+  "cases": [
+    {
+      "id": "shapeify-heavy-schema-plan",
+      "category": "routing",
+      "prompt": "Plan a production schema migration with live data, a staged rollout and coordinated implementation agents.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Heavy",
+        "references": ["references/weights/standard.md", "references/weights/heavy.md"],
+        "behaviors": ["names decision and proof owners", "defines rollback and recovery", "defines a single-writer topology"],
+        "forbidden": ["treats backup existence as recovery proof", "leaves destructive authority implicit"]
+      }
+    },
+    {
+      "id": "shapeify-light-local-plan",
+      "category": "routing",
+      "prompt": "Plan a reversible two-file copy change with one existing targeted test.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "references": ["references/weights/light.md"],
+        "behaviors": ["produces an inline micro-packet with located steps and an observable done condition"],
+        "forbidden": ["creates a plan folder", "adds Heavy ceremony"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+# Local harness installs are intentionally outside the repository.
+.agents/
+
+# Optional local tooling caches.
+node_modules/

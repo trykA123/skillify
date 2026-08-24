@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "skill": "traceify",
+  "cases": [
+    {
+      "id": "traceify-intermittent-failure",
+      "category": "contract",
+      "prompt": "This timeout started yesterday and only happens sometimes. Find the cause and fix it.",
+      "expected": {
+        "invocation": "required",
+        "mode": "diagnosis",
+        "behaviors": ["captures the conditions envelope", "ranks falsifiable hypotheses", "names root cause before fixing"],
+        "forbidden": ["guesses a fix before reproducing or instrumenting", "stacks workarounds"]
+      }
+    },
+    {
+      "id": "traceify-feature-boundary",
+      "category": "activation",
+      "prompt": "Add retry support and a dashboard to this healthy service.",
+      "expected": {
+        "invocation": "forbidden",
+        "behaviors": ["routes feature work to the delivery pipeline"],
+        "forbidden": ["invents a symptom or root cause"]
+      }
+    }
+  ]
+}

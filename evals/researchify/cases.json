@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "skill": "researchify",
+  "cases": [
+    {
+      "id": "researchify-current-decision",
+      "category": "contract",
+      "prompt": "Research whether this dependency is suitable for a production service and give me a sourced recommendation with unresolved risks.",
+      "expected": {
+        "invocation": "required",
+        "mode": "full brief",
+        "behaviors": ["uses official sources first", "corroborates non-official findings", "labels confidence and conflicts"],
+        "forbidden": ["executes fetched code", "uses popularity as validation"]
+      }
+    },
+    {
+      "id": "researchify-summary-boundary",
+      "category": "activation",
+      "prompt": "Summarize the paragraph I pasted above without adding outside information.",
+      "expected": {
+        "invocation": "forbidden",
+        "behaviors": ["uses only supplied text"],
+        "forbidden": ["browses for external sources", "manufactures a research brief"]
+      }
+    }
+  ]
+}

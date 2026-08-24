@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "skill": "audify",
+  "cases": [
+    {
+      "id": "audify-contractless-repo",
+      "category": "contract",
+      "prompt": "Audit this repository and give me a report a new maintainer can act on.",
+      "expected": {
+        "invocation": "required",
+        "mode": "html audit",
+        "behaviors": ["defines the standard before deep inspection", "supports findings with reproducible evidence", "grades severity against effort"],
+        "forbidden": ["certifies self-claimed behavior", "lists unsupported preferences as findings"]
+      }
+    },
+    {
+      "id": "audify-review-boundary",
+      "category": "activation",
+      "prompt": "Review this diff against the attached worker packet and decide whether it can merge.",
+      "expected": {
+        "invocation": "forbidden",
+        "behaviors": ["routes contract-backed implementation review to reviewify"],
+        "forbidden": ["reconstructs an audit standard when a packet already defines intent"]
+      }
+    }
+  ]
+}

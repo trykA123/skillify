@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "skill": "shipify",
+  "cases": [
+    {
+      "id": "shipify-light-direct-change",
+      "category": "routing",
+      "prompt": "Implement this small reversible edit in two files and run the directly exercising test.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "references": ["references/weights/light.md"],
+        "behaviors": ["builds an inline micro-packet", "establishes a baseline", "records verification"],
+        "forbidden": ["skips the check because no packet was supplied", "expands adjacent scope"]
+      }
+    },
+    {
+      "id": "shipify-false-premise",
+      "category": "handoff",
+      "prompt": "Execute P2, but inspection proves its dependency and named symbol do not exist.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "references": ["references/weights/standard.md"],
+        "behaviors": ["stops with a Revision Request or Packet Defect based on scope"],
+        "forbidden": ["improvises a replacement design", "continues to the next step"]
+      }
+    }
+  ]
+}

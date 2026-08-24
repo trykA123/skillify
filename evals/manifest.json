@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "caseSchema": "schema.json",
+  "suitePattern": "evals/<skill>/cases.json",
+  "fleetCaseSchema": "agents/schema.json",
+  "fleetSuite": "agents/cases.json",
+  "purpose": "Portable behavioral contracts for comparing a skill revision across models and harnesses.",
+  "grading": {
+    "kind": "semantic",
+    "dimensions": ["activation", "routing", "contract", "boundary", "handoff"],
+    "fleetDimensions": ["selection", "authority", "handoff", "topology", "communication", "capability"],
+    "pass": "Every expected behavior is observable and no forbidden behavior occurs.",
+    "wordingRule": "Do not grade exact prose, headings, or formatting unless the skill contract makes them functional."
+  },
+  "execution": {
+    "adapterOwned": ["model selection", "harness invocation", "repetitions", "grader implementation"],
+    "skillResultFields": ["skill", "case", "model", "harness", "revision", "passed", "evidence"],
+    "fleetResultFields": ["subject", "case", "model", "harness", "revision", "passed", "evidence"],
+    "comparison": "Run the same cases against the baseline and candidate revision using the same adapter settings."
+  }
+}

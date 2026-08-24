@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>skillify — Concept 04: Liquid Ferrofluid Neural Synapse</title>
+  <meta name="description" content="Liquid ferrofluid physical simulation and neural synapse architecture for autonomous agents.">
+  <meta name="theme-color" content="#020306">
+
+  <!-- High-Contrast Typefaces -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --syn-bg: #020306;
+      --syn-surface: #070912;
+      --syn-panel: rgba(10, 15, 28, 0.9);
+      --syn-line: rgba(0, 255, 136, 0.25);
+      --syn-line-white: rgba(255, 255, 255, 0.2);
+
+      --syn-emerald: #00ff88;
+      --syn-cyan: #00f2fe;
+      --syn-text: #ffffff;
+      --syn-dim: #cbd5e1;
+      --syn-muted: #64748b;
+
+      --font-display: 'Cabinet Grotesk', 'Space Grotesk', sans-serif;
+      --font-ui: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: var(--syn-bg); color: var(--syn-text);
+      font-family: var(--font-ui); font-size: 15px; overflow-x: hidden;
+    }
+
+    ::selection { background: var(--syn-emerald); color: #000000; }
+
+    /* Fixed ThreeJS Fluid Canvas */
+    #synapse-canvas-container {
+      position: fixed; inset: 0; z-index: 1; pointer-events: auto;
+    }
+    #synapse-canvas { width: 100%; height: 100%; display: block; }
+
+    /* Concept Header */
+    .syn-header {
+      position: fixed; top: 0; left: 0; width: 100%; height: 68px; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center; padding: 0 48px;
+      background: rgba(2, 3, 6, 0.85); backdrop-filter: blur(24px); border-bottom: 1px solid var(--syn-line-white);
+    }
+    .syn-brand { font-family: var(--font-display); font-size: 1.2rem; font-weight: 900; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+
+    .header-actions { display: flex; align-items: center; gap: 16px; }
+
+    .github-link {
+      background: var(--syn-emerald); color: #000; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800;
+      padding: 8px 18px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.35); transition: all 0.2s;
+    }
+    .github-link:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(0, 255, 136, 0.6); }
+
+    /* Main Content */
+    .syn-main { position: relative; z-index: 5; pointer-events: none; width: 100%; }
+    .interactive { pointer-events: auto; }
+
+    .syn-hero {
+      min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+      padding: 0 80px;
+    }
+
+    .syn-tag {
+      display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.75rem;
+      font-weight: 800; color: var(--syn-emerald); letter-spacing: 0.15em; text-transform: uppercase;
+      margin-bottom: 20px; background: rgba(0, 255, 136, 0.08); padding: 6px 14px; border: 1px solid var(--syn-line);
+      width: fit-content;
+    }
+
+    .syn-h1 {
+      font-family: var(--font-display); font-size: clamp(3.6rem, 8vw, 8rem);
+      font-weight: 900; line-height: 0.92; letter-spacing: -0.05em; text-transform: uppercase; color: #fff;
+      max-width: 1050px; margin-bottom: 28px;
+    }
+
+    .syn-lead {
+      font-size: 1.25rem; color: #cbd5e1; max-width: 680px; line-height: 1.6; margin-bottom: 44px;
+    }
+    .syn-lead strong { color: #ffffff; font-weight: 800; }
+
+    .syn-cta-group { display: flex; gap: 16px; align-items: center; }
+
+    .syn-cta-btn {
+      display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px;
+      background: var(--syn-emerald); color: #000000; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 800;
+      text-decoration: none; letter-spacing: 0.06em; transition: all 0.2s;
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.35);
+    }
+    .syn-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0, 255, 136, 0.6); }
+
+    .syn-cta-ghost {
+      display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px;
+      background: rgba(10, 15, 28, 0.85); color: #fff; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700;
+      text-decoration: none; border: 1px solid var(--syn-line-white); backdrop-filter: blur(16px);
+    }
+    .syn-cta-ghost:hover { border-color: var(--syn-emerald); background: rgba(0, 255, 136, 0.08); }
+
+    /* Synapse Section */
+    .syn-section { padding: 160px 80px; border-top: 1px solid var(--syn-line-white); }
+
+    .syn-cards-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 24px; margin-top: 48px;
+    }
+
+    .syn-card {
+      background: var(--syn-panel); border: 1px solid var(--syn-line-white); padding: 36px;
+      backdrop-filter: blur(28px); display: flex; flex-direction: column; justify-content: space-between;
+      min-height: 320px; transition: all 0.25s; cursor: pointer;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    }
+    .syn-card:hover {
+      border-color: var(--syn-emerald); transform: translateY(-4px);
+      box-shadow: 0 20px 50px rgba(0, 255, 136, 0.2), 0 0 20px rgba(0, 255, 136, 0.3);
+    }
+
+    .sc-top { display: flex; flex-direction: column; gap: 14px; }
+    .sc-name { font-family: var(--font-display); font-size: 1.75rem; font-weight: 900; color: #fff; }
+    .sc-trigger { font-family: var(--font-mono); font-size: 0.9rem; color: #fff; font-style: italic; border-left: 3px solid var(--syn-emerald); padding: 8px 12px; background: rgba(255, 255, 255, 0.04); }
+    .sc-desc { font-size: 0.92rem; color: #cbd5e1; line-height: 1.65; }
+    .sc-foot { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; color: var(--syn-dim); padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; }
+
+    /* Interactive Fluid Pulse Console */
+    .fluid-pulse-console {
+      background: #020306; border: 1px solid var(--syn-emerald); padding: 40px; margin-top: 56px;
+      box-shadow: 0 0 35px rgba(0, 255, 136, 0.15);
+    }
+    .fpc-header { display: flex; justify-content: space-between; font-family: var(--font-mono); font-weight: 800; font-size: 0.82rem; color: var(--syn-emerald); margin-bottom: 20px; border-bottom: 1px solid var(--syn-line); padding-bottom: 12px; }
+    .fpc-log { font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.8; color: #e2e8f0; }
+
+    /* Fleet Squadron Table */
+    .syn-fleet-table { width: 100%; border: 1px solid var(--syn-line-white); background: var(--syn-panel); margin-top: 40px; }
+    .sft-row { display: grid; grid-template-columns: 220px 160px 1.5fr 180px 120px; padding: 20px 28px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); align-items: center; }
+    .sft-row.header { background: rgba(0, 255, 136, 0.08); color: var(--syn-emerald); font-family: var(--font-mono); font-weight: 800; font-size: 0.75rem; border-bottom: 1px solid var(--syn-line); }
+    .sft-role { font-family: var(--font-display); font-size: 1.25rem; font-weight: 900; color: #fff; }
+  </style>
+</head>
+<body>
+
+  <!-- ThreeJS Liquid Ferrofluid Canvas -->
+  <div id="synapse-canvas-container">
+    <canvas id="synapse-canvas"></canvas>
+  </div>
+
+  <header class="syn-header">
+    <a href="#hero" class="syn-brand interactive">
+      <span>SKILLIFY // SYNAPSE</span>
+    </a>
+    <div class="header-actions interactive">
+      <a href="https://github.com/trykA123/skillify-core" target="_blank" class="github-link">
+        <span>GITHUB REPO</span>
+        <i data-lucide="arrow-up-right" style="width:14px;height:14px;"></i>
+      </a>
+    </div>
+  </header>
+
+  <main class="syn-main">
+    <section class="syn-hero" id="hero">
+      <div class="syn-tag interactive">
+        <i data-lucide="activity" style="width:14px;height:14px;"></i>
+        PHYSICAL SYNAPSE DYNAMICS // 12 NODES // 10 AUTONOMOUS ROLES
+      </div>
+      <h1 class="syn-h1 interactive">Neural Fluid<br>Architecture</h1>
+      <p class="syn-lead interactive">
+        Cognitive energy flows as continuous mathematical waves. Decomposing complex intent through adaptive fluid resistance, single-writer invariants, and forensic audits with <strong>zero guesswork</strong>.
+      </p>
+      <div class="syn-cta-group interactive">
+        <a href="#matrix" class="syn-cta-btn">
+          <span>EXPLORE SYNAPSES</span>
+          <i data-lucide="arrow-down" style="width:16px;height:16px;"></i>
+        </a>
+        <a href="#fleet" class="syn-cta-ghost">
+          <i data-lucide="bot" style="width:16px;height:16px;"></i>
+          <span>FLEET SQUADRON</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Synapse Matrix -->
+    <section class="syn-section" id="matrix">
+      <div class="syn-tag interactive">[01.00] DISCIPLINE MESH</div>
+      <h2 style="font-family:var(--font-display);font-size:3.5rem;font-weight:900;color:#fff;letter-spacing:-0.03em;" class="interactive">
+        Twelve Cognitive Nodes
+      </h2>
+
+      <div class="syn-cards-grid interactive" id="syn-grid">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Live Impulse Console -->
+      <div class="fluid-pulse-console interactive">
+        <div class="fpc-header">
+          <span>NEURAL IMPULSE TELEMETRY STREAM</span>
+          <span>CONTRACT SIMULATION // STATIC EXAMPLE</span>
+        </div>
+        <div class="fpc-log">
+          [00:00.01] Neural wave packet initiated. Ingress flow scanned via Orientify.<br>
+          [00:00.45] Undumbify: Convergent extraction stabilized. 3 omitted failure mode gates active.<br>
+          [00:01.12] Shapeify: Structural packet partitioned into 3 verified slices.<br>
+          [00:01.85] Shipify: Writer thread locked to Worker. Step-by-step mutations verified (100% test green).<br>
+          [00:02.40] Reviewify: Intent-first verdict certified. 0 Blocking, 0 Material. Ready for merge.
+        </div>
+      </div>
+    </section>
+
+    <!-- Fleet Section -->
+    <section class="syn-section" id="fleet">
+      <div class="syn-tag interactive">[02.00] AUTONOMOUS FLEET</div>
+      <h2 style="font-family:var(--font-display);font-size:3.5rem;font-weight:900;color:#fff;letter-spacing:-0.03em;" class="interactive">
+        Ten Autonomous Roles
+      </h2>
+      <p style="color:#cbd5e1; font-size:1.1rem; max-width:720px; margin-top:12px;" class="interactive">
+        Roles own operational boundaries; skills own execution methods. The fleet keeps
+        boundaries portable while runtimes supply models and tools.
+      </p>
+
+      <div class="syn-fleet-table interactive">
+        <div class="sft-row header">
+          <div>ROLE</div>
+          <div>GROUP</div>
+          <div>OPERATIONAL BOUNDARY</div>
+          <div>ATTACHED SKILL</div>
+          <div style="text-align:right;">MUTABILITY</div>
+        </div>
+        <div id="sft-body">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const SKILLS = [
+      { name: "orientify", mode: "Cartographic", trigger: "I just landed in this repo", desc: "Map territory before touching a line. Trace one flow from ingress to disk." },
+      { name: "undumbify", mode: "Convergent", trigger: "I have a direction but it's vague", desc: "Extract intent from ambiguity, supplying omitted architectural constraints." },
+      { name: "shapeify", mode: "Structural", trigger: "Plan this", desc: "Decompose into executable slices with invariant validation checkpoints." },
+      { name: "shipify", mode: "Disciplined", trigger: "Build this", desc: "Adaptive single-writer execution with immediate halt on broken assumptions." },
+      { name: "reviewify", mode: "Critical", trigger: "Review this", desc: "Intent-first judgment on a 3-tier severity scale: Blocking, Material, Advisory." },
+      { name: "traceify", mode: "Abductive", trigger: "Something broke", desc: "Isolate deterministic reproduction before touching symptom lines." },
+      { name: "promptify", mode: "Coaching", trigger: "Debrief that", desc: "Extract reusable prompting heuristics from real session telemetry." },
+      { name: "explainify", mode: "Pedagogical", trigger: "What does this do?", desc: "Calibrate explanations directly to the user's cognitive depth." },
+      { name: "recordify", mode: "Recording", trigger: "Record this session", desc: "Sanitized session record capture without runtime secrets." },
+      { name: "researchify", mode: "Investigative", trigger: "Research this", desc: "Autonomous evidence gathering against primary specifications." },
+      { name: "librify", mode: "Curatorial", trigger: "Check the library", desc: "Recall evidence-linked lessons across historical fleet sessions." },
+      { name: "audify", mode: "Forensic", trigger: "Audit this", desc: "Forensic measurement against pre-established explicit standards." }
+    ];
+
+    const AGENTS = [
+      { role: "orchestrator", group: "Oversight", desc: "Conductor: delegates tasks, verifies outputs, handles escalations.", skill: "None (Own method)", mutability: "Artifacts only" },
+      { role: "oracle", group: "Oversight", desc: "Decision-consistency check. Protects architectural invariants across turns.", skill: "None (Own method)", mutability: "Read only" },
+      { role: "scout", group: "Recon", desc: "Fast codebase recon and territory mapping.", skill: "orientify", mutability: "Artifacts only" },
+      { role: "context-builder", group: "Recon", desc: "Intent extraction and handoff pack synthesis.", skill: "undumbify", mutability: "Artifacts only" },
+      { role: "researcher", group: "Recon", desc: "Autonomous web research and multi-source evidence gathering.", skill: "researchify", mutability: "Artifacts only" },
+      { role: "questar", group: "Session", desc: "Stewards long exploration and preserves decisions across turns.", skill: "orientify, researchify, undumbify, shapeify, explainify", mutability: "Artifacts only" },
+      { role: "planner", group: "Pipeline", desc: "Turns intent into an executable sliced packet.", skill: "shapeify", mutability: "Artifacts only" },
+      { role: "worker", group: "Pipeline", desc: "The single writer thread. Executes code mutations.", skill: "shipify", mutability: "Code" },
+      { role: "reviewer", group: "Pipeline", desc: "Judges work against original intent and invariants.", skill: "reviewify, audify", mutability: "Artifacts only" },
+      { role: "recorder", group: "Memory", desc: "Writes sanitized, persistent session records.", skill: "recordify", mutability: "Artifacts only" }
+    ];
+
+    /* ThreeJS Ferrofluid Physical Simulation */
+    class FluidEngine {
+      constructor() {
+        this.canvas = document.getElementById("synapse-canvas");
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera.position.set(0, 0, 34);
+
+        this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+        this.sphere = null;
+        this.time = 0;
+
+        this.init();
+      }
+
+      init() {
+        const geo = new THREE.SphereGeometry(10, 80, 80);
+        const mat = new THREE.MeshStandardMaterial({
+          color: 0x00ff88,
+          roughness: 0.1,
+          metalness: 0.9,
+          wireframe: true
+        });
+
+        this.sphere = new THREE.Mesh(geo, mat);
+        this.scene.add(this.sphere);
+
+        const l1 = new THREE.DirectionalLight(0xffffff, 2);
+        l1.position.set(20, 20, 20);
+        this.scene.add(l1);
+
+        const l2 = new THREE.DirectionalLight(0x00ff88, 1.5);
+        l2.position.set(-20, -20, -10);
+        this.scene.add(l2);
+
+        window.addEventListener("resize", () => {
+          this.camera.aspect = window.innerWidth / window.innerHeight;
+          this.camera.updateProjectionMatrix();
+          this.renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        window.addEventListener("mousemove", (e) => {
+          const x = (e.clientX / window.innerWidth - 0.5) * 5;
+          const y = (e.clientY / window.innerHeight - 0.5) * 5;
+          gsap.to(this.sphere.rotation, { y: x, x: y, duration: 0.8 });
+        });
+
+        this.animate();
+      }
+
+      animate() {
+        requestAnimationFrame(() => this.animate());
+        this.time += 0.018;
+
+        const pos = this.sphere.geometry.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+          const u = pos.getX(i);
+          const v = pos.getY(i);
+          const w = pos.getZ(i);
+          const len = Math.sqrt(u * u + v * v + w * w);
+          const wave = Math.sin(u * 0.35 + this.time) * Math.cos(v * 0.35 + this.time) * 1.2;
+          const norm = (10 + wave) / len;
+          pos.setXYZ(i, u * norm, v * norm, w * norm);
+        }
+        pos.needsUpdate = true;
+
+        this.renderer.render(this.scene, this.camera);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      new FluidEngine();
+
+      const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+      function raf(t) { lenis.raf(t); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+
+      const grid = document.getElementById("syn-grid");
+      SKILLS.forEach(s => {
+        const c = document.createElement("div");
+        c.className = "syn-card";
+        c.innerHTML = `
+          <div class="sc-top">
+            <span class="sc-name">${s.name}</span>
+            <div class="sc-trigger">"${s.trigger}"</div>
+            <p class="sc-desc">${s.desc}</p>
+          </div>
+          <div class="sc-foot">
+            <span style="color:var(--syn-emerald); font-weight:800;">${s.mode.toUpperCase()}</span>
+            <span style="color:#fff; font-weight:800;">VIEW SPEC &rarr;</span>
+          </div>
+        `;
+        grid.appendChild(c);
+      });
+
+      const sftBody = document.getElementById("sft-body");
+      AGENTS.forEach(a => {
+        const r = document.createElement("div");
+        r.className = "sft-row";
+        r.innerHTML = `
+          <div class="sft-role">${a.role}</div>
+          <div style="color:var(--syn-emerald); font-weight:800;">${a.group}</div>
+          <div style="color:#cbd5e1; line-height:1.5;">${a.desc}</div>
+          <div style="color:#fff; font-weight:600;">${a.skill}</div>
+          <div style="text-align:right; font-weight:800; color:var(--syn-emerald);">${a.mutability}</div>
+        `;
+        sftBody.appendChild(r);
+      });
+    });
+  </script>
+</body>
+</html>
