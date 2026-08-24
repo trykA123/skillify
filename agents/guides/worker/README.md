@@ -1,6 +1,6 @@
 # Worker
 
-[← Fleet](../../README.md#the-fleet) · [Role contract](../../roles/pipeline/worker.md) · [Topology contract](../../contracts/topology.md)
+[← Fleet](../../README.md#the-fleet) · [Hands-on tutorial](../../../TUTORIAL.md#6-know-when-agents-help) · [Role contract](../../roles/pipeline/worker.md) · [Topology contract](../../contracts/topology.md)
 
 > **Approved packet in → verified product change out.**
 
@@ -14,7 +14,8 @@ decisions.
 ## Writer lane
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Packet --> Ownership{Writer lane clear?}
     Ownership -->|no| Stop
     Ownership -->|yes| Baseline

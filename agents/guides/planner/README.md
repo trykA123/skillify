@@ -1,6 +1,6 @@
 # Planner
 
-[← Fleet](../../README.md#the-fleet) · [Role contract](../../roles/pipeline/planner.md) · [Manifest](../../manifest.json)
+[← Fleet](../../README.md#the-fleet) · [Hands-on tutorial](../../../TUTORIAL.md#6-know-when-agents-help) · [Role contract](../../roles/pipeline/planner.md) · [Manifest](../../manifest.json)
 
 > **Settled intent plus context in → executable packet out.**
 
@@ -13,7 +13,8 @@ still belongs in a packet step.
 ## Planning boundary
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Intent --> Validate[Validate decisions and locations]
     Context --> Validate
     Validate --> Shapeify

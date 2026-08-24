@@ -1,6 +1,6 @@
 # Skillify
 
-[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Selection playbook](references/playbook.md) · [Behavior cases](../../evals/skillify/cases.json)
+[← All skills](../../README.md#skills) · [Hands-on tutorial](../../TUTORIAL.md) · [Runtime contract](SKILL.md) · [Selection playbook](references/playbook.md) · [Behavior cases](../../evals/skillify/cases.json)
 
 > **Your real task in → a skill-and-agent route you understand out.**
 
@@ -19,7 +19,8 @@ set Weight, Verbosity, and Explanation independently.
 ## Teaching loop
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Task[Your real task] --> Stage[Name the current stage]
     Stage --> Skill[Choose the method-owning skill]
     Skill --> Role{Separate ownership needed?}

@@ -10,6 +10,10 @@
 Skillify is a public collection of model-agnostic skills and agent-role contracts for
 research, diagnosis, planning, execution, review, auditing, and interactive teaching.
 
+> [!TIP]
+> New here? Start with the **[15-minute hands-on tutorial](TUTORIAL.md)**. It begins with
+> ordinary prompts—no skill names or control syntax to memorize.
+
 You should not need to write this:
 
 ```text
@@ -28,6 +32,7 @@ The harness infers the method and controls, then lets you choose how to proceed.
 ## Contents
 
 - [How interaction works](#how-interaction-works)
+- [Hands-on tutorial](TUTORIAL.md)
 - [Choice cards](#choice-cards)
 - [Controls](#controls)
 - [Skills](#skills)
@@ -45,7 +50,8 @@ Skills own methods. Agent roles own authority and handoffs. Runtime adapters map
 capabilities onto native tools and permissions.
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     U[Normal user request] --> I[Infer method + controls]
     I --> C{Material choice?}
     C -->|Yes| O[2–4 concrete options]
@@ -153,7 +159,8 @@ Default: **Operational**.
 | Meta | [Skillify](teaching/skillify/README.md) | You want help choosing a method or agent route |
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Unknown[Unknown codebase] --> Orientify
     Broken[Broken behavior] --> Traceify
     External[External facts] --> Researchify
@@ -186,12 +193,9 @@ artifacts. See the [fleet guide](agents/README.md) and [manifest](agents/manifes
 ## Teachify
 
 Teachify uses one stable subject and adapts vocabulary, abstraction, examples, questions,
-and depth across five learner levels:
-
-```mermaid
-flowchart LR
-    L[Layman] --> B[Beginner] --> P[Practitioner] --> A[Advanced] --> E[Expert]
-```
+and depth across five learner levels: **Layman → Beginner → Practitioner → Advanced →
+Expert**. Level changes
+the vocabulary, abstraction, examples, questions, and depth—not the learner's dignity.
 
 Its default deliverable is a self-contained offline HTML lesson. Exercises give immediate
 feedback:

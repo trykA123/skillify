@@ -52,7 +52,8 @@ Examples:
 ## Common routes
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Unknown[Unknown codebase] --> Orientify --> Shapeify
     Vague[Vague direction] --> Undumbify --> Shapeify --> Shipify --> Reviewify
     Broken[Broken behavior] --> Traceify

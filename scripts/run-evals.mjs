@@ -78,6 +78,9 @@ function execFile(command, commandArgs, input) {
     child.stdout.on("data", (chunk) => { stdout += chunk; });
     child.stderr.on("data", (chunk) => { stderr += chunk; });
     child.on("error", reject);
+    child.stdin.on("error", (error) => {
+      if (error.code !== "EPIPE") reject(error);
+    });
     child.on("close", (code) => {
       if (code === 0) resolveRun(stdout.trim());
       else reject(new Error(`${command} exited ${code}: ${stderr.trim()}`));

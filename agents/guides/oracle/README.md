@@ -1,6 +1,6 @@
 # Oracle
 
-[← Fleet](../../README.md#the-fleet) · [Role contract](../../roles/oversight/oracle.md) · [Manifest](../../manifest.json)
+[← Fleet](../../README.md#the-fleet) · [Hands-on tutorial](../../../TUTORIAL.md#6-know-when-agents-help) · [Role contract](../../roles/oversight/oracle.md) · [Manifest](../../manifest.json)
 
 > **Decision fork in → consistency check out.**
 
@@ -13,7 +13,8 @@ does not become the decision owner or edit files.
 ## Decision check
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     History[Prior decisions] --> Reconstruct
     Proposal --> Reconstruct
     Reconstruct --> Check{Consistent?}

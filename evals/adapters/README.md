@@ -5,7 +5,8 @@ OpenCode. The repository does not select a model. Pass `--model` when you need a
 comparison, or omit it to use the harness default.
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Cases[Portable cases] --> Runner[run-evals.mjs]
     Runner --> Harness{Codex · Claude · OpenCode}
     Harness --> Candidate[Candidate response]

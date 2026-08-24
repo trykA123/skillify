@@ -1,6 +1,6 @@
 # Teachify
 
-[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Teaching method](references/pedagogy.md) · [HTML contract](references/html-lessons.md) · [Behavior cases](../../evals/teachify/cases.json)
+[← All skills](../../README.md#skills) · [Hands-on tutorial](../../TUTORIAL.md#5-learn-with-teachify) · [Runtime contract](SKILL.md) · [Teaching method](references/pedagogy.md) · [HTML contract](references/html-lessons.md) · [Behavior cases](../../evals/teachify/cases.json)
 
 > **One subject, the right level, an interactive lesson that proves understanding.**
 
@@ -10,7 +10,8 @@ lesson with immediate, accessible exercises. It does not build a learner databas
 silently retain session content.
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Topic[Real topic] --> Choice{Choose approach}
     Choice --> Level[Layman → Expert]
     Level --> Lesson[Anchor → mechanism → boundary → application]

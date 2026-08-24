@@ -1,6 +1,6 @@
 # Traceify
 
-[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/traceify/cases.json)
+[← All skills](../../README.md#skills) · [Hands-on tutorial](../../TUTORIAL.md) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/traceify/cases.json)
 
 > **Symptom in → proven root cause and guarded repair out.**
 
@@ -19,7 +19,8 @@ the original trigger no longer fails. Non-trivial fixes route to the delivery pi
 ## Repair loop
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Symptom --> Reproduce
     Reproduce --> Hypotheses[Rank falsifiable hypotheses]
     Hypotheses --> Test[Cheapest discriminating test]

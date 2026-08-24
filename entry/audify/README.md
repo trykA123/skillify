@@ -1,6 +1,6 @@
 # Audify
 
-[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/audify/cases.json)
+[← All skills](../../README.md#skills) · [Hands-on tutorial](../../TUTORIAL.md) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/audify/cases.json)
 
 > **Contract-free subject in → measurable condition report out.**
 
@@ -19,7 +19,8 @@ final artifact is a self-contained HTML report with no runtime network dependenc
 ## Flow
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Subject --> Standard[Define 3–6 criteria]
     Standard --> Observe[Collect reproducible evidence]
     Observe --> Grade[Grade severity and effort]

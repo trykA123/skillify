@@ -1,6 +1,6 @@
 # Reviewer
 
-[← Fleet](../../README.md#the-fleet) · [Role contract](../../roles/pipeline/reviewer.md) · [Independence contract](../../contracts/independence.md)
+[← Fleet](../../README.md#the-fleet) · [Hands-on tutorial](../../../TUTORIAL.md#6-know-when-agents-help) · [Role contract](../../roles/pipeline/reviewer.md) · [Independence contract](../../contracts/independence.md)
 
 > **Intent plus accepted revision in → findings and one verdict out.**
 
@@ -13,7 +13,8 @@ requires reviewer independence and evidence from the reviewed revision.
 ## Review boundary
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Intent --> Review
     Revision --> Review
     Review --> Proof[Located findings + proof]

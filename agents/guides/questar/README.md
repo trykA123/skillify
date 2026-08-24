@@ -1,6 +1,6 @@
 # Questar
 
-[← Fleet](../../README.md#the-fleet) · [Role contract](../../roles/session/questar.md) · [Manifest](../../manifest.json)
+[← Fleet](../../README.md#the-fleet) · [Hands-on tutorial](../../../TUTORIAL.md#6-know-when-agents-help) · [Role contract](../../roles/session/questar.md) · [Manifest](../../manifest.json)
 
 > **Long exploration in → continuous decisions without premature planning out.**
 
@@ -13,7 +13,8 @@ Undumbify, Teachify, or Shapeify only when each method is needed.
 ## Session path
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Explore --> Dossier[Facts, assumptions, decisions, rejected paths]
     Dossier --> Next[Next material move]
     Next --> Dossier

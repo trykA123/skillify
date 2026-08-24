@@ -1,6 +1,6 @@
 # Orchestrator
 
-[← Fleet](../../README.md#the-fleet) · [Role contract](../../roles/oversight/orchestrator.md) · [Topology contract](../../contracts/topology.md)
+[← Fleet](../../README.md#the-fleet) · [Hands-on tutorial](../../../TUTORIAL.md#6-know-when-agents-help) · [Role contract](../../roles/oversight/orchestrator.md) · [Topology contract](../../contracts/topology.md)
 
 > **Outcome in → smallest verified topology out.**
 
@@ -14,7 +14,8 @@ continues only when new evidence supports another attempt.
 ## Control loop
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Outcome --> Select[Select smallest topology]
     Select --> Delegate[Assign bounded outcomes]
     Delegate --> Verify{Handoff complete?}

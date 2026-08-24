@@ -1,6 +1,6 @@
 # Orientify
 
-[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/orientify/cases.json)
+[← All skills](../../README.md#skills) · [Hands-on tutorial](../../TUTORIAL.md) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/orientify/cases.json)
 
 > **Unknown codebase in → evidence-backed map out. No edits.**
 
@@ -24,7 +24,8 @@ the traced flow that supports the map.
 ## Flow
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Entry[Real entry point] --> Path[Trace one execution path]
     Path --> Seams[Test module seams]
     Seams --> Risks[Name landmines]

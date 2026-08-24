@@ -1,6 +1,6 @@
 # Shipify
 
-[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Weight modules](references/weights) · [Behavior cases](../../evals/shipify/cases.json)
+[← All skills](../../README.md#skills) · [Hands-on tutorial](../../TUTORIAL.md) · [Runtime contract](SKILL.md) · [Weight modules](references/weights) · [Behavior cases](../../evals/shipify/cases.json)
 
 > **Approved packet in → verified implementation out.**
 
@@ -19,7 +19,8 @@ and stops when evidence disproves a plan premise.
 ## Execution loop
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Packet --> Baseline
     Baseline --> Step[Smallest coherent step]
     Step --> Verify{Verification green?}

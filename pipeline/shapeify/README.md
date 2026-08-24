@@ -1,6 +1,6 @@
 # Shapeify
 
-[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Weight modules](references/weights) · [Behavior cases](../../evals/shapeify/cases.json)
+[← All skills](../../README.md#skills) · [Hands-on tutorial](../../TUTORIAL.md) · [Runtime contract](SKILL.md) · [Weight modules](references/weights) · [Behavior cases](../../evals/shapeify/cases.json)
 
 > **Settled intent in → junior-executable worker packet out.**
 
@@ -19,7 +19,8 @@ Packet Defect.
 ## Packet construction
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Intent --> Weight{Select weight}
     Weight --> Requirements[Requirements + invariants]
     Requirements --> Steps[Located, tagged steps]

@@ -1,6 +1,6 @@
 # Researchify
 
-[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/researchify/cases.json)
+[← All skills](../../README.md#skills) · [Hands-on tutorial](../../TUTORIAL.md) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/researchify/cases.json)
 
 > **Decision question in → ranked, sourced findings out.**
 
@@ -18,7 +18,8 @@ conflicting sources, or a durable handoff.
 ## Source ladder
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Question --> Official[Official sources first]
     Official --> Corroborate[Corroborate non-official claims]
     Corroborate --> Conflicts[Preserve conflicts and gaps]

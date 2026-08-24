@@ -1,6 +1,6 @@
 # Agents — harness-neutral roles
 
-[← Repository guide](../README.md) · [Manifest](manifest.json) · [Selection contract](contracts/selection.md) · [Fleet evals](../evals/agents/cases.json)
+[← Repository guide](../README.md) · [Hands-on tutorial](../TUTORIAL.md) · [Manifest](manifest.json) · [Selection contract](contracts/selection.md) · [Fleet evals](../evals/agents/cases.json)
 
 > **Skills own methods. Roles own authority. Adapters own native tools.**
 
@@ -14,7 +14,8 @@ For substantial work, the parent presents two to four concrete routes and waits 
 user's choice. The recommendation comes first.
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Request --> Choices{2–4 routes}
     Choices --> Solo[One owner]
     Choices --> Recon[Recon → Planner]
@@ -56,6 +57,7 @@ independent and carried unchanged through handoffs.
 ## Authority model
 
 ```mermaid
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
 flowchart TB
     User[User / decision owner] --> Parent[Parent session]
     Parent --> Read[Read-only lanes]

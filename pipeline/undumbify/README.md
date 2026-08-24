@@ -1,6 +1,6 @@
 # Undumbify
 
-[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/undumbify/cases.json)
+[← All skills](../../README.md#skills) · [Hands-on tutorial](../../TUTORIAL.md) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/undumbify/cases.json)
 
 > **Rough direction in → architect-grade intent out.**
 
@@ -20,7 +20,8 @@ materially different outcomes. Discoverable facts are inspected instead of asked
 ## Intent path
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Prompt[Rough prompt] --> Facts[Extract known facts]
     Facts --> Gaps[Supply missing decisions]
     Gaps --> Fork{Material ambiguity?}

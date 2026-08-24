@@ -1,6 +1,6 @@
 # Scout
 
-[← Fleet](../../README.md#the-fleet) · [Role contract](../../roles/recon/scout.md) · [Manifest](../../manifest.json)
+[← Fleet](../../README.md#the-fleet) · [Hands-on tutorial](../../../TUTORIAL.md#6-know-when-agents-help) · [Role contract](../../roles/recon/scout.md) · [Manifest](../../manifest.json)
 
 > **Bounded recon question in → exact locations and minimum context out.**
 
@@ -12,7 +12,8 @@ the first file the receiver must open. It does not plan or edit.
 ## Recon path
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Question --> Search[Search broadly]
     Search --> Read[Read selectively]
     Read --> Trace[Trace one real flow]

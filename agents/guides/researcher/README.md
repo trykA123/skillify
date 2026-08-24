@@ -1,6 +1,6 @@
 # Researcher
 
-[← Fleet](../../README.md#the-fleet) · [Role contract](../../roles/recon/researcher.md) · [Manifest](../../manifest.json)
+[← Fleet](../../README.md#the-fleet) · [Hands-on tutorial](../../../TUTORIAL.md#6-know-when-agents-help) · [Role contract](../../roles/recon/researcher.md) · [Manifest](../../manifest.json)
 
 > **Focused external question in → sourced research handoff out.**
 
@@ -13,7 +13,8 @@ runtime lacks web research, it reports the missing capability and stops.
 ## Evidence path
 
 ```mermaid
-flowchart LR
+%%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
+flowchart TB
     Assignment --> Capability{Research capability present?}
     Capability -->|no| Gap[Report capability gap]
     Capability -->|yes| Researchify
