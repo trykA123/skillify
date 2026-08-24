@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate portable contracts
+        run: node scripts/validate-core.mjs
+      - name: Validate shell syntax
+        run: bash -n install.sh scripts/test-installer.sh scripts/test-agent-adapters.sh scripts/test-eval-runner.sh
+      - name: Test installer safety
+        run: bash scripts/test-installer.sh
+      - name: Test native agent adapters
+        run: bash scripts/test-agent-adapters.sh
+      - name: Test executable eval runner
+        run: bash scripts/test-eval-runner.sh
+      - name: Validate interactive lesson template
+        run: node teaching/teachify/scripts/validate-lesson.mjs teaching/teachify/assets/lesson-template.html
+      - name: Test interactive lesson behavior
+        run: node scripts/test-teachify-interaction.mjs
+      - name: Check patch whitespace
+        run: git diff --check HEAD

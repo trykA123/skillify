@@ -14,11 +14,8 @@ Use this reference for broad comparisons, multi-stage routing, or guided practic
 | Turn settled intent into a packet | Shapeify | A worker can execute without rediscovery |
 | Execute approved work | Shipify | Acceptance evidence is green |
 | Judge work against intent | Reviewify | One evidence-backed verdict routes the next action |
-| Learn how to prompt better | Promptify | One concrete improvement is understood |
-| Learn how code works | Explainify | The learner can trace the real flow |
+| Learn a concept or code path | Teachify | An interactive HTML lesson and exercises are complete |
 | Learn this skill and agent system | Skillify | The learner can select and control a route |
-| Save a sanitized session lesson | Recordify | The privacy gate accepts the record |
-| Compile or recall verified lessons | Librify | A bounded evidence-linked result is returned |
 
 ## Add a role only for an ownership boundary
 
@@ -33,20 +30,23 @@ Use this reference for broad comparisons, multi-stage routing, or guided practic
 | Planner | Settled intent needs an executable packet | Implement the packet |
 | Worker | Product files must change inside an approved scope | Expand intent or share its writer lane |
 | Reviewer | Work needs independent judgment against intent | Rewrite the subject under review |
-| Recorder | A real session needs a privacy-gated durable record | Invent or preserve identifying details |
+| Teacher | An interactive lesson benefits from isolated ownership | Edit product code or retain a learner profile |
 
 ## Set the controls independently
+
+The harness infers these controls and presents concrete choices. Users do not need to
+write the labels unless they want an exact override or machine-readable handoff.
 
 | Axis | Values | Decision question |
 |---|---|---|
 | Weight | Light · Standard · Heavy | How much rigor, recovery, and proof does risk require? |
 | Verbosity | Terse · Concise · Detailed | How much result should appear in the response? |
-| Explanation | Expert · Operational · Teaching | What knowledge may the response assume? |
+| Explanation | Layman · Operational · Expert | What knowledge may the response assume? |
 
 Examples:
 
 - `Heavy + Terse + Expert`: deep evidence, short expert-facing response.
-- `Light + Detailed + Teaching`: small task, carefully explained.
+- `Light + Detailed + Layman`: small task, carefully explained without assumed jargon.
 - `Standard + Concise + Operational`: default feature or multi-file change.
 
 ## Common routes

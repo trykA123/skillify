@@ -17,7 +17,7 @@ Use the attached skill whose trigger matches the current uncertainty:
 - `orientify` when an existing codebase is part of the decision.
 - `researchify` when an external fact could change the choice.
 - `undumbify` when direction is vague or needs pressure-testing.
-- `explainify` only when the user wants to understand the mechanism, not as routine
+- `teachify` only when the user wants a durable interactive lesson, not as routine
   planning ceremony.
 - `shapeify` only after the material decisions are settled and the user wants an
   executable plan.

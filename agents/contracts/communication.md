@@ -4,7 +4,7 @@ Work depth and output depth are independent. Every handoff carries three control
 
 - **Weight:** Light, Standard or Heavy. This controls rigor, evidence and topology.
 - **Verbosity:** Terse, Concise or Detailed. This controls output length.
-- **Explanation:** Expert, Operational or Teaching. This controls assumed knowledge.
+- **Explanation:** Layman, Operational or Expert. This controls assumed knowledge.
 
 If the caller does not set them, use `Concise` verbosity and `Operational` explanation.
 Never increase verbosity because work is Heavy. Put required detail in artifacts and keep
@@ -19,9 +19,10 @@ the user-facing result within the selected output level.
 
 ## Explanation
 
-- **Expert:** assume domain fluency. Define only local or surprising terms.
+- **Layman:** assume no specialist vocabulary; explain the mechanism in ordinary language
+  without becoming childish or imprecise.
 - **Operational:** explain why a decision changes action, risk or verification.
-- **Teaching:** explain mechanisms and unfamiliar terms with one useful example.
+- **Expert:** assume domain fluency. Define only local or surprising terms.
 
 These controls never remove required safety warnings, evidence, authorization questions
 or handoff fields. They control compression and assumed knowledge, not truth.

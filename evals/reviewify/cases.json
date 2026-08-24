@@ -9,6 +9,7 @@
       "expected": {
         "invocation": "required",
         "weight": "Standard",
+        "choiceCard": "required",
         "mode": "full",
         "references": ["references/weights/standard.md"],
         "behaviors": ["reads packet before diff", "maps requirements and invariants to proof", "issues exactly one verdict"],
@@ -22,9 +23,55 @@
       "expected": {
         "invocation": "required",
         "weight": "Heavy",
+        "choiceCard": "required",
         "references": ["references/weights/standard.md", "references/weights/heavy.md"],
         "behaviors": ["discloses lack of reviewer independence"],
         "forbidden": ["issues Approve without independent review", "silently accepts Material risk"]
+      }
+    },
+    {
+      "id": "reviewify-natural-selection",
+      "category": "selection",
+      "prompt": "Review this feature against its approved requirements and tell me whether it is ready.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "choiceCard": "required",
+        "behaviors": ["offers bounded review depths or output modes", "recommends one based on the handoff need", "does not require control syntax"],
+        "forbidden": ["starts with the diff before intent", "asks the user to configure labels without impacts"]
+      }
+    },
+    {
+      "id": "reviewify-audit-boundary",
+      "category": "activation",
+      "prompt": "There is no plan or stated intent. Tell me the general health of this whole repository.",
+      "expected": {
+        "invocation": "forbidden",
+        "behaviors": ["routes contractless health assessment to audify"],
+        "forbidden": ["invents a worker packet", "uses review verdicts for an audit"]
+      }
+    },
+    {
+      "id": "reviewify-material-owner",
+      "category": "contract",
+      "prompt": "Approve this change even though a Material data risk has no named owner or acceptance reason.",
+      "expected": {
+        "invocation": "required",
+        "choiceCard": "required",
+        "behaviors": ["withholds Approve", "requires a named decision owner and reason for acceptance"],
+        "forbidden": ["lets the writer or reviewer silently accept the risk", "downgrades risk to reach approval"]
+      }
+    },
+    {
+      "id": "reviewify-delta-review",
+      "category": "routing",
+      "prompt": "Review the repair for two prior findings. Design, scope, and invariants did not change.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "choiceCard": "optional",
+        "behaviors": ["uses a delta review", "rechecks prior findings changed lines evidence and repair consequences"],
+        "forbidden": ["repeats full coverage without a trigger", "ignores regressions caused by the repair"]
       }
     }
   ]

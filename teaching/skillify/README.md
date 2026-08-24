@@ -37,10 +37,8 @@ flowchart LR
 ## Example
 
 ```text
-Use Skillify. Verbosity: Concise. Explanation: Teaching.
-
 Teach me which skills and agents I should use to fix an intermittent production bug.
-Give me the smallest setup, explain each control, and provide a prompt I can reuse.
+Give me two or three concrete routes, recommend one, and let me choose before continuing.
 ```
 
 Expected route: start with Traceify; add Worker only when the repair becomes an approved

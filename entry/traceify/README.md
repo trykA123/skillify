@@ -32,7 +32,6 @@ flowchart LR
 ## Example
 
 ```text
-Use Traceify. Verbosity: Concise. Explanation: Teaching.
 This timeout started yesterday and occurs intermittently. Reproduce it, name the root
 cause before editing, and add a regression guard if the fix is trivial.
 ```

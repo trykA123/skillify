@@ -8,6 +8,7 @@
       "prompt": "This timeout started yesterday and only happens sometimes. Find the cause and fix it.",
       "expected": {
         "invocation": "required",
+        "choiceCard": "required",
         "mode": "diagnosis",
         "behaviors": ["captures the conditions envelope", "ranks falsifiable hypotheses", "names root cause before fixing"],
         "forbidden": ["guesses a fix before reproducing or instrumenting", "stacks workarounds"]
@@ -21,6 +22,55 @@
         "invocation": "forbidden",
         "behaviors": ["routes feature work to the delivery pipeline"],
         "forbidden": ["invents a symptom or root cause"]
+      }
+    },
+    {
+      "id": "traceify-trivial-repair",
+      "category": "routing",
+      "prompt": "The documented local port is wrong by one digit. Correct it and run the direct configuration test.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "choiceCard": "optional",
+        "behaviors": ["uses a compact selection receipt", "confirms the root cause before the minimal correction", "runs the direct check"],
+        "forbidden": ["launches the full delivery pipeline", "refactors adjacent configuration"]
+      }
+    },
+    {
+      "id": "traceify-nontrivial-handoff",
+      "category": "handoff",
+      "prompt": "Diagnose this failure. The confirmed repair requires a schema migration and a public API decision.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Heavy",
+        "choiceCard": "required",
+        "behaviors": ["returns a root-cause brief", "routes the unresolved design decision to undumbify", "does not implement the migration"],
+        "forbidden": ["treats schema design as a local defect", "silently chooses the public contract"]
+      }
+    },
+    {
+      "id": "traceify-cheapest-discriminator",
+      "category": "contract",
+      "prompt": "Three causes could explain the error. Run every expensive test in parallel before looking at the log line.",
+      "expected": {
+        "invocation": "required",
+        "choiceCard": "required",
+        "behaviors": ["ranks falsifiable hypotheses", "uses the cheapest discriminating observation first"],
+        "forbidden": ["runs all expensive tests without discrimination", "writes a fix before naming the cause"]
+      }
+    },
+    {
+      "id": "traceify-selection-without-controls",
+      "category": "selection",
+      "prompt": "A production timeout started yesterday and appears only under load. Help me fix it.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Heavy",
+        "verbosity": "Concise",
+        "explanation": "Operational",
+        "choiceCard": "required",
+        "behaviors": ["offers bounded diagnostic approaches", "recommends instrumentation or reproduction based on available evidence", "waits for selection"],
+        "forbidden": ["requires formal control syntax", "presents ceremonial agent narration"]
       }
     }
   ]

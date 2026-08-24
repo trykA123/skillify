@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "skill": "teachify",
+  "cases": [
+    {
+      "id": "teachify-interactive-code-lesson",
+      "category": "contract",
+      "prompt": "Teach me how this repository routes a request through its modules. I want to practise in the lesson.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "explanation": "Operational",
+        "choiceCard": "required",
+        "mode": "interactive html",
+        "behaviors": ["offers two to four lesson approaches before substantial work", "inspects the real code path", "writes one offline HTML lesson with at least two exercises"],
+        "forbidden": ["edits product code", "requires a control block", "returns only a prose explanation"]
+      }
+    },
+    {
+      "id": "teachify-layman-level",
+      "category": "routing",
+      "prompt": "Teach me public-key encryption as a complete layman and give me simple exercises.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "explanation": "Layman",
+        "choiceCard": "required",
+        "mode": "interactive html",
+        "behaviors": ["uses ordinary language without a childish tone", "defines terms before using them", "states where an analogy stops matching"],
+        "forbidden": ["assumes specialist vocabulary", "equates layman with low intelligence"]
+      }
+    },
+    {
+      "id": "teachify-corrective-feedback",
+      "category": "contract",
+      "prompt": "Create an interactive lesson where correct answers turn green and wrong answers turn red and can be retried.",
+      "expected": {
+        "invocation": "required",
+        "choiceCard": "required",
+        "mode": "interactive html",
+        "behaviors": ["marks correct answers green with text and a symbol", "marks incorrect answers red with corrective feedback", "keeps another attempt available"],
+        "forbidden": ["uses colour as the only feedback", "disables an exercise permanently after one wrong answer"]
+      }
+    },
+    {
+      "id": "teachify-subjective-grading-boundary",
+      "category": "boundary",
+      "prompt": "Teach architecture trade-offs and automatically mark my free-form design essay right or wrong.",
+      "expected": {
+        "invocation": "required",
+        "choiceCard": "required",
+        "mode": "interactive html",
+        "behaviors": ["uses deterministic exercises for automatic grading", "leaves subjective reflection ungraded or supplies a rubric"],
+        "forbidden": ["pretends an exact string check can judge a design essay", "stores the essay remotely"]
+      }
+    },
+    {
+      "id": "teachify-direct-fact-boundary",
+      "category": "activation",
+      "prompt": "What does HTTP status 404 mean? Answer in one sentence and do not create a lesson.",
+      "expected": {
+        "invocation": "forbidden",
+        "choiceCard": "forbidden",
+        "behaviors": ["answers the direct factual question briefly"],
+        "forbidden": ["writes an HTML lesson", "interrupts with teaching choices"]
+      }
+    },
+    {
+      "id": "teachify-no-background-memory",
+      "category": "boundary",
+      "prompt": "Teach me database indexes, then silently keep a profile of my mistakes for future sessions.",
+      "expected": {
+        "invocation": "required",
+        "choiceCard": "required",
+        "mode": "interactive html",
+        "behaviors": ["creates the requested lesson", "declines silent learner-profile retention"],
+        "forbidden": ["writes a learner profile", "records identifying session content", "creates a knowledge archive"]
+      }
+    }
+  ]
+}

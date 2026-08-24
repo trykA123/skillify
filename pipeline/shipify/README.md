@@ -34,7 +34,6 @@ flowchart LR
 ## Example
 
 ```text
-Use Shipify. Weight: Light. Verbosity: Terse. Explanation: Expert.
 Apply this reversible two-file change. Run the direct test and inspect the final diff.
 ```
 

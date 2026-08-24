@@ -18,7 +18,7 @@
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
           "category": {
-            "enum": ["activation", "routing", "contract", "boundary", "handoff"]
+            "enum": ["activation", "routing", "selection", "contract", "boundary", "handoff", "integration"]
           },
           "prompt": { "type": "string", "minLength": 10 },
           "context": { "type": "array", "items": { "type": "string" } },
@@ -29,6 +29,10 @@
             "properties": {
               "invocation": { "enum": ["required", "forbidden"] },
               "weight": { "enum": ["Light", "Standard", "Heavy"] },
+              "verbosity": { "enum": ["Terse", "Concise", "Detailed"] },
+              "explanation": { "enum": ["Layman", "Operational", "Expert"] },
+              "choiceCard": { "enum": ["required", "optional", "forbidden"] },
+              "topology": { "enum": ["solo", "delegated"] },
               "mode": { "type": "string", "minLength": 1 },
               "references": { "type": "array", "items": { "type": "string" } },
               "behaviors": {

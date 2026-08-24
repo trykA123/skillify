@@ -34,7 +34,6 @@ flowchart LR
 ## Example
 
 ```text
-Use Orientify. Verbosity: Concise. Explanation: Operational.
 Trace the main request flow and identify the first file a new developer must read.
 Do not edit anything.
 ```

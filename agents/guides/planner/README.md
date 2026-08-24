@@ -25,7 +25,6 @@ flowchart LR
 ## Example assignment
 
 ```text
-Use Planner. Weight: Standard. Verbosity: Concise. Explanation: Operational.
 Create a packet another agent can execute without this conversation. Map every
 requirement and invariant to located steps and observable acceptance.
 ```

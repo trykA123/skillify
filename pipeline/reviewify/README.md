@@ -36,7 +36,6 @@ flowchart LR
 ## Example
 
 ```text
-Use Reviewify. Weight: Standard. Verbosity: Concise. Explanation: Operational.
 Review this diff against its worker packet. Return only located findings and one verdict.
 ```
 

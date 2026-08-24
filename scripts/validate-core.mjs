@@ -86,7 +86,7 @@ if (!(await exists(rootReadmePath))) {
 } else {
   const source = await text(rootReadmePath);
   await markdownReferences(rootReadmePath, source);
-  for (const topic of ["Weight controls rigor", "Verbosity controls length", "Explanation controls assumed knowledge", "--with-agents"]) {
+  for (const topic of ["Natural requests first", "Choice cards", "Weight controls rigor", "Layman", "--native-agents"]) {
     if (!source.includes(topic)) fail(`README.md: missing required topic ${topic}`);
   }
   if (!source.includes("```mermaid")) fail("README.md: missing system diagram");
@@ -101,7 +101,7 @@ if (!(await exists(agentsReadmePath))) {
   if (!source.includes("```mermaid")) fail("agents/README.md: missing fleet diagram");
 }
 
-const skillFamilies = ["entry", "pipeline", "teaching", "memory"];
+const skillFamilies = ["entry", "pipeline", "teaching"];
 const skills = new Map();
 
 for (const family of skillFamilies) {
@@ -119,9 +119,13 @@ for (const family of skillFamilies) {
     if (agnosticTerms.test(source)) {
       fail(`${relative(root, skillPath)}: portable skill contains a vendor or model name`);
     }
-    if (!source.includes("Verbosity: Terse | Concise | Detailed") ||
-        !source.includes("Explanation: Expert | Operational | Teaching")) {
+    if (!source.includes("Weight: Light | Standard | Heavy") ||
+        !source.includes("Verbosity: Terse | Concise | Detailed") ||
+        !source.includes("Explanation: Layman | Operational | Expert")) {
       fail(`${relative(root, skillPath)}: missing portable output controls`);
+    }
+    if (!source.includes("choice") && !source.includes("Choice")) {
+      fail(`${relative(root, skillPath)}: missing natural-language choice behavior`);
     }
 
     const guidePath = join(familyRoot, entry.name, "README.md");
@@ -182,9 +186,12 @@ if (evalSchema?.properties?.schemaVersion?.const !== 1) {
   fail("evals/schema.json: schemaVersion contract must be 1");
 }
 
-const evalCategories = new Set(["activation", "routing", "contract", "boundary", "handoff"]);
+const evalCategories = new Set(["activation", "routing", "selection", "contract", "boundary", "handoff", "integration"]);
 const invocationRules = new Set(["required", "forbidden"]);
 const deliveryWeights = new Set(["Light", "Standard", "Heavy"]);
+const verbosityLevels = new Set(["Terse", "Concise", "Detailed"]);
+const explanationLevels = new Set(["Layman", "Operational", "Expert"]);
+const choiceCardRules = new Set(["required", "optional", "forbidden"]);
 const evalIds = new Set();
 
 for (const [skillName, skillPath] of skills) {
@@ -199,8 +206,8 @@ for (const [skillName, skillPath] of skills) {
   if (!suite) continue;
   if (suite.schemaVersion !== 1) fail(`${label}: schemaVersion must be 1`);
   if (suite.skill !== skillName) fail(`${label}: skill must be ${skillName}`);
-  if (!Array.isArray(suite.cases) || suite.cases.length < 2) {
-    fail(`${label}: at least two behavioral cases are required`);
+  if (!Array.isArray(suite.cases) || suite.cases.length < 6) {
+    fail(`${label}: at least six behavioral cases are required`);
     continue;
   }
 
@@ -226,6 +233,15 @@ for (const [skillName, skillPath] of skills) {
     }
     if (expected.weight !== undefined && !deliveryWeights.has(expected.weight)) {
       fail(`${caseLabel}: unknown weight ${expected.weight}`);
+    }
+    if (expected.verbosity !== undefined && !verbosityLevels.has(expected.verbosity)) {
+      fail(`${caseLabel}: unknown verbosity ${expected.verbosity}`);
+    }
+    if (expected.explanation !== undefined && !explanationLevels.has(expected.explanation)) {
+      fail(`${caseLabel}: unknown explanation ${expected.explanation}`);
+    }
+    if (expected.choiceCard !== undefined && !choiceCardRules.has(expected.choiceCard)) {
+      fail(`${caseLabel}: unknown choiceCard rule ${expected.choiceCard}`);
     }
     if (!Array.isArray(expected.behaviors) || expected.behaviors.length === 0) {
       fail(`${caseLabel}: expected.behaviors must be non-empty`);
@@ -264,8 +280,8 @@ if (verbosityConfig.default !== "Concise" ||
   fail("agents/manifest.json: verbosity must define Terse, Concise and Detailed with Concise default");
 }
 if (explanationConfig.default !== "Operational" ||
-    JSON.stringify(explanationConfig.levels) !== JSON.stringify(["Expert", "Operational", "Teaching"])) {
-  fail("agents/manifest.json: explanation must define Expert, Operational and Teaching with Operational default");
+    JSON.stringify(explanationConfig.levels) !== JSON.stringify(["Layman", "Operational", "Expert"])) {
+  fail("agents/manifest.json: explanation must define Layman, Operational and Expert with Operational default");
 }
 
 for (const [contractName, contractTarget] of Object.entries(manifest.contracts ?? {})) {
@@ -382,16 +398,15 @@ if (agentEvalSchema?.properties?.schemaVersion?.const !== 1) {
   fail("evals/agents/schema.json: schemaVersion contract must be 1");
 }
 const agentEvalCategories = new Set(["selection", "authority", "handoff", "topology", "communication", "capability"]);
-const verbosityLevels = new Set(["Terse", "Concise", "Detailed"]);
-const explanationLevels = new Set(["Expert", "Operational", "Teaching"]);
 const coveredAgents = new Set();
 let agentEvalCount = 0;
+let agentChoiceCases = 0;
 
 if (agentSuite) {
   if (agentSuite.schemaVersion !== 1) fail("evals/agents/cases.json: schemaVersion must be 1");
   if (agentSuite.subject !== "fleet") fail("evals/agents/cases.json: subject must be fleet");
-  if (!Array.isArray(agentSuite.cases) || agentSuite.cases.length < referencedRoles.size) {
-    fail("evals/agents/cases.json: every active role needs behavioral coverage");
+  if (!Array.isArray(agentSuite.cases) || agentSuite.cases.length < referencedRoles.size + 8) {
+    fail("evals/agents/cases.json: every active role plus collision and selection coverage is required");
   } else {
     for (const [index, evalCase] of agentSuite.cases.entries()) {
       const caseLabel = `evals/agents/cases.json: cases[${index}]`;
@@ -424,6 +439,10 @@ if (agentSuite) {
       if (expected.explanation !== undefined && !explanationLevels.has(expected.explanation)) {
         fail(`${caseLabel}: unknown explanation ${expected.explanation}`);
       }
+      if (expected.choiceCard !== undefined && !choiceCardRules.has(expected.choiceCard)) {
+        fail(`${caseLabel}: unknown choiceCard rule ${expected.choiceCard}`);
+      }
+      if (expected.choiceCard === "required") agentChoiceCases += 1;
       if (!Array.isArray(expected.behaviors) || expected.behaviors.length === 0) {
         fail(`${caseLabel}: expected.behaviors must be non-empty`);
       }
@@ -433,6 +452,7 @@ if (agentSuite) {
     }
   }
 }
+if (agentChoiceCases < 4) fail("evals/agents/cases.json: at least four choice-card cases are required");
 for (const agentName of Object.keys(manifest.agents ?? {})) {
   if (!coveredAgents.has(agentName)) fail(`evals/agents/cases.json: no case covers ${agentName}`);
 }
@@ -444,8 +464,20 @@ const installedSkills = [...installerList].sort();
 if (JSON.stringify(sourceSkills) !== JSON.stringify(installedSkills)) {
   fail(`install.sh: SKILLS does not match source skills\n  source: ${sourceSkills.join(", ")}\n  installer: ${installedSkills.join(", ")}`);
 }
-for (const option of ["--skill", "--family", "--exclude", "--update", "--status", "--dry-run", "--agents-only", "--agents-target"]) {
+for (const option of ["--skill", "--family", "--exclude", "--update", "--status", "--dry-run", "--agents-only", "--agents-target", "--native-agents"]) {
   if (!installer.includes(option)) fail(`install.sh: missing public option ${option}`);
+}
+
+for (const requiredFile of [
+  "scripts/render-agents.mjs",
+  "scripts/run-evals.mjs",
+  "scripts/compare-evals.mjs",
+  "scripts/test-agent-adapters.sh",
+  "scripts/test-eval-runner.sh",
+  "teaching/teachify/scripts/validate-lesson.mjs",
+  "teaching/teachify/assets/lesson-template.html",
+]) {
+  if (!(await exists(join(root, requiredFile)))) fail(`${requiredFile}: required reliability component is missing`);
 }
 for (const preset of ["[claude]", "[opencode]"]) {
   if (!installer.includes(preset)) fail(`install.sh: missing required preset ${preset}`);

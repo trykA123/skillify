@@ -27,9 +27,8 @@ flowchart LR
 ## Example assignment
 
 ```text
-Use Orchestrator. Weight: Standard. Verbosity: Terse. Explanation: Expert.
-Have Scout map the affected flow, Planner create a packet, Worker implement it, and
-Reviewer verify the accepted revision. Keep one writer. Return outcomes, not narration.
+Coordinate this feature with one writer and independent review. First give me a few
+concrete team routes and let me choose; return outcomes, not orchestration narration.
 ```
 
 > [!IMPORTANT]

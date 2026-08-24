@@ -32,7 +32,6 @@ flowchart LR
 ## Example
 
 ```text
-Use Shapeify. Weight: Heavy. Verbosity: Terse. Explanation: Expert.
 Plan this production schema migration. Require rollback, recovery proof, isolated writer
 lanes, and independent review.
 ```

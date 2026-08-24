@@ -33,7 +33,6 @@ flowchart LR
 ## Example
 
 ```text
-Use Undumbify. Weight: Standard. Verbosity: Concise. Explanation: Operational.
 I want login to feel faster and safer. Supply the missing decisions and ask only
 questions that can change the architecture.
 ```

@@ -5,10 +5,13 @@ description: Turns a rough prompt into intent an architect would have written â€
 
 # Undumbify
 
-**Output controls:** Inherit `Verbosity: Terse | Concise | Detailed` and
-`Explanation: Expert | Operational | Teaching`; default to Concise and Operational.
-These control presentation, never evidence or safety. Use plain technical English:
-active voice, stable terms, conditions before commands, and no filler or process theatre.
+**Controls are optional.** Infer `Weight: Light | Standard | Heavy`,
+`Verbosity: Terse | Concise | Detailed`, and
+`Explanation: Layman | Operational | Expert`; default to risk-based weight, Concise,
+and Operational. Never require a control block. Before substantial work, offer two to
+four concrete approaches through the runtime's choice UI or a numbered list; recommend
+one and wait for the selection. For a tiny obvious request, show a one-line selection
+receipt and proceed. Controls never weaken evidence, safety, or authorization.
 
 **Rough prompt in, architect-grade intent out.** First rung of the ladder: the user
 brings the problem, you bring the judgment they don't have yet.
@@ -84,7 +87,6 @@ target_state: <observable change>
 supplied: <decisions you raised that the user never mentioned â€” the architect pass>
 assumptions: <labeled defaults, each with what breaks if wrong>
 risks: <from evidence>
-skill_map_signal: <one honest line about input quality, or "none">
 topology: single-agent | delegated-agent
 ```
 

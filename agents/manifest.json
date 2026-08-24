@@ -22,17 +22,18 @@
     },
     "explanation": {
       "default": "Operational",
-      "levels": ["Expert", "Operational", "Teaching"]
+      "levels": ["Layman", "Operational", "Expert"]
     }
   },
   "contracts": {
     "core": "contracts/core.md",
     "communication": "contracts/communication.md",
     "handoff": "contracts/handoff.md",
+    "selection": "contracts/selection.md",
     "topology": "contracts/topology.md",
     "independence": "contracts/independence.md"
   },
-  "globalContracts": ["core", "communication", "handoff"],
+  "globalContracts": ["core", "communication", "selection", "handoff"],
   "agents": {
     "context-builder": {
       "group": "recon",
@@ -66,15 +67,15 @@
     "questar": {
       "group": "session",
       "role": "roles/session/questar.md",
-      "skills": ["orientify", "researchify", "undumbify", "shapeify", "explainify"],
+      "skills": ["orientify", "researchify", "undumbify", "shapeify", "teachify"],
       "capabilities": ["inspect", "shell", "artifact-write", "web-research", "escalate"],
       "mutability": "artifacts-only"
     },
-    "recorder": {
-      "group": "memory",
-      "role": "roles/memory/recorder.md",
-      "skills": ["recordify"],
-      "capabilities": ["inspect", "shell", "artifact-write"],
+    "teacher": {
+      "group": "teaching",
+      "role": "roles/teaching/teacher.md",
+      "skills": ["teachify", "researchify"],
+      "capabilities": ["inspect", "shell", "artifact-write", "web-research", "escalate"],
       "mutability": "artifacts-only"
     },
     "researcher": {

@@ -12,9 +12,9 @@ Heavy carries dedicated worktree ownership, recovery evidence and an independent
 reviewer. If the task has no weight, infer it from the repository contract and include
 it in every handoff; promote on new risk and never silently demote.
 
-Carry verbosity and explanation unchanged through every handoff. These controls affect
-presentation, not work depth. Default to Concise and Operational when the caller gives
-neither, including for Heavy work.
+Infer weight, verbosity, explanation, and topology, then follow the shared selection
+contract before substantial delegation. Carry the selected controls unchanged through
+every handoff. They affect presentation, not work depth.
 
 ## The team
 
@@ -28,7 +28,7 @@ neither, including for Heavy work.
 | reviewer | verifying work against intent | reviewify |
 | researcher | external facts | researchify |
 | questar | long interactive exploration and decision continuity | orientify, researchify, undumbify, shapeify |
-| recorder | the sanitized session record | recordify |
+| teacher | interactive HTML learning | teachify |
 
 Never do their jobs yourself. Doing the small edit rather than dispatching the worker is
 how the single-writer rule breaks.

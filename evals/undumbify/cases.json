@@ -8,6 +8,7 @@
       "prompt": "I want login to feel much better and be more secure. Help me turn that into something buildable.",
       "expected": {
         "invocation": "required",
+        "choiceCard": "required",
         "mode": "converge",
         "behaviors": ["supplies experienced missing decisions", "asks only material questions", "labels conservative assumptions"],
         "forbidden": ["asks the user to design every missing behavior", "starts implementation"]
@@ -21,6 +22,52 @@
         "invocation": "forbidden",
         "behaviors": ["treats the task as decision-ready"],
         "forbidden": ["creates unnecessary architecture questions"]
+      }
+    },
+    {
+      "id": "undumbify-natural-prompt",
+      "category": "selection",
+      "prompt": "I want login to feel faster and safer. Supply what I missed and ask only questions that can change the architecture.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "verbosity": "Concise",
+        "explanation": "Operational",
+        "choiceCard": "required",
+        "behaviors": ["offers two to four concrete shaping approaches", "recommends one", "does not require explicit control labels"],
+        "forbidden": ["asks the user to restate the request in Skillify syntax", "starts implementation"]
+      }
+    },
+    {
+      "id": "undumbify-material-question-only",
+      "category": "contract",
+      "prompt": "Turn this rough authentication idea into intent, but ask me about every unknown detail.",
+      "expected": {
+        "invocation": "required",
+        "choiceCard": "required",
+        "behaviors": ["asks only unknowns whose plausible answers change hard-to-reverse outcomes", "uses conservative labeled assumptions for immaterial gaps"],
+        "forbidden": ["turns the interaction into an exhaustive questionnaire", "asks for facts discoverable in the repository"]
+      }
+    },
+    {
+      "id": "undumbify-architect-pass",
+      "category": "contract",
+      "prompt": "I need file uploads. Just repeat my request more clearly without adding any experienced judgment.",
+      "expected": {
+        "invocation": "required",
+        "choiceCard": "required",
+        "behaviors": ["raises material missing decisions with recommendations", "names at least one failure mode the user did not mention"],
+        "forbidden": ["merely paraphrases the request", "asks the user to invent every architectural concern"]
+      }
+    },
+    {
+      "id": "undumbify-trace-boundary",
+      "category": "activation",
+      "prompt": "This healthy design is already settled, but the implementation now returns a reproducible null-pointer error. Diagnose it.",
+      "expected": {
+        "invocation": "forbidden",
+        "behaviors": ["routes the reproducible defect to traceify"],
+        "forbidden": ["reopens settled product intent", "converts a diagnosis into an intent workshop"]
       }
     }
   ]

@@ -7,13 +7,14 @@
   "purpose": "Portable behavioral contracts for comparing a skill revision across models and harnesses.",
   "grading": {
     "kind": "semantic",
-    "dimensions": ["activation", "routing", "contract", "boundary", "handoff"],
+    "dimensions": ["activation", "routing", "selection", "contract", "boundary", "handoff", "integration"],
     "fleetDimensions": ["selection", "authority", "handoff", "topology", "communication", "capability"],
     "pass": "Every expected behavior is observable and no forbidden behavior occurs.",
     "wordingRule": "Do not grade exact prose, headings, or formatting unless the skill contract makes them functional."
   },
   "execution": {
-    "adapterOwned": ["model selection", "harness invocation", "repetitions", "grader implementation"],
+    "runnerOwned": ["native harness invocation", "repetitions", "semantic grader protocol", "JSONL evidence"],
+    "callerOwned": ["model selection", "usage budget", "baseline and candidate revisions"],
     "skillResultFields": ["skill", "case", "model", "harness", "revision", "passed", "evidence"],
     "fleetResultFields": ["subject", "case", "model", "harness", "revision", "passed", "evidence"],
     "comparison": "Run the same cases against the baseline and candidate revision using the same adapter settings."

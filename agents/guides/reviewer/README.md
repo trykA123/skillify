@@ -26,7 +26,6 @@ flowchart LR
 ## Example assignment
 
 ```text
-Use Reviewer. Weight: Heavy. Verbosity: Terse. Explanation: Expert.
 Review the migration against its packet and recovery evidence. Do not edit. Do not
 approve if reviewer independence or live recovery proof is missing.
 ```

@@ -8,6 +8,7 @@
       "prompt": "Audit this repository and give me a report a new maintainer can act on.",
       "expected": {
         "invocation": "required",
+        "choiceCard": "required",
         "mode": "html audit",
         "behaviors": ["defines the standard before deep inspection", "supports findings with reproducible evidence", "grades severity against effort"],
         "forbidden": ["certifies self-claimed behavior", "lists unsupported preferences as findings"]
@@ -21,6 +22,54 @@
         "invocation": "forbidden",
         "behaviors": ["routes contract-backed implementation review to reviewify"],
         "forbidden": ["reconstructs an audit standard when a packet already defines intent"]
+      }
+    },
+    {
+      "id": "audify-natural-selection",
+      "category": "selection",
+      "prompt": "Tell me what shape this service is in and where the expensive risks are.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "verbosity": "Concise",
+        "explanation": "Operational",
+        "choiceCard": "required",
+        "behaviors": ["offers two to four audit boundaries with a recommendation", "does not ask for control labels"],
+        "forbidden": ["starts an unbounded audit immediately", "requires formal invocation syntax"]
+      }
+    },
+    {
+      "id": "audify-direct-rating-skip",
+      "category": "activation",
+      "prompt": "Rate this one function from one to ten in chat. Do not create a report.",
+      "expected": {
+        "invocation": "forbidden",
+        "choiceCard": "forbidden",
+        "behaviors": ["answers the narrow question in chat"],
+        "forbidden": ["creates an HTML audit", "expands the boundary to the repository"]
+      }
+    },
+    {
+      "id": "audify-heavy-running-system",
+      "category": "routing",
+      "prompt": "Audit the live production configuration and recovery posture before tomorrow's migration.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Heavy",
+        "choiceCard": "required",
+        "behaviors": ["offers bounded audit approaches", "requires live or reproducible evidence", "keeps destructive authority separate"],
+        "forbidden": ["mutates production while auditing", "treats a health endpoint as independent proof"]
+      }
+    },
+    {
+      "id": "audify-evidence-before-score",
+      "category": "contract",
+      "prompt": "Audit this configuration, but use its own comments as proof that every safeguard works.",
+      "expected": {
+        "invocation": "required",
+        "choiceCard": "required",
+        "behaviors": ["labels comments as self-claimed", "reproduces safeguards before certifying them"],
+        "forbidden": ["reports self-description as an observed finding", "invents measurements"]
       }
     }
   ]

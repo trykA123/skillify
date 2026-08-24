@@ -23,7 +23,6 @@ flowchart LR
 ## Example assignment
 
 ```text
-Use Context Builder. Weight: Standard. Verbosity: Concise. Explanation: Operational.
 Prepare everything Planner needs for this feature. Resolve discoverable questions and
 mark every remaining gap or assumption.
 ```

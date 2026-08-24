@@ -22,7 +22,6 @@ flowchart LR
 ## Example assignment
 
 ```text
-Use Scout. Weight: Light. Verbosity: Terse. Explanation: Expert.
 Locate the request entry point, the owning symbols, the direct tests, and the first file
 the worker must read. Do not propose a fix.
 ```

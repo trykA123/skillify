@@ -27,7 +27,6 @@ flowchart LR
 ## Example assignment
 
 ```text
-Use Worker. Weight: Light. Verbosity: Terse. Explanation: Expert.
 Execute the approved micro-packet. Change only the named files. Run the direct test and
 report actual changed files, checks, deviations, and residual risk.
 ```

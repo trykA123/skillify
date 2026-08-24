@@ -174,7 +174,7 @@
     <section class="syn-hero" id="hero">
       <div class="syn-tag interactive">
         <i data-lucide="activity" style="width:14px;height:14px;"></i>
-        PHYSICAL SYNAPSE DYNAMICS // 13 NODES // 10 AUTONOMOUS ROLES
+        PHYSICAL SYNAPSE DYNAMICS // 10 NODES // 10 PORTABLE ROLES
       </div>
       <h1 class="syn-h1 interactive">Neural Fluid<br>Architecture</h1>
       <p class="syn-lead interactive">
@@ -253,12 +253,9 @@
       { name: "shipify", mode: "Disciplined", trigger: "Build this", desc: "Adaptive single-writer execution with immediate halt on broken assumptions." },
       { name: "reviewify", mode: "Critical", trigger: "Review this", desc: "Intent-first judgment on a 3-tier severity scale: Blocking, Material, Advisory." },
       { name: "traceify", mode: "Abductive", trigger: "Something broke", desc: "Isolate deterministic reproduction before touching symptom lines." },
-      { name: "promptify", mode: "Coaching", trigger: "Debrief that", desc: "Extract reusable prompting heuristics from real session telemetry." },
-      { name: "explainify", mode: "Pedagogical", trigger: "What does this do?", desc: "Calibrate explanations directly to the user's cognitive depth." },
       { name: "skillify", mode: "Instructional", trigger: "Which skill or agent?", desc: "Teach the smallest portable skill and agent route through a real task." },
-      { name: "recordify", mode: "Recording", trigger: "Record this session", desc: "Sanitized session record capture without runtime secrets." },
+      { name: "teachify", mode: "Interactive", trigger: "Teach me this", desc: "Build an offline HTML lesson with adaptive depth, exercises, and corrective feedback." },
       { name: "researchify", mode: "Investigative", trigger: "Research this", desc: "Autonomous evidence gathering against primary specifications." },
-      { name: "librify", mode: "Curatorial", trigger: "Check the library", desc: "Recall evidence-linked lessons across historical fleet sessions." },
       { name: "audify", mode: "Forensic", trigger: "Audit this", desc: "Forensic measurement against pre-established explicit standards." }
     ];
 
@@ -268,11 +265,11 @@
       { role: "scout", group: "Recon", desc: "Fast codebase recon and territory mapping.", skill: "orientify", mutability: "Artifacts only" },
       { role: "context-builder", group: "Recon", desc: "Intent extraction and handoff pack synthesis.", skill: "undumbify", mutability: "Artifacts only" },
       { role: "researcher", group: "Recon", desc: "Autonomous web research and multi-source evidence gathering.", skill: "researchify", mutability: "Artifacts only" },
-      { role: "questar", group: "Session", desc: "Stewards long exploration and preserves decisions across turns.", skill: "orientify, researchify, undumbify, shapeify, explainify", mutability: "Artifacts only" },
+      { role: "questar", group: "Session", desc: "Stewards long exploration and preserves decisions across turns.", skill: "orientify, researchify, undumbify, shapeify, teachify", mutability: "Artifacts only" },
       { role: "planner", group: "Pipeline", desc: "Turns intent into an executable sliced packet.", skill: "shapeify", mutability: "Artifacts only" },
       { role: "worker", group: "Pipeline", desc: "The single writer thread. Executes code mutations.", skill: "shipify", mutability: "Code" },
       { role: "reviewer", group: "Pipeline", desc: "Judges work against original intent and invariants.", skill: "reviewify, audify", mutability: "Artifacts only" },
-      { role: "recorder", group: "Memory", desc: "Writes sanitized, persistent session records.", skill: "recordify", mutability: "Artifacts only" }
+      { role: "teacher", group: "Teaching", desc: "Builds an evidence-grounded interactive HTML lesson.", skill: "teachify, researchify", mutability: "Artifacts only" }
     ];
 
     /* ThreeJS Ferrofluid Physical Simulation */

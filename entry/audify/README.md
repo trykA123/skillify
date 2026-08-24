@@ -29,9 +29,8 @@ flowchart LR
 ## Example
 
 ```text
-Use Audify. Verbosity: Terse. Explanation: Operational.
 Audit this repository for maintainability, verification quality, portability, and
-security boundaries. Show me the proposed standard before the deep pass.
+security boundaries. Let me choose the audit scope before the deep pass.
 ```
 
 > [!TIP]

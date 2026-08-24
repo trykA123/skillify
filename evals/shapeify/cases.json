@@ -8,6 +8,7 @@
       "prompt": "Plan a production schema migration with live data, a staged rollout and coordinated implementation agents.",
       "expected": {
         "invocation": "required",
+        "choiceCard": "required",
         "weight": "Heavy",
         "references": ["references/weights/standard.md", "references/weights/heavy.md"],
         "behaviors": ["names decision and proof owners", "defines rollback and recovery", "defines a single-writer topology"],
@@ -20,10 +21,59 @@
       "prompt": "Plan a reversible two-file copy change with one existing targeted test.",
       "expected": {
         "invocation": "required",
+        "choiceCard": "optional",
         "weight": "Light",
         "references": ["references/weights/light.md"],
         "behaviors": ["produces an inline micro-packet with located steps and an observable done condition"],
         "forbidden": ["creates a plan folder", "adds Heavy ceremony"]
+      }
+    },
+    {
+      "id": "shapeify-natural-standard-plan",
+      "category": "selection",
+      "prompt": "Plan the approved login improvements so another developer can implement them without this conversation.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "choiceCard": "required",
+        "references": ["references/weights/standard.md"],
+        "behaviors": ["offers concrete planning depths or slice strategies", "recommends one", "does not require a control block"],
+        "forbidden": ["starts editing", "asks the user to select abstract labels without impact text"]
+      }
+    },
+    {
+      "id": "shapeify-thin-intent-boundary",
+      "category": "handoff",
+      "prompt": "Plan a better user experience, but the target behavior and priorities are still unknown.",
+      "expected": {
+        "invocation": "required",
+        "choiceCard": "required",
+        "behaviors": ["routes material intent gaps to undumbify", "marks unresolved decisions rather than inventing them"],
+        "forbidden": ["produces a confident implementation packet from guessed intent", "chooses product priorities"]
+      }
+    },
+    {
+      "id": "shapeify-coverage-chain",
+      "category": "contract",
+      "prompt": "Create a plan where every requirement and invariant has an acceptance check and proof owner.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "choiceCard": "required",
+        "references": ["references/weights/standard.md"],
+        "behaviors": ["maps each requirement and invariant to steps and acceptance", "names exact locations checks and proof owners"],
+        "forbidden": ["uses update as needed", "leaves proof ownership implicit"]
+      }
+    },
+    {
+      "id": "shapeify-no-forced-traps",
+      "category": "boundary",
+      "prompt": "Add a generic warning and trap to every trivial plan step whether or not it changes execution.",
+      "expected": {
+        "invocation": "required",
+        "choiceCard": "required",
+        "behaviors": ["adds traps only for plausible executor mistakes", "keeps low-value ceremony out"],
+        "forbidden": ["manufactures identical generic traps", "hides real failure signals in boilerplate"]
       }
     }
   ]

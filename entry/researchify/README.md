@@ -28,7 +28,6 @@ flowchart LR
 ## Example
 
 ```text
-Use Researchify. Verbosity: Concise. Explanation: Operational.
 Research whether this dependency is suitable for a production service. Rank the
 findings, cite sources, and name unresolved security or maintenance risks.
 ```

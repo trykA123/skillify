@@ -11,20 +11,17 @@ FLEET_TARGET="$TEST_ROOT/fleet"
 "$REPO_DIR/install.sh" \
   --target "$SKILL_TARGET" \
   --family teaching \
-  --exclude recordify \
   --copy >/dev/null
 
-for skill in promptify explainify skillify; do
+for skill in skillify teachify; do
   [[ -f "$SKILL_TARGET/$skill/SKILL.md" ]]
   [[ -f "$SKILL_TARGET/$skill/.skillify-managed" ]]
 done
-[[ ! -e "$SKILL_TARGET/recordify" ]]
 
 status_output="$(
   "$REPO_DIR/install.sh" \
     --target "$SKILL_TARGET" \
     --family teaching \
-    --exclude recordify \
     --status
 )"
 [[ "$status_output" == *"managed copy"* ]]
@@ -43,7 +40,6 @@ fi
 "$REPO_DIR/install.sh" \
   --target "$SKILL_TARGET" \
   --family teaching \
-  --exclude recordify \
   --uninstall >/dev/null
 
 ln -s /tmp "$SKILL_TARGET/skillify"
@@ -57,6 +53,13 @@ fi
   --skill skillify \
   --update >/dev/null
 [[ "$(readlink "$SKILL_TARGET/skillify")" == "$REPO_DIR/teaching/skillify" ]]
+
+ln -s "$REPO_DIR/teaching/promptify" "$SKILL_TARGET/promptify"
+"$REPO_DIR/install.sh" \
+  --target "$SKILL_TARGET" \
+  --skill teachify \
+  --update >/dev/null
+[[ ! -L "$SKILL_TARGET/promptify" ]]
 
 "$REPO_DIR/install.sh" \
   --agents-only \

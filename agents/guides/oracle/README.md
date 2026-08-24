@@ -25,7 +25,6 @@ flowchart LR
 ## Example assignment
 
 ```text
-Use Oracle. Verbosity: Concise. Explanation: Operational.
 Check whether this proposed architecture pivot contradicts decisions already made.
 Name the exact decision that changed and the evidence that can justify the pivot.
 ```

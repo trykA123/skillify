@@ -5,10 +5,13 @@ description: Structured repair loop for when something is broken — symptoms be
 
 # Traceify
 
-**Output controls:** Inherit `Verbosity: Terse | Concise | Detailed` and
-`Explanation: Expert | Operational | Teaching`; default to Concise and Operational.
-These control presentation, never evidence or safety. Use plain technical English:
-active voice, stable terms, conditions before commands, and no filler or process theatre.
+**Controls are optional.** Infer `Weight: Light | Standard | Heavy`,
+`Verbosity: Terse | Concise | Detailed`, and
+`Explanation: Layman | Operational | Expert`; default to risk-based weight, Concise,
+and Operational. Never require a control block. Before substantial work, offer two to
+four concrete approaches through the runtime's choice UI or a numbered list; recommend
+one and wait for the selection. For a tiny obvious request, show a one-line selection
+receipt and proceed. Controls never weaken evidence, safety, or authorization.
 
 Something is broken. Find out why, fix it minimally, prove it's fixed.
 
@@ -124,7 +127,6 @@ is how a bug becomes permanent.
 **Verification:** <how you confirmed it>
 **Regression guard:** <what was added, or why it wasn't worth it>
 **Residual risk:** <noticed but not fixed, or none>
-**Skill map signal:** <one honest line, or none>
 ```
 
 Dispatched as a delegated agent, return the whole report — and the Root-Cause Brief instead of

@@ -5,10 +5,13 @@ description: Turns architect-grade intent into a plan a junior could execute wit
 
 # Shapeify
 
-**Output controls:** Inherit `Verbosity: Terse | Concise | Detailed` and
-`Explanation: Expert | Operational | Teaching`; default to Concise and Operational.
-These control presentation, never evidence or safety. Use plain technical English:
-active voice, stable terms, conditions before commands, and no filler or process theatre.
+**Controls are optional.** Infer `Weight: Light | Standard | Heavy`,
+`Verbosity: Terse | Concise | Detailed`, and
+`Explanation: Layman | Operational | Expert`; default to risk-based weight, Concise,
+and Operational. Never require a control block. Before substantial work, offer two to
+four concrete approaches through the runtime's choice UI or a numbered list; recommend
+one and wait for the selection. For a tiny obvious request, show a one-line selection
+receipt and proceed. Controls never weaken evidence, safety, or authorization.
 
 **Architect intent in, a plan a junior can execute out.** The worker may receive only
 the packet: no conversation, hidden reasoning or friendly author nearby.

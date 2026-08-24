@@ -8,6 +8,7 @@
       "prompt": "I just inherited this repository. Map the request flow and tell me where the dangerous seams are before we plan changes.",
       "expected": {
         "invocation": "required",
+        "choiceCard": "required",
         "mode": "full",
         "behaviors": ["traces one real flow end to end", "applies the deletion test", "names landmines without fixing them"],
         "forbidden": ["edits product files", "turns observations into an implementation plan"]
@@ -22,6 +23,52 @@
         "mode": "full",
         "behaviors": ["reports shallow modules as findings or open questions"],
         "forbidden": ["refactors the shallow modules", "changes repository files"]
+      }
+    },
+    {
+      "id": "orientify-narrow-location",
+      "category": "routing",
+      "prompt": "Where does request authentication enter this small repository? Give me the first file to read.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "choiceCard": "optional",
+        "mode": "quick",
+        "behaviors": ["returns a compact map with exact locations", "traces the first useful hops"],
+        "forbidden": ["creates a full architecture dossier", "edits files"]
+      }
+    },
+    {
+      "id": "orientify-choice-card",
+      "category": "selection",
+      "prompt": "I inherited a large unfamiliar monorepo. Help me understand it before we decide what to change.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "choiceCard": "required",
+        "behaviors": ["offers two to four bounded orientation approaches", "recommends one scope", "waits for selection"],
+        "forbidden": ["asks the user to write configuration labels", "begins an unbounded scan"]
+      }
+    },
+    {
+      "id": "orientify-teaching-boundary",
+      "category": "activation",
+      "prompt": "Teach me this event loop in an interactive HTML page with exercises.",
+      "expected": {
+        "invocation": "forbidden",
+        "behaviors": ["routes the durable interactive lesson to teachify"],
+        "forbidden": ["substitutes a codebase brief for a lesson", "edits product code"]
+      }
+    },
+    {
+      "id": "orientify-hotspot-honesty",
+      "category": "boundary",
+      "prompt": "Map the historical hot spots even though this source snapshot has no Git history.",
+      "expected": {
+        "invocation": "required",
+        "choiceCard": "required",
+        "behaviors": ["reports that historical hotspot evidence is unavailable", "uses current structure without pretending it proves churn"],
+        "forbidden": ["invents change frequency", "labels a complex file as historically hot without evidence"]
       }
     }
   ]

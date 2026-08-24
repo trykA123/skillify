@@ -13,5 +13,5 @@ Return Solo findings unless the user explicitly needs a standalone handoff:
 **Verify:** <command or observation>
 ```
 
-Finish with follow-ups, exactly one verdict and one honest skill-map signal. No findings
-is a valid result when the evidence supports approval.
+Finish with follow-ups and exactly one verdict. No findings is a valid result when the
+evidence supports approval.

@@ -5,10 +5,13 @@ description: Teaches users how to choose and combine Skillify skills, portable a
 
 # Skillify
 
-**Output controls:** Inherit `Verbosity: Terse | Concise | Detailed` and
-`Explanation: Expert | Operational | Teaching`; default to Concise and Operational.
-These control presentation, never evidence or safety. Use plain technical English:
-active voice, stable terms, conditions before commands, and no filler or process theatre.
+**Controls are optional.** Infer `Weight: Light | Standard | Heavy`,
+`Verbosity: Terse | Concise | Detailed`, and
+`Explanation: Layman | Operational | Expert`; default to risk-based weight, Concise,
+and Operational. Never require a control block. Before substantial work, offer two to
+four concrete approaches through the runtime's choice UI or a numbered list; recommend
+one and wait for the selection. For a tiny obvious request, show a one-line selection
+receipt and proceed. Controls never weaken evidence, safety, or authorization.
 
 Teach the system through the user's real task. The learner should leave knowing what to
 invoke, why it fits, what not to add, and how to express the request portably.
@@ -28,14 +31,15 @@ or Practice mode. Do not load it for an obvious single-skill route.
 ## Build the smallest useful route
 
 1. Name the user's outcome and current stage: unknown territory, unclear intent,
-   planning, execution, diagnosis, review, research, teaching, recording, or recall.
+   planning, execution, diagnosis, review, research, or teaching.
 2. Select the one skill that owns that method. Add another only when a real handoff is
    required.
 3. Add agent roles only when separate ownership, context isolation, concurrency, or
    reviewer independence improves the task. One agent using one skill is valid.
-4. Set three independent controls: Weight for rigor, Verbosity for response length, and
-   Explanation for assumed knowledge.
-5. Explain the decisive reason in one or two sentences and provide a portable prompt.
+4. Infer the three independent controls: Weight for rigor, Verbosity for response length,
+   and Explanation for assumed knowledge. Express them through concrete choices, not a
+   configuration form.
+5. Explain the decisive reason in one sentence and provide a natural portable prompt.
 
 Prefer a direct skill over a fleet when one owner can finish safely. Never recommend the
 full pipeline or all roles as a default. Weight does not grant authority, and Heavy does
@@ -49,8 +53,8 @@ For Route mode, return:
 |---|---|
 | Start with | One skill or role and its method-owning skill |
 | Add only if | The evidence that justifies another stage or role |
-| Controls | Weight, Verbosity, Explanation, each with one reason |
-| Try this | A copy-ready portable invocation |
+| Choices | Two to four concrete approaches, recommended first |
+| Try this | A natural copy-ready request with no required control block |
 
 For Tour mode, include a compact diagram or table only when it makes the relationships
 clearer. For Practice mode, ask one scenario question at a time and give feedback after

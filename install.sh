@@ -9,7 +9,8 @@ CONFIG_BASE="${XDG_CONFIG_HOME:-$HOME/.config}"
 CODEX_BASE="${CODEX_HOME:-$HOME/.codex}"
 CLAUDE_BASE="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 
-SKILLS=(orientify undumbify shapeify shipify reviewify traceify promptify explainify skillify recordify researchify librify audify)
+SKILLS=(orientify undumbify shapeify shipify reviewify traceify skillify teachify researchify audify)
+RETIRED_SKILLS=(promptify explainify recordify librify)
 
 declare -A SKILL_FAMILY=(
   [orientify]=entry
@@ -20,11 +21,20 @@ declare -A SKILL_FAMILY=(
   [shapeify]=pipeline
   [shipify]=pipeline
   [reviewify]=pipeline
-  [promptify]=teaching
-  [explainify]=teaching
   [skillify]=teaching
-  [recordify]=teaching
-  [librify]=memory
+  [teachify]=teaching
+)
+
+declare -A NATIVE_AGENT_GLOBAL_DIR=(
+  [codex]="$CODEX_BASE/agents"
+  [claude]="$CLAUDE_BASE/agents"
+  [opencode]="$CONFIG_BASE/opencode/agents"
+)
+
+declare -A NATIVE_AGENT_PROJECT_DIR=(
+  [codex]=".codex/agents"
+  [claude]=".claude/agents"
+  [opencode]=".opencode/agents"
 )
 
 # Paths track current public agent conventions. Use --target when a runtime moves or
@@ -128,6 +138,7 @@ CUSTOM_TARGETS=()
 SKILL_REQUESTS=()
 FAMILY_REQUESTS=()
 EXCLUSIONS=()
+NATIVE_AGENT_REQUESTS=()
 
 usage() {
   cat <<'EOF'
@@ -142,10 +153,11 @@ Targets:
 
 Selection:
   --skill NAME[,NAME]     Install only named skills; repeatable
-  --family NAME[,NAME]    Install only entry, pipeline, teaching, or memory
+  --family NAME[,NAME]    Install only entry, pipeline, or teaching
   --exclude NAME[,NAME]   Exclude named skills from the selection
   --with-agents           Also install the portable agent fleet package
   --agents-only           Install only the portable agent fleet package
+  --native-agents NAMES   Generate native agents for codex, claude, or opencode
 
 Actions and safety:
   --link                  Create symlinks into this checkout (default)
@@ -167,6 +179,7 @@ Examples:
   ./install.sh --project --family pipeline --exclude reviewify --copy
   ./install.sh --target /path/to/skills --dry-run
   ./install.sh --harness claude,opencode --status
+  ./install.sh --harness codex,claude,opencode --native-agents codex,claude,opencode --update
 EOF
 }
 
@@ -281,6 +294,22 @@ validate_fleet_target() {
   esac
 }
 
+cleanup_retired_skills() {
+  local target_dir="$1"
+  local retired dst link
+  for retired in "${RETIRED_SKILLS[@]}"; do
+    dst="$target_dir/$retired"
+    if [[ -L "$dst" ]]; then
+      link="$(readlink "$dst")"
+      if [[ "$link" == "$REPO_DIR/"* ]]; then
+        if [[ "$DRY_RUN" -eq 1 ]]; then printf '    would remove retired %s\n' "$retired"; else rm -- "$dst"; fi
+      fi
+    elif [[ -d "$dst" && -f "$dst/.skillify-managed" ]]; then
+      if [[ "$DRY_RUN" -eq 1 ]]; then printf '    would remove retired %s\n' "$retired"; else rm -rf -- "$dst"; fi
+    fi
+  done
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --link) MODE="link"; shift ;;
@@ -293,6 +322,11 @@ while [[ $# -gt 0 ]]; do
     --dry-run) DRY_RUN=1; shift ;;
     --with-agents) WITH_AGENTS=1; shift ;;
     --agents-only) AGENTS_ONLY=1; WITH_AGENTS=1; shift ;;
+    --native-agents)
+      [[ $# -ge 2 ]] || { echo "install: --native-agents needs a comma-separated value" >&2; exit 2; }
+      append_csv NATIVE_AGENT_REQUESTS "$2"
+      shift 2
+      ;;
     --all) HARNESS_REQUESTS=(all); shift ;;
     --list) LIST_TARGETS=1; shift ;;
     --list-skills) LIST_SKILLS=1; shift ;;
@@ -360,7 +394,7 @@ else
     REQUESTED_SKILLS["$skill"]=1
   done
   for family in "${FAMILY_REQUESTS[@]}"; do
-    [[ "$family" =~ ^(entry|pipeline|teaching|memory)$ ]] || { echo "install: unknown family '$family'" >&2; exit 2; }
+    [[ "$family" =~ ^(entry|pipeline|teaching)$ ]] || { echo "install: unknown family '$family'" >&2; exit 2; }
     for skill in "${SKILLS[@]}"; do
       [[ "${SKILL_FAMILY[$skill]}" == "$family" ]] && REQUESTED_SKILLS["$skill"]=1
     done
@@ -438,6 +472,7 @@ if [[ "$AGENTS_ONLY" -eq 0 ]]; then
     if [[ "$ACTION" == "install" && "$DRY_RUN" -eq 0 ]]; then
       mkdir -p "$target_dir"
     fi
+    if [[ "$ACTION" == "install" ]]; then cleanup_retired_skills "$target_dir"; fi
 
     for skill in "${ACTIVE_SKILLS[@]}"; do
       src="$(skill_src "$skill")"
@@ -506,5 +541,24 @@ if [[ "$WITH_AGENTS" -eq 1 ]]; then
     fi
   fi
 fi
+
+for native_harness in "${NATIVE_AGENT_REQUESTS[@]}"; do
+  native_harness="$(canonical_harness "$native_harness")"
+  if [[ "$SCOPE" == "global" ]]; then
+    native_target="${NATIVE_AGENT_GLOBAL_DIR[$native_harness]:-}"
+  else
+    native_target="${NATIVE_AGENT_PROJECT_DIR[$native_harness]:-}"
+  fi
+  [[ -n "$native_target" ]] || { echo "install: native agents are supported for codex, claude, and opencode; got '$native_harness'" >&2; exit 2; }
+  native_args=(--harness "$native_harness" --dest "$native_target")
+  [[ "$DRY_RUN" -eq 0 ]] || native_args+=(--dry-run)
+  [[ "$FORCE" -eq 0 ]] || native_args+=(--force)
+  case "$ACTION" in
+    install) ;;
+    status) native_args+=(--check) ;;
+    uninstall) native_args+=(--uninstall) ;;
+  esac
+  node "$REPO_DIR/scripts/render-agents.mjs" "${native_args[@]}"
+done
 
 printf 'Done.\n'

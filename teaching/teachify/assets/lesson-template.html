@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teachify lesson template</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: oklch(97% 0.012 250);
+      --panel: oklch(100% 0 0);
+      --ink: oklch(24% 0.025 255);
+      --muted: oklch(52% 0.035 255);
+      --line: oklch(86% 0.025 250);
+      --accent: oklch(57% 0.18 255);
+      --good: oklch(55% 0.16 145);
+      --good-bg: oklch(94% 0.055 145);
+      --bad: oklch(54% 0.2 25);
+      --bad-bg: oklch(94% 0.055 25);
+      --focus: oklch(70% 0.18 255);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: oklch(18% 0.025 255);
+        --panel: oklch(23% 0.028 255);
+        --ink: oklch(94% 0.015 250);
+        --muted: oklch(72% 0.035 250);
+        --line: oklch(36% 0.035 255);
+        --accent: oklch(74% 0.14 250);
+        --good: oklch(75% 0.15 145);
+        --good-bg: oklch(28% 0.065 145);
+        --bad: oklch(74% 0.17 25);
+        --bad-bg: oklch(28% 0.075 25);
+        --focus: oklch(80% 0.14 250);
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font: 17px/1.62 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(760px, calc(100% - 2rem)); margin: 0 auto; padding: 3rem 0 5rem; }
+    h1, h2 { line-height: 1.15; letter-spacing: -0.025em; }
+    h1 { font-size: clamp(2rem, 7vw, 4rem); margin: 0.4rem 0 1rem; }
+    h2 { margin-top: 2.5rem; }
+    .eyebrow { color: var(--accent); font-weight: 750; letter-spacing: 0.08em; text-transform: uppercase; }
+    .summary, .lesson-section, fieldset {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: clamp(1rem, 3vw, 1.6rem);
+      margin: 1.25rem 0;
+    }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1rem; }
+    .summary span { display: block; color: var(--muted); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .progress-shell { height: 0.75rem; border-radius: 99px; overflow: hidden; background: var(--line); }
+    .progress-bar { width: 0; height: 100%; background: var(--accent); transition: width 180ms ease; }
+    fieldset { min-width: 0; }
+    legend { padding: 0 0.4rem; font-weight: 750; }
+    label { display: flex; gap: 0.7rem; align-items: flex-start; padding: 0.65rem; border-radius: 0.65rem; cursor: pointer; }
+    label:hover { background: color-mix(in oklch, var(--accent) 8%, transparent); }
+    input { margin-top: 0.36rem; }
+    button {
+      border: 0;
+      border-radius: 0.7rem;
+      padding: 0.7rem 1rem;
+      background: var(--accent);
+      color: oklch(99% 0 0);
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    .feedback { display: none; margin-top: 1rem; border-left: 0.35rem solid; border-radius: 0.5rem; padding: 0.8rem 1rem; }
+    .exercise.correct { border-color: var(--good); }
+    .exercise.incorrect { border-color: var(--bad); }
+    .exercise.correct .feedback { display: block; color: var(--good); background: var(--good-bg); border-color: var(--good); }
+    .exercise.incorrect .feedback { display: block; color: var(--bad); background: var(--bad-bg); border-color: var(--bad); }
+    .quiet { color: var(--muted); }
+    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Interactive lesson</p>
+    <h1>Replace with the lesson title</h1>
+    <p>Replace with the outcome: what the learner will be able to explain or do.</p>
+
+    <section class="summary" aria-label="Lesson selection">
+      <div><span>Level</span><strong>Layman</strong></div>
+      <div><span>Objectives</span><strong>2 focused outcomes</strong></div>
+      <div><span>Exercises</span><strong id="progress-text">0 of 2 correct</strong></div>
+    </section>
+    <div class="progress-shell" role="progressbar" aria-label="Exercise progress" aria-valuemin="0" aria-valuemax="2" aria-valuenow="0">
+      <div class="progress-bar"></div>
+    </div>
+
+    <section class="lesson-section">
+      <h2>1. Start with something concrete</h2>
+      <p>Replace this section with the anchor and state where the analogy stops matching.</p>
+    </section>
+
+    <section class="lesson-section">
+      <h2>2. See the mechanism</h2>
+      <p>Replace this section with the causal model: which part changes, why, and what follows.</p>
+    </section>
+
+    <form class="quiz" data-total="2">
+      <fieldset class="exercise" data-answer="mechanism" data-correct="✓ Correct — this option describes the cause-and-effect mechanism." data-incorrect="✕ Not yet — choose the option that explains what causes the result, not merely what the result looks like.">
+        <legend>Exercise 1 — Which answer describes a mechanism?</legend>
+        <label><input type="radio" name="q1" value="appearance"> It names what the outcome looks like.</label>
+        <label><input type="radio" name="q1" value="mechanism"> It connects a cause, a change, and the resulting effect.</label>
+        <button type="button" class="check">Check answer</button>
+        <p class="feedback" role="status" aria-live="polite"></p>
+      </fieldset>
+
+      <section class="lesson-section">
+        <h2>3. Find the boundary</h2>
+        <p>Replace this section with one tempting misconception and a case where the simple model fails.</p>
+      </section>
+
+      <fieldset class="exercise" data-answer="boundary" data-correct="✓ Correct — a boundary tells us when the simple model no longer predicts reality." data-incorrect="✕ Not yet — look for the option that limits the model instead of restating it.">
+        <legend>Exercise 2 — What is the purpose of a boundary?</legend>
+        <label><input type="radio" name="q2" value="decoration"> It makes the explanation sound more advanced.</label>
+        <label><input type="radio" name="q2" value="boundary"> It identifies when the model stops being reliable.</label>
+        <button type="button" class="check">Check answer</button>
+        <p class="feedback" role="status" aria-live="polite"></p>
+      </fieldset>
+    </form>
+
+    <section class="lesson-section">
+      <h2>Keep this mental model</h2>
+      <p>Replace with a short recap that reconnects the anchor, mechanism, boundary, and application.</p>
+    </section>
+    <p class="quiet">This page works offline. Progress lasts for this open page only.</p>
+  </main>
+  <script>
+    (() => {
+      const exercises = [...document.querySelectorAll('.exercise')];
+      const progress = document.querySelector('[role="progressbar"]');
+      const bar = document.querySelector('.progress-bar');
+      const progressText = document.querySelector('#progress-text');
+
+      const refresh = () => {
+        const correct = exercises.filter((item) => item.dataset.solved === 'true').length;
+        progress.setAttribute('aria-valuenow', String(correct));
+        bar.style.width = `${(correct / exercises.length) * 100}%`;
+        progressText.textContent = `${correct} of ${exercises.length} correct`;
+      };
+
+      for (const exercise of exercises) {
+        exercise.querySelector('.check').addEventListener('click', () => {
+          const selected = exercise.querySelector('input:checked');
+          const feedback = exercise.querySelector('.feedback');
+          exercise.classList.remove('correct', 'incorrect');
+          if (!selected) {
+            exercise.classList.add('incorrect');
+            feedback.textContent = '✕ Not yet — select an answer first.';
+            return;
+          }
+          const correct = selected.value === exercise.dataset.answer;
+          exercise.classList.add(correct ? 'correct' : 'incorrect');
+          exercise.dataset.solved = correct ? 'true' : 'false';
+          feedback.textContent = correct ? exercise.dataset.correct : exercise.dataset.incorrect;
+          refresh();
+        });
+      }
+      refresh();
+    })();
+  </script>
+</body>
+</html>

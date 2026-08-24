@@ -24,7 +24,6 @@ flowchart LR
 ## Example assignment
 
 ```text
-Use Researcher. Weight: Heavy. Verbosity: Concise. Explanation: Expert.
 Verify the load-bearing compatibility claim. Seek authoritative evidence and
 counter-evidence. Return citations, confidence, conflicts, and gaps.
 ```
