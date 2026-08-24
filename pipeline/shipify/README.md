@@ -1,5 +1,9 @@
 # Shipify
 
+[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Weight modules](references/weights) · [Behavior cases](../../evals/shipify/cases.json)
+
+> **Approved packet in → verified implementation out.**
+
 Shipify executes an approved packet or decision-ready request.
 
 It establishes a baseline before editing, respects one-writer ownership, executes
@@ -12,6 +16,21 @@ and stops when evidence disproves a plan premise.
 - **Standard:** full packet execution and slice evidence.
 - **Heavy:** Standard plus recovery checks, isolated writers, and independent review.
 
+## Execution loop
+
+```mermaid
+flowchart LR
+    Packet --> Baseline
+    Baseline --> Step[Smallest coherent step]
+    Step --> Verify{Verification green?}
+    Verify -->|yes| More{More steps?}
+    More -->|yes| Step
+    More -->|no| Accept[Acceptance + diff review]
+    Verify -->|local defect| Repair[Repair and classify]
+    Repair --> Verify
+    Verify -->|false premise| Stop[Revision Request]
+```
+
 ## Example
 
 ```text
@@ -19,6 +38,5 @@ Use Shipify. Weight: Light. Verbosity: Terse. Explanation: Expert.
 Apply this reversible two-file change. Run the direct test and inspect the final diff.
 ```
 
-Runtime contract: [SKILL.md](SKILL.md). Weight modules:
-[`references/weights`](references/weights). Evaluation cases:
-[`evals/shipify`](../../evals/shipify/cases.json).
+> [!WARNING]
+> Editing does not complete a step. Observable evidence does.

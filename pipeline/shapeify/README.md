@@ -1,5 +1,9 @@
 # Shapeify
 
+[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Weight modules](references/weights) · [Behavior cases](../../evals/shapeify/cases.json)
+
+> **Settled intent in → junior-executable worker packet out.**
+
 Shapeify converts settled intent into an executable worker packet.
 
 ## Weight modules
@@ -12,6 +16,19 @@ Each step names its location, verification, failure signal, and any plausible ex
 trap. A false assumption produces a Revision Request. A change to intent produces a
 Packet Defect.
 
+## Packet construction
+
+```mermaid
+flowchart LR
+    Intent --> Weight{Select weight}
+    Weight --> Requirements[Requirements + invariants]
+    Requirements --> Steps[Located, tagged steps]
+    Steps --> Proof[Acceptance + failure signals]
+    Proof --> Packet[Worker Packet]
+    Steps -->|false premise| Revision[Revision Request]
+    Requirements -->|intent gap| Defect[Packet Defect]
+```
+
 ## Example
 
 ```text
@@ -20,6 +37,5 @@ Plan this production schema migration. Require rollback, recovery proof, isolate
 lanes, and independent review.
 ```
 
-Runtime contract: [SKILL.md](SKILL.md). Weight modules:
-[`references/weights`](references/weights). Evaluation cases:
-[`evals/shapeify`](../../evals/shapeify/cases.json).
+> [!IMPORTANT]
+> Weight changes proof depth. It never grants permission or expands scope.

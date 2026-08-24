@@ -1,5 +1,9 @@
 # Audify
 
+[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/audify/cases.json)
+
+> **Contract-free subject in → measurable condition report out.**
+
 Audify evaluates a subject that has no written intent contract.
 
 ## Use it for
@@ -12,6 +16,16 @@ Audify defines three to six criteria before deep inspection. Each finding needs 
 reproducible observation, provenance, severity, effort, location, and first action. The
 final artifact is a self-contained HTML report with no runtime network dependency.
 
+## Flow
+
+```mermaid
+flowchart LR
+    Subject --> Standard[Define 3–6 criteria]
+    Standard --> Observe[Collect reproducible evidence]
+    Observe --> Grade[Grade severity and effort]
+    Grade --> Report[Self-contained HTML report]
+```
+
 ## Example
 
 ```text
@@ -20,5 +34,5 @@ Audit this repository for maintainability, verification quality, portability, an
 security boundaries. Show me the proposed standard before the deep pass.
 ```
 
-Use Reviewify instead when a packet already defines intent. Runtime contract:
-[SKILL.md](SKILL.md). Evaluation cases: [`evals/audify`](../../evals/audify/cases.json).
+> [!TIP]
+> Use Reviewify instead when a packet already defines intent.

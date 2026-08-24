@@ -1,5 +1,9 @@
 # Reviewify
 
+[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Weight modules](references/weights) · [Behavior cases](../../evals/reviewify/cases.json)
+
+> **Implementation plus intent in → evidence-backed verdict out.**
+
 Reviewify judges work against its intended behavior.
 
 It reads intent before the diff, maps requirements and invariants to proof, chooses a
@@ -13,6 +17,22 @@ comments, and issues one verdict.
 - **Rework:** implementation is wrong and the plan is sound.
 - **Replan:** the plan itself is wrong.
 
+## Verdict routing
+
+```mermaid
+flowchart LR
+    Intent --> Review[Map requirements to proof]
+    Change[Implementation] --> Review
+    Review --> Finding{Result}
+    Finding -->|clean| Approve
+    Finding -->|blocking defect| Fix[Fix required]
+    Finding -->|implementation wrong| Rework
+    Finding -->|plan wrong| Replan
+    Fix --> Shipify
+    Rework --> Shipify
+    Replan --> Shapeify
+```
+
 ## Example
 
 ```text
@@ -20,6 +40,5 @@ Use Reviewify. Weight: Standard. Verbosity: Concise. Explanation: Operational.
 Review this diff against its worker packet. Return only located findings and one verdict.
 ```
 
-Runtime contract: [SKILL.md](SKILL.md). Weight modules:
-[`references/weights`](references/weights). Evaluation cases:
-[`evals/reviewify`](../../evals/reviewify/cases.json).
+> [!IMPORTANT]
+> Heavy work cannot receive an approval verdict from its implementation writer.

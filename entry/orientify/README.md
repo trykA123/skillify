@@ -1,5 +1,9 @@
 # Orientify
 
+[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/orientify/cases.json)
+
+> **Unknown codebase in → evidence-backed map out. No edits.**
+
 Orientify builds a trustworthy codebase map before planning or editing starts.
 
 ## Use it when
@@ -17,6 +21,16 @@ Small repositories receive a short orientation. Larger repositories receive a Co
 Brief with vocabulary, architecture, hot spots, seams, landmines, open questions, and
 the traced flow that supports the map.
 
+## Flow
+
+```mermaid
+flowchart LR
+    Entry[Real entry point] --> Path[Trace one execution path]
+    Path --> Seams[Test module seams]
+    Seams --> Risks[Name landmines]
+    Risks --> Brief[Codebase Brief]
+```
+
 ## Example
 
 ```text
@@ -25,5 +39,5 @@ Trace the main request flow and identify the first file a new developer must rea
 Do not edit anything.
 ```
 
-Runtime contract: [SKILL.md](SKILL.md). Evaluation cases:
-[`evals/orientify`](../../evals/orientify/cases.json).
+> [!NOTE]
+> The map records uncertainty explicitly. It does not hide inference as fact.

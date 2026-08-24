@@ -89,13 +89,16 @@ if (!(await exists(rootReadmePath))) {
   for (const topic of ["Weight controls rigor", "Verbosity controls length", "Explanation controls assumed knowledge", "--with-agents"]) {
     if (!source.includes(topic)) fail(`README.md: missing required topic ${topic}`);
   }
+  if (!source.includes("```mermaid")) fail("README.md: missing system diagram");
 }
 
 const agentsReadmePath = join(root, "agents", "README.md");
 if (!(await exists(agentsReadmePath))) {
   fail("agents/README.md: missing fleet guide");
 } else {
-  await markdownReferences(agentsReadmePath, await text(agentsReadmePath));
+  const source = await text(agentsReadmePath);
+  await markdownReferences(agentsReadmePath, source);
+  if (!source.includes("```mermaid")) fail("agents/README.md: missing fleet diagram");
 }
 
 const skillFamilies = ["entry", "pipeline", "teaching", "memory"];
@@ -125,7 +128,11 @@ for (const family of skillFamilies) {
     if (!(await exists(guidePath))) {
       fail(`${relative(root, dirname(skillPath))}/README.md: missing human guide`);
     } else {
-      await markdownReferences(guidePath, await text(guidePath));
+      const guideSource = await text(guidePath);
+      await markdownReferences(guidePath, guideSource);
+      if (!guideSource.includes("```mermaid")) {
+        fail(`${relative(root, guidePath)}: missing visual flow`);
+      }
     }
 
     if (skills.has(entry.name)) fail(`duplicate skill name: ${entry.name}`);
@@ -335,7 +342,11 @@ for (const [agentName, agent] of Object.entries(manifest.agents ?? {})) {
   if (!(await exists(guidePath))) {
     fail(`agents/guides/${agentName}/README.md: missing human guide`);
   } else {
-    await markdownReferences(guidePath, await text(guidePath));
+    const guideSource = await text(guidePath);
+    await markdownReferences(guidePath, guideSource);
+    if (!guideSource.includes("```mermaid")) {
+      fail(`${relative(root, guidePath)}: missing authority or handoff diagram`);
+    }
   }
 }
 

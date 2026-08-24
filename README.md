@@ -1,5 +1,12 @@
 # Skillify
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-2ea44f.svg)](LICENSE)
+![Skills: 13](https://img.shields.io/badge/skills-13-0969da.svg)
+![Agent roles: 10](https://img.shields.io/badge/agent_roles-10-8250df.svg)
+![Behavior cases: 38](https://img.shields.io/badge/behavior_cases-38-bf8700.svg)
+
+> **Portable methods. Bounded roles. Runtime-specific adapters.**
+
 Skillify is a portable set of skills and agent-role contracts for reliable AI-assisted
 work. It separates the method, the role, and the runtime:
 
@@ -11,6 +18,21 @@ work. It separates the method, the role, and the runtime:
 The skill and role source files contain no model names, vendor tools, credentials, or
 harness-specific commands. You can use the same contracts with different models and
 agent runtimes.
+
+<details>
+<summary><strong>Explore this guide</strong></summary>
+
+- [Why use it?](#why-use-it)
+- [The system at a glance](#the-system-at-a-glance)
+- [Three independent controls](#three-independent-controls)
+- [Skills](#skills)
+- [Agent fleet](#agent-fleet)
+- [Install](#install-skills)
+- [Examples](#use-the-skills)
+- [Behavioral evaluations](#behavioral-evaluations)
+- [Contributing contracts](#add-or-change-a-skill)
+
+</details>
 
 ## Why use it?
 
@@ -50,6 +72,10 @@ flowchart LR
 You do not need the full pipeline for every task. A direct bug can start with Traceify.
 A research question can use Researchify alone. A small, decision-ready edit can go
 directly to Shipify with Light weight.
+
+> [!TIP]
+> Start with the smallest method that owns the problem. Add pipeline stages only when
+> the next decision genuinely needs them.
 
 ## Three independent controls
 
@@ -91,6 +117,26 @@ The controls compose. `Heavy + Terse + Expert` keeps deep proof in artifacts and
 a short expert summary. `Light + Detailed + Teaching` keeps the change small but explains
 the mechanism carefully.
 
+```mermaid
+flowchart TB
+    T[Task] --> W{How much rigor?}
+    T --> V{How much output?}
+    T --> E{What should be explained?}
+    W --> WL[Light]
+    W --> WS[Standard]
+    W --> WH[Heavy]
+    V --> VT[Terse]
+    V --> VC[Concise]
+    V --> VD[Detailed]
+    E --> EE[Expert]
+    E --> EO[Operational]
+    E --> ET[Teaching]
+```
+
+> [!IMPORTANT]
+> These axes are independent. Risk may increase verification without increasing the
+> length or teaching depth of the response.
+
 ## Plain technical English
 
 Technical output uses a pragmatic subset of Simplified Technical English:
@@ -121,6 +167,7 @@ depend on that project at runtime.
 | Pipeline | [Reviewify](pipeline/reviewify/README.md) | You need work judged against intent |
 | Teaching | [Promptify](teaching/promptify/README.md) | You want one useful prompting lesson |
 | Teaching | [Explainify](teaching/explainify/README.md) | You want code and its connections explained |
+| Teaching | [Skillify](teaching/skillify/README.md) | You want to learn which skills and agents to use |
 | Teaching | [Recordify](teaching/recordify/README.md) | You explicitly want a sanitized session record |
 | Memory | [Librify](memory/librify/README.md) | You want to compile or recall verified lessons |
 
@@ -138,6 +185,17 @@ skill-name/
 The weighted pipeline keeps Light, Standard, and Heavy instructions under
 `references/weights/`. The entry point selects one weight and loads only its relevant
 detail.
+
+```text
+skillify/
+├── entry/       # orient, diagnose, research, audit
+├── pipeline/    # clarify, plan, build, review
+├── teaching/    # coach, explain, record
+├── memory/      # compile and recall lessons
+├── agents/      # portable roles and shared contracts
+├── evals/       # behavioral cases and schemas
+└── scripts/     # structural contract validation
+```
 
 ## Agent fleet
 
@@ -161,6 +219,18 @@ The portable [fleet manifest](agents/manifest.json) declares capabilities, mutab
 skills, shared contracts, aliases, weights, and output controls. A runtime adapter must
 map those concepts to native tools and permissions. Runtime-specific models and tool
 names do not belong in the fleet source.
+
+```mermaid
+flowchart LR
+    Request --> Orchestrator
+    Orchestrator --> Recon[Read-only and artifact recon]
+    Recon --> Planner
+    Planner --> Worker[Worker: only code writer]
+    Worker --> Reviewer
+    Reviewer -->|accepted| Done
+    Reviewer -->|implementation defect| Worker
+    Reviewer -->|plan defect| Planner
+```
 
 ## Install skills
 
@@ -204,6 +274,10 @@ Copy instead of link:
 Symlinks are the default. Pulling a new revision updates linked skills immediately.
 Copied skills change only when you install them again.
 
+> [!NOTE]
+> Presets only resolve installation directories. They do not put vendor or model logic
+> into the portable skill and role contracts.
+
 The installer supports these presets:
 
 ```text
@@ -238,6 +312,17 @@ return the missing capability as a gap.
 
 Runtimes can select skills automatically from their names and descriptions. Explicit
 invocation is the most portable approach.
+
+### Example: learn the system
+
+```text
+Use Skillify.
+Verbosity: Concise
+Explanation: Teaching
+
+Teach me the smallest skill and agent route for an intermittent production failure.
+Explain when another role becomes useful and give me a reusable prompt.
+```
 
 ### Example: small edit
 
@@ -315,6 +400,25 @@ Every handoff carries the assigned outcome, boundary, result, artifact locations
 checks, deviations, residual risks, and next valid owner. The selected verbosity changes
 the presentation. It does not remove required evidence.
 
+<details>
+<summary><strong>See a complete portable handoff shape</strong></summary>
+
+```yaml
+outcome: "What the receiver must accomplish"
+boundary: "Files, systems, and decisions inside scope"
+weight: Standard
+verbosity: Concise
+explanation: Operational
+result: "What the sender established"
+artifacts: ["path/to/packet.md"]
+checks: ["observable proof and result"]
+deviations: []
+residual_risks: []
+next_owner: worker
+```
+
+</details>
+
 ## Behavioral evaluations
 
 Skill evals live at `evals/<skill>/cases.json`. Fleet evals live at
@@ -334,6 +438,16 @@ The current suites cover:
 The repository supplies portable schemas and semantic expectations. A model adapter
 owns model selection, harness invocation, repetitions, and grading. Compare a baseline
 and candidate revision with the same adapter settings.
+
+```mermaid
+flowchart LR
+    Cases[Portable JSON cases] --> Adapter[Runtime adapter]
+    Adapter --> Baseline[Baseline revision]
+    Adapter --> Candidate[Candidate revision]
+    Baseline --> Compare{Same settings}
+    Candidate --> Compare
+    Compare --> Report[Behavioral delta]
+```
 
 Validate all source contracts:
 

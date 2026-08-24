@@ -5,7 +5,7 @@ set -euo pipefail
 # Known presets are conveniences; --target supports any current or future harness.
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILLS=(orientify undumbify shapeify shipify reviewify traceify promptify explainify recordify researchify librify audify)
+SKILLS=(orientify undumbify shapeify shipify reviewify traceify promptify explainify skillify recordify researchify librify audify)
 
 declare -A SKILL_FAMILY=(
   [orientify]=entry
@@ -18,6 +18,7 @@ declare -A SKILL_FAMILY=(
   [reviewify]=pipeline
   [promptify]=teaching
   [explainify]=teaching
+  [skillify]=teaching
   [recordify]=teaching
   [librify]=memory
 )

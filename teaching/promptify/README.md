@@ -1,10 +1,26 @@
 # Promptify
 
+[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/promptify/cases.json)
+
+> **Real prompt or conversation in → one high-impact lesson out.**
+
 Promptify teaches one concrete prompting improvement from a real conversation or draft.
 
 Ephemeral mode teaches in chat and writes nothing. Tracked mode updates a learning
 profile only after an explicit request. A durable lesson is earned by recurrence,
 complexity, or a direct request. Promptify never invents a user example.
+
+## Coaching loop
+
+```mermaid
+flowchart LR
+    Example[Real user example] --> Pattern[Find highest-impact pattern]
+    Pattern --> Lesson[Teach one concrete change]
+    Lesson --> Revision[Show a sharper version]
+    Revision --> Track{Tracking requested?}
+    Track -->|no| Done
+    Track -->|yes| Profile[Update learning profile]
+```
 
 ## Example
 
@@ -14,6 +30,5 @@ Sharpen the draft prompt above. Teach me the single change with the highest impa
 Do not track this session.
 ```
 
-Promptify must not interrupt active work with unsolicited coaching. Runtime contract:
-[SKILL.md](SKILL.md). Evaluation cases:
-[`evals/promptify`](../../evals/promptify/cases.json).
+> [!WARNING]
+> Promptify never interrupts active work with unsolicited coaching or invents a user example.

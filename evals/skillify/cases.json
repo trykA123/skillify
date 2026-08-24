@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "skill": "skillify",
+  "cases": [
+    {
+      "id": "skillify-task-route",
+      "category": "routing",
+      "prompt": "Teach me which skills and agents to use for an intermittent production failure, and give me a reusable prompt.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Heavy",
+        "mode": "route",
+        "behaviors": ["starts with Traceify", "adds roles only behind explicit conditions", "sets weight verbosity and explanation independently", "provides a portable invocation"],
+        "forbidden": ["dispatches agents", "attempts the diagnosis", "recommends the full fleet by default"]
+      }
+    },
+    {
+      "id": "skillify-clean-task-boundary",
+      "category": "activation",
+      "prompt": "Change this approved configuration value and run its direct test.",
+      "expected": {
+        "invocation": "forbidden",
+        "behaviors": ["routes the decision-ready edit directly to Shipify"],
+        "forbidden": ["inserts an unsolicited lesson", "turns a clear task into a catalog tour"]
+      }
+    }
+  ]
+}

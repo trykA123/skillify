@@ -1,5 +1,9 @@
 # Traceify
 
+[← All skills](../../README.md#skills) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/traceify/cases.json)
+
+> **Symptom in → proven root cause and guarded repair out.**
+
 Traceify diagnoses broken behavior before it changes code.
 
 ## Use it when
@@ -12,6 +16,19 @@ It captures symptoms, ranks falsifiable hypotheses, runs the cheapest discrimina
 test, names the root cause, applies a minimal fix when the change is trivial, and proves
 the original trigger no longer fails. Non-trivial fixes route to the delivery pipeline.
 
+## Repair loop
+
+```mermaid
+flowchart LR
+    Symptom --> Reproduce
+    Reproduce --> Hypotheses[Rank falsifiable hypotheses]
+    Hypotheses --> Test[Cheapest discriminating test]
+    Test --> Cause[Name root cause]
+    Cause --> Fix[Minimal repair]
+    Fix --> Guard[Regression proof]
+    Test -->|disproves| Hypotheses
+```
+
 ## Example
 
 ```text
@@ -20,5 +37,5 @@ This timeout started yesterday and occurs intermittently. Reproduce it, name the
 cause before editing, and add a regression guard if the fix is trivial.
 ```
 
-Do not use Traceify for healthy feature work. Runtime contract: [SKILL.md](SKILL.md).
-Evaluation cases: [`evals/traceify`](../../evals/traceify/cases.json).
+> [!TIP]
+> Do not use Traceify for healthy feature work; route decision-ready changes to Shipify.

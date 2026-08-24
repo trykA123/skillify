@@ -1,5 +1,11 @@
 # Agents — harness-neutral roles
 
+[← Skillify](../README.md) · [Manifest](manifest.json) · [Shared contracts](contracts/core.md)
+
+> [!NOTE]
+> Skills own methods. Roles own authority and handoffs. Runtime adapters own models,
+> tools, and permission mappings.
+
 A role says what an agent is for. The fleet manifest says which portable capabilities
 and skills it needs. A runtime adapter maps those capabilities to its own models and
 tools outside this repository.
@@ -11,6 +17,31 @@ manifest.json     role, skills, capabilities, mutability, aliases
 
 There are no model names, vendor tool names, credentials or harness profiles in the
 fleet source of truth.
+
+## Fleet topology
+
+```mermaid
+flowchart LR
+    U[Request] --> O[Orchestrator]
+    O --> S[Scout]
+    O --> C[Context Builder]
+    O --> R[Researcher]
+    S --> P[Planner]
+    C --> P
+    R --> P
+    P --> W[Worker]
+    W --> V[Reviewer]
+    V -->|fix| W
+    V -->|replan| P
+    V -->|accepted| D[Done]
+    Q[Questar] -. preserves decisions .-> P
+    A[Oracle] -. checks consistency .-> O
+    D -. optional record .-> M[Recorder]
+```
+
+> [!TIP]
+> This is a capability map, not a mandatory sequence. Select the smallest topology
+> that provides missing evidence or a required authority boundary.
 
 ## Three independent controls
 
@@ -26,6 +57,17 @@ Defaults are Concise and Operational. Heavy work does not earn a long chat respo
 itself; it earns deeper evidence in the appropriate artifact. The shared communication
 contract uses pragmatic Simplified Technical English: active voice, stable terms,
 conditions before commands and no process theatre. Strict ASD-STE100 is explicit-only.
+
+```mermaid
+quadrantChart
+    title Rigor and response length are separate
+    x-axis Terse --> Detailed
+    y-axis Light --> Heavy
+    quadrant-1 Deep proof, full explanation
+    quadrant-2 Deep proof, short response
+    quadrant-3 Small task, short response
+    quadrant-4 Small task, teaching response
+```
 
 ## Why the split
 
@@ -66,16 +108,16 @@ answers when either one evolves.
 
 | Group | Role | What it does | Method owner |
 |---|---|---|---|
-| `oversight` | `orchestrator` | Conducts delivery and verifies every handoff | role |
-| `oversight` | `oracle` | Checks decision consistency from clean context | role |
-| `session` | `questar` | Stewards long exploration and decision continuity | routes skills |
-| `recon` | `scout` | Fast codebase recon | `orientify` |
-| `recon` | `context-builder` | Builds a no-rediscovery intent/context handoff | `undumbify`, `researchify` |
-| `recon` | `researcher` | Focused external research | `researchify` |
-| `pipeline` | `planner` | Turns settled intent into an executable packet | `shapeify` |
-| `pipeline` | `worker` | The single product-code writer | `shipify`, `traceify` |
-| `pipeline` | `reviewer` | Reviews contracted work or audits uncontracted subjects | `reviewify`, `audify` |
-| `memory` | `recorder` | Writes one sanitized session record | `recordify` |
+| `oversight` | [`orchestrator`](guides/orchestrator/README.md) | Conducts delivery and verifies every handoff | role |
+| `oversight` | [`oracle`](guides/oracle/README.md) | Checks decision consistency from clean context | role |
+| `session` | [`questar`](guides/questar/README.md) | Stewards long exploration and decision continuity | routes skills |
+| `recon` | [`scout`](guides/scout/README.md) | Fast codebase recon | `orientify` |
+| `recon` | [`context-builder`](guides/context-builder/README.md) | Builds a no-rediscovery intent/context handoff | `undumbify`, `researchify` |
+| `recon` | [`researcher`](guides/researcher/README.md) | Focused external research | `researchify` |
+| `pipeline` | [`planner`](guides/planner/README.md) | Turns settled intent into an executable packet | `shapeify` |
+| `pipeline` | [`worker`](guides/worker/README.md) | The single product-code writer | `shipify`, `traceify` |
+| `pipeline` | [`reviewer`](guides/reviewer/README.md) | Reviews contracted work or audits uncontracted subjects | `reviewify`, `audify` |
+| `memory` | [`recorder`](guides/recorder/README.md) | Writes one sanitized session record | `recordify` |
 
 Questar does not replace Planner. Questar owns a conversation whose direction is still
 forming; Planner owns the final executable packet after direction is settled.
@@ -88,6 +130,10 @@ forming; Planner owns the final executable packet after direction is settled.
 
 Only Worker has `code` mutability. `node scripts/validate-core.mjs` rejects a manifest
 that grants write capabilities outside these boundaries and checks role/skill links.
+
+> [!WARNING]
+> A role name never grants authority. The runtime must enforce the manifest's
+> mutability and the user's actual authorization.
 
 ## Portable runtime contract
 
@@ -103,6 +149,22 @@ A runtime adapter must:
 
 Adapters may choose models and native tool names, but those choices are deployment
 configuration—not fleet source—and are intentionally not checked in here.
+
+<details>
+<summary><strong>Adapter composition order</strong></summary>
+
+```text
+global contracts
+  + role-specific contracts
+  + selected role
+  + listed skills
+  + native capability mappings
+  + runtime permission enforcement
+```
+
+If a required capability is missing, fail before dispatch and report the gap.
+
+</details>
 
 ## Retired
 

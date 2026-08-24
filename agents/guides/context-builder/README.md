@@ -1,10 +1,24 @@
 # Context Builder
 
+[← Fleet](../../README.md#the-fleet) · [Role contract](../../roles/recon/context-builder.md) · [Manifest](../../manifest.json)
+
+> **Request plus codebase in → no-rediscovery context pack out.**
+
 Context Builder turns a request and codebase into a no-rediscovery handoff.
 
 It traces callers, tests, fixtures, configuration, documentation, constraints, risks,
 and current external facts when required. It distills the result into a context pack and
 a compact task contract for the next role.
+
+## Handoff shape
+
+```mermaid
+flowchart LR
+    Request --> Inspect[Callers, tests, config, constraints]
+    Inspect --> Resolve[Resolve discoverable questions]
+    Resolve --> Pack[Context pack + task contract]
+    Pack --> Planner
+```
 
 ## Example assignment
 
@@ -14,5 +28,6 @@ Prepare everything Planner needs for this feature. Resolve discoverable question
 mark every remaining gap or assumption.
 ```
 
-Portable role: [context-builder.md](../../roles/recon/context-builder.md). Primary
-skills: Undumbify and Researchify.
+| Mutability | Primary skills | Typical receiver |
+|---|---|---|
+| Artifacts only | Undumbify · Researchify | Planner |
