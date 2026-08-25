@@ -15,6 +15,10 @@ Do not return raw internal narration, a success claim without evidence, or a que
 that should have been escalated while work was still active. Light may keep this inline;
 Standard and Heavy preserve it with the task's durable artifacts.
 
+A report is a claim, not evidence. Verify a delegated result against the artifact it
+produced — diff, output, running thing — not the report describing it. Report polish
+does not track work quality.
+
 The receiver treats a handoff containing the parent-confirmed receipt, assignment
 boundary, and exact topology as inherited selection. It begins only its bounded work and
 does not show another route or customization card. If a new material decision falls

@@ -71,6 +71,11 @@ Per step, restate the `R*`, `I*` and `A*` it serves; make the smallest coherent 
 run its verification; record what changed and what ran. Evidence, not editing, marks a
 step complete.
 
+A verification that asserts only presence is weak evidence. Where order, position,
+identity, focus or persistence is part of the behaviour, assert that directly: a lookup
+that finds an element cannot see it move, and a check on a response cannot see that
+nothing was written. Prefer a check that fails for the defect you would most regret.
+
 Stop as soon as evidence falsifies the step premise. Name the root cause of a failure
 before repairing it, and never begin the next step while the current one is red.
 
@@ -90,6 +95,12 @@ Run every declared acceptance check plus the relevant compile, lint, type and te
 checks. Inspect the diff for unexplained files, debug artifacts, secrets and scope
 drift. Verify invariants independently. An unavailable check is not a pass: record the
 reason, substitute evidence and residual risk.
+
+Then inspect the produced artifact, not only its measurements. A check reports what it
+was told to measure and cannot report what nobody thought to look at. Where the work has
+an observable result, observe it — render the page, read the output, run the command —
+before calling the step complete. Passing gates and a broken artifact coexist easily,
+and that gap is invisible from inside the numbers.
 
 Report outcome, deviations and follow-ups. Never claim a check ran when it did not. Then
 hand to Reviewify under the selected weight's rule.

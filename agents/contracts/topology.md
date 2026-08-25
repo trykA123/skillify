@@ -12,3 +12,7 @@ Before dispatch, name each lane's subject, mutability and output. Before integra
 confirm revision ownership and ensure evidence belongs to the revision being combined.
 Stop on a writer collision, ambiguous dirty-state ownership or an integration path that
 cannot preserve an invariant.
+
+Verify the facts an assignment hands down against the revision the lane starts from; a
+wrong fact costs more than a missing one, because the receiver builds on it. Constraints
+transfer better as named past failures than as principles.
