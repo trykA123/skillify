@@ -13,7 +13,7 @@ in one short, concrete sentence:
 | Ownership | Solo · Team · Custom team | Whether separate roles own bounded work |
 
 Explanation (Layman · Operational · Expert) is not a selector axis by default. Offer it
-as one optional extra line for users who want to set the assumed knowledge explicitly.
+as one optional extra line; 'dumb mode' selects Layman.
 
 Use one multi-field native form when the runtime supports it. In a text-only runtime,
 label choices so numbers cannot be confused across axes:

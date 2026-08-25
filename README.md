@@ -1,54 +1,72 @@
 # Skillify
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-0f766e.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/skills-10-2563eb.svg)](#skills)
-[![Roles](https://img.shields.io/badge/agent_roles-10-7c3aed.svg)](#agent-roles)
+[![Skills](https://img.shields.io/badge/skills-14-2563eb.svg)](#skills)
+[![Roles](https://img.shields.io/badge/agent_roles-11-7c3aed.svg)](#agent-roles)
 [![Harnesses](https://img.shields.io/badge/native_agents-Codex%20%7C%20Claude%20%7C%20OpenCode%20%7C%20Copilot-e11d48.svg)](#native-agent-adapters)
 
 > **Natural requests first. Choice cards before ceremony. Portable methods underneath.**
 
-Skillify is a public collection of model-agnostic skills and agent-role contracts for
-research, diagnosis, planning, execution, review, auditing, and interactive teaching.
+Skillify is a set of tested working methods for AI coding assistants. Each method packs
+years of engineering scar tissue — debug like an engineer, plan like an architect,
+migrate without downtime — into a form any major harness can load. You talk normally;
+the method picks itself and asks only the questions worth asking.
 
 > [!TIP]
 > New here? Start with the **[15-minute hands-on tutorial](TUTORIAL.md)**. It begins with
 > ordinary prompts—no skill names or control syntax to memorize.
 
-You should not need to write this:
+## See it work
 
-```text
-Use Undumbify. Weight: Standard. Verbosity: Concise. Explanation: Operational.
-```
-
-Write the request you actually mean:
+You write what you actually mean:
 
 ```text
 I want login to feel faster and safer. Supply the missing decisions and ask only
 questions that can change the architecture.
 ```
 
-The harness infers the method and controls, then lets you choose how to proceed.
+Instead of making you memorize command names, Skillify infers the right method and
+offers the realistic ways to run it:
 
-## Contents
+```text
+How should I handle the login idea?
 
-- [How interaction works](#how-interaction-works)
-- [Hands-on tutorial](TUTORIAL.md)
-- [Choice cards](#choice-cards)
-- [Controls](#controls)
-- [Skills](#skills)
-- [Agent roles](#agent-roles)
-- [Teachify](#teachify)
-- [Installation](#installation)
-- [Native agent adapters](#native-agent-adapters)
-- [Behavioral evaluations](#behavioral-evaluations)
-- [Prompt footprint](#prompt-footprint)
-- [Repository structure](#repository-structure)
-- [Contributing](#contributing)
+1. Balanced (recommended) — Supply missing security and UX decisions, then ask only
+   architecture-changing questions.
+   Undumbify · Standard · Concise · Solo
 
-## How interaction works
+2. Fast — Use conservative assumptions and stop only on a blocking product decision.
+   Undumbify · Light · Terse · Solo
 
-Skills own methods. Agent roles own authority and handoffs. Runtime adapters map portable
-capabilities onto native tools and permissions.
+3. Guided — Explain each missing decision without assuming authentication knowledge.
+   Undumbify · Standard · Detailed · Layman · Solo
+
+4. Customize — Choose rigor, response length, and ownership.
+```
+
+Pick one. Work starts on your terms — and routine requests skip the menu entirely,
+opening with a one-line receipt instead:
+
+```text
+Selected: Traceify · Standard · Concise · Solo
+```
+
+That's the whole pitch: ordinary language in, senior-engineer discipline out, choices
+only when they're real.
+
+## Try it in two minutes
+
+```bash
+git clone https://github.com/trykA123/skillify.git
+cd skillify
+./install.sh --harness codex,claude,opencode,copilot --update
+```
+
+Restart your assistant and type a normal request. That's it — the methods are live.
+Full installation options, including project-local copies and Claude plugin packaging,
+are under [Installation](#installation).
+
+## How a request becomes work
 
 ```mermaid
 %%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
@@ -67,70 +85,50 @@ flowchart TB
     Fleet --> Proof
 ```
 
-The portable source contains no model selection, vendor tool names, credentials, or
-runtime command syntax. Adapters make those deployment choices outside the skill and role
-contracts.
+Three ideas carry everything:
+
+- **Skills own methods.** Traceify owns debugging, Shipify owns execution. Each is a
+  short, tested playbook.
+- **Agent roles own authority.** When work needs multiple owners, the fleet splits it:
+  a planner writes the plan, one worker edits code, a reviewer judges the result. Only
+  one role ever edits your code at a time.
+- **Adapters own the wiring.** The methods above are portable text. Small generated
+  adapters map them onto Codex, Claude Code, OpenCode, and VS Code tool names. No model
+  names or vendor syntax ever enters the portable source.
+
+A route card appears only when routes are genuinely contested after a quick look, the
+work is Heavy, or a step is destructive. Everything else starts immediately on a
+receipt — ceremony scales with risk, not with verbosity. After you confirm a route,
+delegated agents inherit it instead of showing you another menu.
 
 ## Choice cards
 
-For substantial work, the harness presents two to four mutually exclusive entries.
-The recommended option comes first. Each option says what changes in plain language; the
-compact technical selection is secondary.
-
-The gate happens after the skill is loaded but before subject inspection or task tools.
-A clear multi-step request is still substantial: clarity removes ambiguity, not the
-user's choice. After the user confirms a route, delegated agents inherit it instead of
-opening another menu.
-
-```text
-How should I handle the login idea?
-
-1. Balanced (recommended) — Supply missing security and UX decisions, then ask only
-   architecture-changing questions.
-   Undumbify · Standard · Concise · Operational · Solo
-
-2. Fast — Use conservative assumptions and stop only on a blocking product decision.
-   Undumbify · Light · Terse · Solo
-
-3. Guided — Explain each missing decision without assuming authentication knowledge.
-   Undumbify · Standard · Detailed · Layman · Solo
-
-4. Customize — Choose rigor, response length, explanation, and ownership.
-```
-
-Choose `1`, click an option in a native UI, or choose `4` to open the explained second
-stage:
+When a card is due, it shows two to four mutually exclusive entries. The recommended
+option comes first. Each option says what changes in plain language; compact technical
+selection is secondary. Choose `4` to open the explained second stage:
 
 ```text
 Customize this run
 
 Weight:      W1 Light · W2 Standard · W3 Heavy
 Verbosity:   V1 Terse · V2 Concise · V3 Detailed
-Explanation: E1 Layman · E2 Operational · E3 Expert
 Ownership:   O1 Solo · O2 Team · O3 Custom team
+Optional:    Explanation E1 Layman · E2 Operational · E3 Expert
 
-Current: W2 · V2 · E2 · O1
-Reply with all values or only changes. Example: W1 V2 E2 O2
+Current: W2 · V2 · O1
+Reply with all values or only changes. Example: W1 V2 O2
 ```
 
-The real selector gives a one-sentence meaning for every value. `Team` produces the
-smallest exact role proposal for confirmation; it does not automatically add an
-Orchestrator or the full fleet. The selected route never grants destructive authority or
-transfers a product decision away from the user.
+`Team` produces the smallest exact role proposal for confirmation; it never adds the
+full fleet automatically. A selected route never grants destructive authority or moves a
+product decision away from you.
 
-See the portable [selection contract](agents/contracts/selection.md) and
+Details live in the portable [selection contract](agents/contracts/selection.md) and
 [customization contract](agents/contracts/customization.md).
-
-Tiny, reversible tasks may skip the menu:
-
-```text
-Selected: Shipify · Light · Concise · Operational · Solo
-```
 
 ## Controls
 
-Controls are independent and optional. The harness infers them; explicit values are useful
-for automation, repeatable evals, or exact handoffs.
+Four independent knobs, inferred so you can ignore them, named so you can pin them:
 
 ### Weight controls rigor
 
@@ -140,8 +138,7 @@ for automation, repeatable evals, or exact handoffs.
 | **Standard** | Normal features and multi-file work | Standalone packet, mapped acceptance, review |
 | **Heavy** | Production data, auth, schema, deployment, public contracts, irreversible or coordinated work | Recovery proof, named owners, isolated writer, independent review |
 
-Weight never grants permission. New risk can promote the weight; an explicit weight or a
-Heavy trigger cannot be silently demoted.
+Weight never grants permission. New risk promotes it; it is never silently demoted.
 
 ### Verbosity controls length
 
@@ -155,13 +152,13 @@ Default: **Concise**.
 
 ### Explanation controls assumed knowledge
 
+Opt in by naming a level; otherwise Operational applies silently.
+
 | Explanation | Assumption |
 |---|---|
 | **Layman** | No specialist vocabulary; ordinary language without childish simplification |
 | **Operational** | Explain what changes action, risk, or verification |
 | **Expert** | Assume domain fluency; define only local or surprising terms |
-
-Default: **Operational**, applied silently unless the user asks for a level.
 
 ### Ownership controls topology
 
@@ -171,15 +168,18 @@ Default: **Operational**, applied silently unless the user asks for a level.
 | **Team** | The harness proposes the smallest useful role map for confirmation |
 | **Custom team** | You name roles; the harness validates capabilities and writer boundaries |
 
-The parent can coordinate a simple handoff. An Orchestrator is added only when
-coordination itself is substantial, such as parallel lanes, branching handoffs, several
-roles, integration ownership, or an iterative repair and review loop.
+A parent can coordinate a simple handoff. An Orchestrator joins only when coordination
+itself is substantial: parallel lanes, branching handoffs, several roles, integration
+ownership, or an iterative repair loop.
 
 > [!TIP]
 > `Heavy + Terse + Expert` means deep evidence and a short expert-facing answer.
 > `Light + Detailed + Layman` means a small task explained carefully in ordinary language.
 
 ## Skills
+
+Fourteen methods. Entry skills diagnose from outside; pipeline skills carry work through;
+teaching skills transfer knowledge.
 
 | Family | Skill | Use it when |
 |---|---|---|
@@ -192,6 +192,9 @@ roles, integration ownership, or an iterative repair and review loop.
 | Pipeline | [Migrateify](pipeline/migrateify/README.md) | Dependencies, frameworks, or stored data must move versions safely |
 | Pipeline | [Shipify](pipeline/shipify/README.md) | Approved work must be implemented and verified |
 | Pipeline | [Reviewify](pipeline/reviewify/README.md) | Work must be judged against intent |
+| Pipeline | [Testify](pipeline/testify/README.md) | Tests must prove behavior worth catching |
+| Pipeline | [Releaseify](pipeline/releaseify/README.md) | Merged work must ship with an honest version and a rollback plan |
+| Pipeline | [Refactorify](pipeline/refactorify/README.md) | Structure must improve while behavior holds still |
 | Teaching | [Teachify](teaching/teachify/README.md) | A topic needs an interactive HTML lesson and exercises |
 | Meta | [Skillify](teaching/skillify/README.md) | You want help choosing a method or agent route |
 
@@ -204,6 +207,9 @@ flowchart TB
     NoContract[No intent contract] --> Audify
     Vague[Vague direction] --> Undumbify --> Shapeify --> Shipify --> Reviewify
     Upgrade[Version or schema move] --> Migrateify
+    Tests[Prove what matters] --> Testify
+    Ship[Cut a release] --> Releaseify
+    Cleanup[Restructure safely] --> Refactorify
     Learn[Learn a subject] --> Teachify
 ```
 
@@ -211,6 +217,9 @@ These are routes, not mandatory pipelines. Stop as soon as one method can safely
 outcome.
 
 ## Agent roles
+
+Eleven roles. One writes code; everything else inspects, plans, verifies, remembers, or
+teaches.
 
 | Group | Role | Owns |
 |---|---|---|
@@ -251,15 +260,7 @@ Skillify adopts the pedagogical pattern, not the video's wording.
 
 ## Installation
 
-Clone the repository and inspect the plan first:
-
-```bash
-git clone https://github.com/trykA123/skillify.git
-cd skillify
-./install.sh --harness codex,claude,opencode,copilot --dry-run
-```
-
-Install or update skills globally:
+Update or install skills globally:
 
 ```bash
 ./install.sh --harness codex,claude,opencode,copilot --update
@@ -272,7 +273,7 @@ Install one family or skill:
 ./install.sh --harness claude --skill teachify --update
 ```
 
-Copy instead of linking:
+Copy instead of linking (for a project-local, checkout-independent install):
 
 ```bash
 ./install.sh --project --harness opencode --copy
@@ -313,13 +314,8 @@ runtime.
 
 ## Native agent adapters
 
-The portable fleet can be linked by itself:
-
-```bash
-./install.sh --agents-only --agents-target /path/to/fleets/skillify
-```
-
-Generate native, model-neutral agent definitions:
+Skills work everywhere out of the box. Agent roles additionally need a small generated
+adapter per harness:
 
 ```bash
 ./install.sh \
@@ -329,13 +325,20 @@ Generate native, model-neutral agent definitions:
   --update
 ```
 
+Link the portable fleet alone:
+
+```bash
+./install.sh --agents-only --agents-target /path/to/fleets/skillify
+```
+
 The generator composes context-specific contract profiles, role-specific contracts, and
 role instructions. Delegated definitions omit root-only selection and customization.
-Direct OpenCode roles retain the interactive profile; Claude loads it only through the
-direct-session `initialPrompt`; VS Code exposes Orchestrator as the interactive team
-entry point and keeps the other roles available only as subagents. The generator maps
-capabilities to native tools where supported, never chooses a model, records file hashes,
-refuses to overwrite unmanaged definitions, and removes stale managed roles.
+Roles marked `interaction: direct` in the manifest (currently Orchestrator, Planner,
+Questar, Teacher) become selectable primary agents on OpenCode and user-invocable team
+entries in VS Code; the other roles stay available as subagents. On Claude Code, direct
+roles receive selection through their initial prompt. The generator maps capabilities to
+native tools where supported, never chooses a model, records file hashes, refuses to
+overwrite unmanaged definitions, and removes stale managed roles.
 
 ### VS Code and GitHub Copilot
 
@@ -351,10 +354,10 @@ Install personal skills and agents with the `vscode` alias:
 
 Restart VS Code. Type `/skills` to verify skill discovery (or open **Chat: Open
 Customizations → Skills**) and `/agents` to open agent configuration. Use the normal
-Copilot agent for ordinary skill-routed work. Select
-**Orchestrator** when you want Team or Custom team ownership; Scout, Planner, Worker,
-Reviewer, and the other bounded roles are intentionally hidden from the dropdown and are
-available to Orchestrator as subagents.
+Copilot agent for ordinary skill-routed work, or select a direct role such as
+**Orchestrator** when you want Team or Custom team ownership. Recon, writer, and review
+roles are intentionally hidden from the dropdown and are available to the coordinating
+role as subagents.
 
 Personal installs use `~/.copilot/skills` and `~/.copilot/agents`. For a repository-local
 install, run the installer from the target workspace:
@@ -441,8 +444,9 @@ node scripts/report-token-footprint.mjs --check
 ```
 
 The report uses deterministic UTF-8 bytes and whitespace-delimited words. These are
-cross-model proxies, not exact token counts. Reviewed limits live in
-[`evals/token-budgets.json`](evals/token-budgets.json) and run in CI.
+cross-model proxies, not exact token counts. CI prints this table on every push; run
+`node scripts/report-token-footprint.mjs --check` locally to test against the reviewed
+limits in [`evals/token-budgets.json`](evals/token-budgets.json).
 
 ## Verification
 
@@ -463,16 +467,16 @@ GitHub Actions runs the same dependency-free checks on pushes and pull requests.
 ```text
 skillify/
 ├── entry/                 # orientation, diagnosis, research, audit
-├── pipeline/              # intent, planning, implementation, review
+├── pipeline/              # intent, planning, migration, tests, releases, refactors
 ├── teaching/              # Teachify and the Skillify router
+├── shared/                # the shared interaction gate, linked into every skill
 ├── agents/
 │   ├── contracts/         # authority, selection, communication, handoffs
 │   ├── roles/             # portable role contracts
 │   ├── guides/            # human documentation
 │   └── manifest.json      # capabilities and mutability
 ├── evals/                 # behavioral cases, schemas, and footprint budgets
-├── plans/                 # cross-session implementation packets and evidence
-├── scripts/               # validation, adapters, eval execution, tests
+├── scripts/               # validation, adapters, eval execution, tests, reports
 ├── .claude-plugin/        # optional Claude packaging adapter
 ├── install.sh
 └── LICENSE

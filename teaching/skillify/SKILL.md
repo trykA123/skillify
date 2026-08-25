@@ -1,6 +1,6 @@
 ---
 name: skillify
-description: Teaches users how to choose and combine Skillify skills, portable agent roles, and output controls for a real task. Use when someone asks how this repository works, which skill or agent to use, or wants guided practice. Do not activate for a task that already maps cleanly to another skill unless the user asks to learn the system.
+description: Choose the right skill, agent, and output settings for your task, and learn how the pieces fit together. Use when asking how this system works.
 ---
 
 # Skillify

@@ -1,6 +1,6 @@
 ---
 name: shapeify
-description: Turns architect-grade intent into a plan a junior could execute without guessing — each step naming its location, its check, and the trap. Produces a living packet that can be amended in place when execution proves an assumption wrong. Use after undumbify, or when the "what" is clear and the "how" isn't.
+description: Turn settled intent into a step-by-step plan anyone can follow: each step names its location, its check, and its trap. The plan stays easy to amend when execution proves a detail wrong. Use when the goal is clear but the how is not.
 ---
 
 # Shapeify

@@ -1,6 +1,6 @@
 ---
 name: researchify
-description: Research the web and supplied documents under a strict sourcing hierarchy — official documentation first, popularity a tiebreaker and never a validator, two independent sources for anything non-official, and fetched code never executed. Returns ranked findings with confidence labels. Use when asked to research something, or when a decision turns on what's out there.
+description: Research the web and your documents, then return ranked findings with sources and confidence labels. Official docs beat blog posts; big claims need two independent sources; fetched code gets read, never run. Use when a decision needs outside facts.
 ---
 
 # Researchify

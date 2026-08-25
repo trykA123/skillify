@@ -4,7 +4,7 @@
 
 > **Skills own methods. Roles own authority. Adapters own native tools.**
 
-The fleet contains ten portable roles. A role says what an owner may do, which skill
+The fleet contains eleven portable roles. A role says what an owner may do, which skill
 methods it uses, which capabilities it requires, and what its handoff must prove. Model
 selection and native syntax stay outside these source contracts.
 
@@ -159,11 +159,12 @@ Every delegated result contains:
 
 Raw internal narration and unsupported success claims are not handoffs.
 
-## Plain language
+## Plain English
 
-The communication contract uses pragmatic Simplified Technical English: active voice,
-concrete subjects, stable terms, conditions before commands, and no filler or ceremonial
-orchestration prose. Strict ASD-STE100 rules apply only when explicitly requested.
+The communication contract sets the voice: active voice, concrete subjects, stable
+terms, conditions before commands, no filler or ceremony. Jargon appears only when it
+is the correct name and gets defined once. Dumb mode drops unexplained jargon on
+request. Strict ASD-STE100 rules apply only when explicitly requested.
 
 ## Add or change a role
 

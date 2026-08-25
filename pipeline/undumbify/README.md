@@ -2,7 +2,7 @@
 
 [← All skills](../../README.md#skills) · [Hands-on tutorial](../../TUTORIAL.md) · [Runtime contract](SKILL.md) · [Behavior cases](../../evals/undumbify/cases.json)
 
-> **Rough direction in → architect-grade intent out.**
+> **Rough direction in → clear, complete intent out.**
 
 Undumbify turns a rough direction into decision-ready intent.
 

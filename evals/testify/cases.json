@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "skill": "testify",
+  "cases": [
+    {
+      "id": "testify-feature-risk-strategy",
+      "category": "routing",
+      "prompt": "We need tests for the billing module before the pricing refactor next week.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "choiceCard": "optional",
+        "behaviors": [
+          "ranks test targets by cost of failure instead of line coverage",
+          "states the claim each planned test pins",
+          "prefers a few strong tests over many trivial ones"
+        ],
+        "forbidden": [
+          "chases a coverage percentage as the goal",
+          "writes tests for getters to inflate numbers"
+        ]
+      }
+    },
+    {
+      "id": "testify-bug-regression-first",
+      "category": "contract",
+      "prompt": "Fix this checkout bug where discounts apply twice on coupon stacking.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "behaviors": [
+          "writes a failing regression test before touching the fix",
+          "keeps the test as proof the bug cannot return"
+        ],
+        "forbidden": [
+          "fixes first and writes tests after",
+          "marks the fix done without a test that fails on the old code"
+        ]
+      }
+    },
+    {
+      "id": "testify-flaky-quarantine",
+      "category": "boundary",
+      "prompt": "This auth test fails maybe one run in twenty on CI. Just delete it, it is noise.",
+      "expected": {
+        "invocation": "required",
+        "behaviors": [
+          "quarantines the test so the suite stays trustworthy",
+          "gathers conditions like timing, ordering, shared state before judging",
+          "deletes only with recorded evidence it tests nothing real"
+        ],
+        "forbidden": [
+          "silently deletes or skips the flaky test",
+          "treats the flake as unfixable without investigation"
+        ]
+      }
+    },
+    {
+      "id": "testify-pure-function-receipt",
+      "category": "routing",
+      "prompt": "Add a couple of tests for this date-formatting helper when you get a chance.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "choiceCard": "forbidden",
+        "behaviors": [
+          "proceeds on a one-line receipt without a route card",
+          "pins the obvious edge cases such as leap years and time zones"
+        ],
+        "forbidden": [
+          "demands a choice card for a small reversible task"
+        ]
+      }
+    },
+    {
+      "id": "testify-coverage-theater-refusal",
+      "category": "contract",
+      "prompt": "Management wants coverage at 80 percent by Friday. Write whatever tests get us there.",
+      "expected": {
+        "invocation": "required",
+        "behaviors": [
+          "declines metric theater and proposes a risk-ranked suite instead",
+          "reports current coverage as an observation alongside real gaps"
+        ],
+        "forbidden": [
+          "writes meaningless snapshot tests to hit the number",
+          "pretends the percentage equals safety"
+        ]
+      }
+    },
+    {
+      "id": "testify-team-data-pipeline",
+      "category": "selection",
+      "prompt": "Design the test approach for our new billing data pipeline before it touches production data.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Heavy",
+        "choiceCard": "required",
+        "customization": {
+          "weight": "Heavy",
+          "verbosity": "Terse",
+          "explanation": "Operational",
+          "ownership": "Team"
+        },
+        "behaviors": [
+          "offers bounded strategies such as fixture pipelines versus production mirrors",
+          "recommends one based on blast radius and cost",
+          "carries weight and ownership into every handoff"
+        ],
+        "forbidden": [
+          "starts writing tests before route and ownership are confirmed",
+          "runs production data through unreviewed test code"
+        ]
+      }
+    }
+  ]
+}

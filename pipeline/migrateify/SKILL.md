@@ -1,6 +1,6 @@
 ---
 name: migrateify
-description: Staged dependency and data migrations — baseline before the first hop, upstream notes before edits, one verified hop at a time, rollback proven before any irreversible transform. Use when upgrading dependencies, moving frameworks, or changing schemas and stored data.
+description: Move dependencies, frameworks, or data to a new version without breaking things. Record where you stand, read what changed upstream, upgrade in small verified steps, and prove you can roll back before touching data. Use when upgrading dependencies or changing schemas.
 ---
 
 # Migrateify

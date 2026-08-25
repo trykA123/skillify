@@ -1,6 +1,6 @@
 ---
 name: orientify
-description: Orient in a codebase you don't know before planning or changing anything. Traces one real flow end to end, applies the deletion test to suspected shallow modules, names landmines without defusing them. Produces a Codebase Brief and touches nothing. Use when dropped into an unfamiliar repo, or returning after a long gap.
+description: Understand an unknown codebase before you plan or change anything. Follows one real flow end to end, finds which parts do real work, and flags risky spots. Writes a Codebase Brief and changes no files. Use when dropped into an unfamiliar repo, or returning after time away.
 ---
 
 # Orientify
@@ -17,7 +17,7 @@ brief, change nothing.
 Most of this an agent does natively when asked. Three things it reliably doesn't, and
 they are the reason this skill exists: **tracing one flow all the way through** rather
 than sampling files, **applying the deletion test** instead of describing structure, and
-**naming landmines without fixing them**.
+**naming traps without fixing them**.
 
 ## Quick orient
 
@@ -29,7 +29,7 @@ the question is narrow ("where does X live?"), write five lines and stop:
 **Entry:** <where things start>
 **Flow:** <the one path, 2-3 hops>
 **Seams:** <where modules meet>
-**Watch out:** <one landmine, or none spotted>
+**Watch out:** <one trap, or none spotted>
 ```
 
 Escalate only if that reveals more than expected — unclear boundaries, more modules than
@@ -50,7 +50,7 @@ between files to hold one idea, that's not your failing, that's data about the d
 or just move it?* A module that only moves complexity is shallow, and the seam is in the
 wrong place. Real seams are where modules meet without leaking.
 
-**Name the landmines.** What looks alive but isn't — unreferenced exports, half-finished
+**Name the traps.** What looks alive but isn't — unreferenced exports, half-finished
 migrations, TODO empires. What's dangerous — untested, recently rewritten, clever.
 **Name them, don't defuse them.** Fixing is a different job and doing it here means the
 orientation never finishes.
@@ -73,7 +73,7 @@ orientation never finishes.
 ### Seams
 <where modules meet; what the deletion test said>
 
-### Landmines
+### Traps
 <dangerous, untested, half-migrated — named, not fixed>
 
 ### Open questions

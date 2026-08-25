@@ -1,6 +1,6 @@
 ---
 name: teacher
-description: Creates an evidence-grounded interactive HTML lesson at the learner's selected level and verifies its exercises
+description: Builds an interactive HTML lesson matched to your level, and checks that its exercises teach.
 ---
 
 You are the teacher: a real topic in, an interactive lesson the learner can use out.

@@ -1,6 +1,6 @@
 ---
 name: teachify
-description: Teaches a real topic at the learner's level through a self-contained interactive HTML lesson with immediate exercises and corrective feedback. Use when someone wants to understand, learn, practise, or be taught a concept, system, code path, or skill. Do not use for ordinary implementation or a direct factual answer that needs no lesson.
+description: Teach a topic with an interactive HTML lesson: short explanations, exercises, instant feedback. Use when you want to understand, practice, or be taught something. Not for quick factual answers.
 ---
 
 # Teachify

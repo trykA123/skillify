@@ -11,6 +11,8 @@ Infer `Weight: Light | Standard | Heavy`, `Verbosity: Terse | Concise | Detailed
 otherwise Operational applies silently, without a receipt entry.
 
 Never require a control block. Accept named values whenever the user supplies them.
+Dumb mode: 'dumb mode', simple words, or Layman means drop unexplained jargon — short
+everyday words, same facts.
 
 ## Choice card or receipt
 

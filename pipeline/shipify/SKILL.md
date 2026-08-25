@@ -1,6 +1,6 @@
 ---
 name: shipify
-description: Executes a packet at senior standard — isolating risky steps, batching safe ones, classifying every deviation rather than improvising. Returns a structured Revision Request when the plan is wrong. Use when the user says "implement this" or hands you a plan.
+description: Execute a plan carefully: set a baseline, verify each step before the next, and never improvise around problems. If the plan is wrong, send back a clear change request. Use when someone says implement this or hands you a plan.
 ---
 
 # Shipify

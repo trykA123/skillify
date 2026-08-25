@@ -6,7 +6,7 @@ Use this reference for broad comparisons, multi-stage routing, or guided practic
 
 | Current need | Start with | Move on when |
 |---|---|---|
-| Understand an unfamiliar codebase | Orientify | One real flow and its landmines are mapped |
+| Understand an unfamiliar codebase | Orientify | One real flow and its traps are mapped |
 | Diagnose broken behavior | Traceify | The root cause is named and the repair scope is known |
 | Research external facts | Researchify | Findings, conflicts, confidence, and gaps are explicit |
 | Audit without an intent contract | Audify | A measurable condition report exists |

@@ -1,6 +1,6 @@
 ---
 name: undumbify
-description: Turns a rough prompt into intent an architect would have written — extracting what the user knows, and supplying what they didn't know to say. Use when the user has a direction but it's vague, or to pressure-test a prompt before shapeify.
+description: Turn a rough idea into clear intent. Write down what you know, fill in the decisions you left unsaid, and ask only questions that change the plan. Use when the direction is vague, or before turning an idea into a plan.
 ---
 
 # Undumbify
@@ -11,7 +11,7 @@ Show a route card only when routes are genuinely contested after a quick look at
 subject, the work is Heavy, or a step is destructive or irreversible — otherwise proceed
 on the inferred route with a one-line receipt.
 
-**Rough prompt in, architect-grade intent out.** First rung of the ladder: the user
+**Rough prompt in, clear and complete intent out.** First rung of the ladder: the user
 brings the problem, you bring the judgment they don't have yet.
 
 Two jobs, and the second is the one that matters.

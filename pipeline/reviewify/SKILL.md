@@ -1,6 +1,6 @@
 ---
 name: reviewify
-description: Judges an implementation against what was intended rather than against taste — a few lenses deep instead of nine shallow, findings filtered to those with a location and a fix. Solo mode is a punch list; full mode is a handoff. Use after shipify, or to review a diff or PR.
+description: Judge work against its goal, not against taste. Look deep in a few places, report only findings that have a location and a fix, and give one verdict. Use after implementing, or to review a diff or pull request.
 ---
 
 # Reviewify

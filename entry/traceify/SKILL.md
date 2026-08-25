@@ -1,6 +1,6 @@
 ---
 name: traceify
-description: Structured repair loop for when something is broken — symptoms before hypotheses, falsifiable hypotheses ranked, cheapest discriminating test first, root cause named before any fix. Handles trivial fixes end to end; hands non-trivial ones to the pipeline. Use when "it was working yesterday" or "this error makes no sense."
+description: Something is broken and the cause is unknown. Collect symptoms first, rank testable causes, run the cheapest test that splits the list, and name the root cause before any fix. Easy fixes run end to end; hard ones go to planning. Use when it worked yesterday or the error makes no sense.
 ---
 
 # Traceify

@@ -1,6 +1,6 @@
 ---
 name: audify
-description: Audits a subject that came with no contract — a repo, a discussion, a config, a running system — by fixing the standard before looking, measuring every claim, and grading findings on severity against effort. Ships a single-file HTML report a stranger can act on. Use for "audit this", "what shape is this in", "where are the bodies buried".
+description: Check the health of something with no stated goal: a repo, a config, a running system. Agree on the bar first, measure everything against it, and grade each problem by severity versus effort to fix. Delivers one HTML report anyone can act on. Use for audit this, or what shape is this in.
 ---
 
 # Audify
@@ -127,7 +127,7 @@ or otherwise; report that one exists and where, never its value.
 
 A single file, one decision, or a direct question — answer in chat. A page carries real
 cost to produce and to read, and it should be earned by a subject with enough surface
-that a stranger would need the navigation.
+that someone new to the system would need for navigation.
 
 ## Before you ship it
 

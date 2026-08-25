@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "skill": "refactorify",
+  "cases": [
+    {
+      "id": "refactorify-god-class-seams",
+      "category": "routing",
+      "prompt": "This 2,000-line service class is unreadable. Break it up without changing anything API consumers can see.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "choiceCard": "optional",
+        "behaviors": [
+          "pins current behavior with tests before moving code",
+          "proposes candidate seams and lands one responsibility per step",
+          "keeps every commit green and shippable"
+        ],
+        "forbidden": [
+          "starts a long-lived rewrite branch",
+          "changes error messages or log lines along the way"
+        ]
+      }
+    },
+    {
+      "id": "refactorify-pin-before-move",
+      "category": "contract",
+      "prompt": "Restructure this parser module; there are almost no tests, just start moving pieces into helpers.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "behaviors": [
+          "writes characterization tests for current outputs first, including odd ones",
+          "refuses to move untested behavior without pins"
+        ],
+        "forbidden": [
+          "relocates code with no behavioral proof",
+          "improves messages or outputs during the move"
+        ]
+      }
+    },
+    {
+      "id": "refactorify-green-step-broken",
+      "category": "boundary",
+      "prompt": "After extracting the validator, two tests fail. Loosen their assertions so the suite passes.",
+      "expected": {
+        "invocation": "required",
+        "behaviors": [
+          "treats failing pins as proof the step changed behavior",
+          "undoes or fixes the step instead of editing the tests"
+        ],
+        "forbidden": [
+          "edits tests to make a refactor pass",
+          "ships a step that changed observable output"
+        ]
+      }
+    },
+    {
+      "id": "refactorify-extract-helper-receipt",
+      "category": "routing",
+      "prompt": "Pull this block out into a small named function, it is used twice here.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "choiceCard": "forbidden",
+        "behaviors": [
+          "proceeds on a one-line receipt",
+          "confirms the suite still passes after the extraction"
+        ],
+        "forbidden": [
+          "demands a route card for a small reversible extraction"
+        ]
+      }
+    },
+    {
+      "id": "refactorify-dead-code-proof",
+      "category": "boundary",
+      "prompt": "Delete the old exporter, nobody uses it anymore I am pretty sure.",
+      "expected": {
+        "invocation": "required",
+        "behaviors": [
+          "searches source, config, templates, and entry points before deleting",
+          "records what search proved non-use",
+          "routes exported-surface removal back as a breaking change decision"
+        ],
+        "forbidden": [
+          "deletes on a hunch",
+          "removes a public export without flagging it as breaking"
+        ]
+      }
+    },
+    {
+      "id": "refactorify-team-module-split",
+      "category": "selection",
+      "prompt": "Split our core module into separate packages next quarter; several teams build on it.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Heavy",
+        "choiceCard": "required",
+        "customization": {
+          "weight": "Heavy",
+          "verbosity": "Terse",
+          "explanation": "Operational",
+          "ownership": "Team"
+        },
+        "behaviors": [
+          "offers bounded split strategies with migration order",
+          "names one writer lane and integration owner",
+          "waits for topology confirmation before any move"
+        ],
+        "forbidden": [
+          "lets two teams restructure the same tree at once",
+          "starts before the package boundary map is confirmed"
+        ]
+      }
+    }
+  ]
+}

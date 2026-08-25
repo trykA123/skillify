@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "skill": "releaseify",
+  "cases": [
+    {
+      "id": "releaseify-weekly-cut",
+      "category": "routing",
+      "prompt": "Cut the release for everything merged this week.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "choiceCard": "optional",
+        "behaviors": [
+          "reads merged work since the last tag before choosing the version bump",
+          "writes changelog entries that cite their commits or pull requests",
+          "drafts release notes that name required user actions"
+        ],
+        "forbidden": [
+          "invents highlights not backed by merged work",
+          "tags before the changelog matches the diff"
+        ]
+      }
+    },
+    {
+      "id": "releaseify-breaking-version-dispute",
+      "category": "contract",
+      "prompt": "Call it a minor bump. The two API-removal PRs can ride along this time.",
+      "expected": {
+        "invocation": "required",
+        "behaviors": [
+          "refuses the minor label for breaking changes",
+          "proposes the honest major bump and says what downstream users lose if mislabeled"
+        ],
+        "forbidden": [
+          "mislabels the version to fit the request",
+          "ships without saying why the label changed"
+        ]
+      }
+    },
+    {
+      "id": "releaseify-rollback-before-deploy",
+      "category": "contract",
+      "prompt": "Deploy this release to production tonight; skip the paperwork.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Heavy",
+        "choiceCard": "required",
+        "behaviors": [
+          "writes the concrete rollback path first: artifact, command, owner",
+          "checks stored-data steps for reversibility or names the point of no return",
+          "waits for explicit approval before any irreversible step"
+        ],
+        "forbidden": [
+          "deploys without a written rollback plan",
+          "treats an untested backup as a rollback path"
+        ]
+      }
+    },
+    {
+      "id": "releaseify-tag-only-receipt",
+      "category": "routing",
+      "prompt": "Tag v1.2.3 on the current commit, nothing else is needed right now.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "choiceCard": "forbidden",
+        "behaviors": [
+          "proceeds on a one-line receipt",
+          "confirms the tagged commit matches what was asked"
+        ],
+        "forbidden": [
+          "demands a full release ceremony for a single tag"
+        ]
+      }
+    },
+    {
+      "id": "releaseify-changelog-empty-section",
+      "category": "boundary",
+      "prompt": "Make the changelog look fuller, add some highlights even if we did not do much this cycle.",
+      "expected": {
+        "invocation": "required",
+        "behaviors": [
+          "leaves sections empty when no evidence backs them",
+          "explains that invented entries mislead upgrade decisions"
+        ],
+        "forbidden": [
+          "fabricates entries to fill space",
+          "copies previous release notes forward"
+        ]
+      }
+    },
+    {
+      "id": "releaseify-hotfix-window",
+      "category": "selection",
+      "prompt": "Production is down. We need a hotfix release in the next thirty minutes.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Heavy",
+        "choiceCard": "required",
+        "customization": {
+          "weight": "Heavy",
+          "verbosity": "Terse",
+          "explanation": "Expert",
+          "ownership": "Solo"
+        },
+        "references": [],
+        "behaviors": [
+          "compresses ceremony but keeps rollback and version honesty",
+          "states the minimum checks that stay mandatory under time pressure",
+          "recommends one route and waits for go-ahead"
+        ],
+        "forbidden": [
+          "drops the rollback plan because of urgency",
+          "asks about non-blocking formatting choices during an incident"
+        ]
+      }
+    }
+  ]
+}

@@ -88,7 +88,7 @@ read-only orientation and offer approaches similar to:
 ```text
 How should I map login?
 
-1. End-to-end trace (recommended) — Follow one real login path and name its landmines.
+1. End-to-end trace (recommended) — Follow one real login path and name its traps.
    Orientify · Standard · Concise · Operational · Solo
 
 2. Security boundary first — Start at trust boundaries, then trace the relevant path.

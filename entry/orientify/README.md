@@ -13,12 +13,12 @@ Orientify builds a trustworthy codebase map before planning or editing starts.
 - A decision depends on understanding one real execution flow.
 
 It traces an entry-to-exit path, tests module seams with the deletion test, and names
-landmines. It does not fix them.
+traps. It does not fix them.
 
 ## Output
 
 Small repositories receive a short orientation. Larger repositories receive a Codebase
-Brief with vocabulary, architecture, hot spots, seams, landmines, open questions, and
+Brief with vocabulary, architecture, hot spots, seams, traps, open questions, and
 the traced flow that supports the map.
 
 ## Flow
@@ -28,7 +28,7 @@ the traced flow that supports the map.
 flowchart TB
     Entry[Real entry point] --> Path[Trace one execution path]
     Path --> Seams[Test module seams]
-    Seams --> Risks[Name landmines]
+    Seams --> Risks[Name traps]
     Risks --> Brief[Codebase Brief]
 ```
 

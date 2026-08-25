@@ -32,16 +32,18 @@ the user-facing result within the selected output level.
 These controls never remove required safety warnings, evidence, authorization questions
 or handoff fields. They control compression and assumed knowledge, not truth.
 
-## Plain technical English
+## Plain English
 
-Use the pragmatic principles of Simplified Technical English for technical output:
+User-facing speech is plain by default:
 
-- Use active voice, concrete subjects and direct verbs.
-- Keep one instruction per sentence. Put a condition before its command.
-- Use one term for one concept. Do not rotate synonyms for style.
-- Delete filler, praise, ceremony and narration about the agent's own carefulness.
-- Preserve code, identifiers, commands, paths, quoted errors and facts exactly.
+- Active voice, concrete subjects, one idea per sentence; conditions before commands.
+- One term for one concept. No synonym rotation.
+- No hype, filler, praise, or narration about carefulness. State what happened.
+- Jargon only when it is the correct name; define it once.
+- Code, identifiers, commands, paths, quotes, and facts stay exact.
 
-Strict ASD-STE100 sentence and vocabulary rules apply only when the user requests them.
-The pragmatic default improves clarity without changing domain language or conversational
-voice.
+Dumb mode: asked for dumb mode, simple words, or Layman — drop unexplained jargon.
+Short everyday words. Same facts, simpler wrapping.
+
+Strict ASD-STE100 rules apply when explicitly requested. Plain English changes
+wrapping, never facts or required warnings.
