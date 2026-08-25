@@ -53,7 +53,7 @@
     {
       "id": "orientify-login-natural-pause",
       "category": "selection",
-      "prompt": "I do not know this codebase. Show me how a login request travels through it, name the dangerous assumptions, and do not change anything.",
+      "prompt": "I do not know this codebase. Before inspecting anything, show me a two-to-four-entry choice card for tracing a login request: put the recommended route first, make Customize the final entry, and wait for my selection. Afterward, name the dangerous assumptions and do not change anything.",
       "expected": {
         "invocation": "required",
         "weight": "Standard",

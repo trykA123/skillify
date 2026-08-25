@@ -57,6 +57,7 @@ independent and carried unchanged through handoffs.
 
 | Group | Role | Purpose | Mutability | Method skills |
 |---|---|---|---|---|
+| Memory | [Archivist](guides/archivist/README.md) | Consolidates dossiers and findings into durable decision memory | artifacts-only | — |
 | Oversight | [Orchestrator](guides/orchestrator/README.md) | Selects the smallest topology and verifies handoffs | artifacts-only | — |
 | Oversight | [Oracle](guides/oracle/README.md) | Checks decision consistency on clean context | read-only | — |
 | Session | [Questar](guides/questar/README.md) | Preserves a long exploration until intent settles | artifacts-only | orientify, researchify, undumbify, shapeify, teachify |

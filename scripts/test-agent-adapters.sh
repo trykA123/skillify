@@ -24,7 +24,8 @@ for harness in codex claude opencode copilot; do
     --check >/dev/null
   extension="$(agent_extension "$harness")"
   [[ -f "$target/teacher.$extension" ]]
-  [[ "$(find "$target" -maxdepth 1 -type f ! -name '.skillify-native.json' | wc -l)" -eq 10 ]]
+  expected_agents="$(node -pe 'Object.keys(JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")).agents).length' "$REPO_DIR/agents/manifest.json")"
+  [[ "$(find "$target" -maxdepth 1 -type f ! -name '.skillify-native.json' | wc -l)" -eq "$expected_agents" ]]
   worker_file="$target/worker.$extension"
   grep -q 'Shared contract: handoff' "$worker_file"
   worker_body="$(sed -n '/^---$/,$p' "$worker_file" | sed '1d')"

@@ -50,6 +50,13 @@
     "delegated": ["handoff"]
   },
   "agents": {
+    "archivist": {
+      "group": "memory",
+      "role": "roles/memory/archivist.md",
+      "skills": [],
+      "capabilities": ["inspect", "shell", "artifact-write", "escalate"],
+      "mutability": "artifacts-only"
+    },
     "context-builder": {
       "group": "recon",
       "role": "roles/recon/context-builder.md",

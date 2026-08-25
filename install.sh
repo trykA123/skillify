@@ -9,7 +9,7 @@ CONFIG_BASE="${XDG_CONFIG_HOME:-$HOME/.config}"
 CODEX_BASE="${CODEX_HOME:-$HOME/.codex}"
 CLAUDE_BASE="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 
-SKILLS=(orientify undumbify shapeify shipify reviewify traceify skillify teachify researchify audify)
+SKILLS=(orientify undumbify shapeify shipify reviewify traceify skillify teachify researchify audify migrateify)
 RETIRED_SKILLS=(promptify explainify recordify librify)
 
 declare -A SKILL_FAMILY=(
@@ -21,6 +21,7 @@ declare -A SKILL_FAMILY=(
   [shapeify]=pipeline
   [shipify]=pipeline
   [reviewify]=pipeline
+  [migrateify]=pipeline
   [skillify]=teaching
   [teachify]=teaching
 )

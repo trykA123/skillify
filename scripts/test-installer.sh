@@ -30,7 +30,7 @@ copilot_project_status="$(
     --native-agents copilot \
     --status
 )"
-grep -q 'fresh: 10 copilot agents' <<<"$copilot_project_status"
+grep -q 'fresh: 11 copilot agents' <<<"$copilot_project_status"
 (
   cd "$TEST_ROOT/copilot-project"
   "$REPO_DIR/install.sh" \
@@ -56,7 +56,7 @@ copilot_status="$(HOME="$TEST_ROOT/copilot-home" "$REPO_DIR/install.sh" \
   --skill orientify \
   --native-agents copilot \
   --status)"
-grep -q 'fresh: 10 copilot agents' <<<"$copilot_status"
+grep -q 'fresh: 11 copilot agents' <<<"$copilot_status"
 HOME="$TEST_ROOT/copilot-home" "$REPO_DIR/install.sh" \
   --harness vscode \
   --skill orientify \

@@ -189,6 +189,7 @@ roles, integration ownership, or an iterative repair and review loop.
 | Entry | [Audify](entry/audify/README.md) | A subject has no intent contract and needs a measurable condition report |
 | Pipeline | [Undumbify](pipeline/undumbify/README.md) | A direction needs experienced missing decisions |
 | Pipeline | [Shapeify](pipeline/shapeify/README.md) | Settled intent needs an executable packet |
+| Pipeline | [Migrateify](pipeline/migrateify/README.md) | Dependencies, frameworks, or stored data must move versions safely |
 | Pipeline | [Shipify](pipeline/shipify/README.md) | Approved work must be implemented and verified |
 | Pipeline | [Reviewify](pipeline/reviewify/README.md) | Work must be judged against intent |
 | Teaching | [Teachify](teaching/teachify/README.md) | A topic needs an interactive HTML lesson and exercises |
@@ -202,6 +203,7 @@ flowchart TB
     External[External facts] --> Researchify
     NoContract[No intent contract] --> Audify
     Vague[Vague direction] --> Undumbify --> Shapeify --> Shipify --> Reviewify
+    Upgrade[Version or schema move] --> Migrateify
     Learn[Learn a subject] --> Teachify
 ```
 
@@ -212,6 +214,7 @@ outcome.
 
 | Group | Role | Owns |
 |---|---|---|
+| Memory | [Archivist](agents/guides/archivist/README.md) | Durable decision memory across sessions |
 | Oversight | [Orchestrator](agents/guides/orchestrator/README.md) | Smallest useful topology and verified handoffs |
 | Oversight | [Oracle](agents/guides/oracle/README.md) | Decision-consistency checks on clean context |
 | Session | [Questar](agents/guides/questar/README.md) | Long exploration and decision continuity |

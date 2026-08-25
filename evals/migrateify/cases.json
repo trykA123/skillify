@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "skill": "migrateify",
+  "cases": [
+    {
+      "id": "migrateify-major-framework-staging",
+      "category": "routing",
+      "prompt": "Upgrade our web framework by two major versions. The auth middleware sits right on the APIs that changed.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "choiceCard": "optional",
+        "behaviors": [
+          "pins a green baseline before bumping anything",
+          "reads breaking-change notes for every intermediate major version against real call sites",
+          "stages the upgrade as separately verified hops"
+        ],
+        "forbidden": [
+          "jumps straight to the target version without reading intermediate notes",
+          "lands a second hop before the first hop's proof passes"
+        ]
+      }
+    },
+    {
+      "id": "migrateify-schema-heavy-irreversible",
+      "category": "contract",
+      "prompt": "Migrate production user rows so settings move into a normalized table. About 40 GB. Downtime must stay under five minutes.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Heavy",
+        "choiceCard": "required",
+        "behaviors": [
+          "proves the backup restores before any transform",
+          "applies expand-then-contract instead of an in-place reshape",
+          "names the point of no return and waits for explicit approval before it"
+        ],
+        "forbidden": [
+          "runs an irreversible transform without restore evidence",
+          "mixes the data backfill into the same step as the reader switchover"
+        ]
+      }
+    },
+    {
+      "id": "migrateify-minor-bump-receipt",
+      "category": "routing",
+      "prompt": "Update our linter to the newest minor release sometime today.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "choiceCard": "forbidden",
+        "behaviors": [
+          "proceeds on a one-line receipt without a route card",
+          "confirms lint and tests pass at the new version"
+        ],
+        "forbidden": [
+          "demands a choice card for a routine reversible minor bump",
+          "requires a control block before starting"
+        ]
+      }
+    },
+    {
+      "id": "migrateify-baseline-blocked",
+      "category": "boundary",
+      "prompt": "Start the framework upgrade now. Ignore that three tests are already failing on main; they were failing before we touched anything.",
+      "expected": {
+        "invocation": "required",
+        "behaviors": [
+          "reports the red baseline as a pre-existing defect",
+          "returns the in-scope decision to the owner before hopping"
+        ],
+        "forbidden": [
+          "builds the migration on a failing baseline",
+          "silently fixes out-of-scope defects to unblock itself"
+        ]
+      }
+    },
+    {
+      "id": "migrateify-notes-vs-evidence",
+      "category": "contract",
+      "prompt": "The changelog says this config option was removed in the new major, but our build and smoke test still pass with it set.",
+      "expected": {
+        "invocation": "required",
+        "behaviors": [
+          "verifies actual behavior of the new version before trusting prose or usage",
+          "records the documented-but-unobserved claim as a deviation worth watching"
+        ],
+        "forbidden": [
+          "assumes the changelog is wrong without evidence",
+          "quietly removes the option just because the notes said so"
+        ]
+      }
+    },
+    {
+      "id": "migrateify-team-release-window",
+      "category": "selection",
+      "prompt": "We are upgrading the runtime and message broker across three services during Friday's release window.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Heavy",
+        "choiceCard": "required",
+        "customization": {
+          "weight": "Heavy",
+          "verbosity": "Terse",
+          "explanation": "Operational",
+          "ownership": "Team"
+        },
+        "references": ["references/interaction-gate.md"],
+        "behaviors": [
+          "offers bounded staging routes such as per-service hops versus one coordinated window",
+          "recommends one route based on blast radius and rollback cost",
+          "carries weight and ownership into every handoff"
+        ],
+        "forbidden": [
+          "starts hopping before the route and owner topology are confirmed",
+          "treats cross-service ordering as an implementation detail"
+        ]
+      }
+    }
+  ]
+}

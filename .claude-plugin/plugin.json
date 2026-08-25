@@ -20,6 +20,7 @@
     "./entry/orientify",
     "./pipeline/undumbify",
     "./pipeline/shapeify",
+    "./pipeline/migrateify",
     "./pipeline/shipify",
     "./pipeline/reviewify",
     "./entry/traceify",
