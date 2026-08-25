@@ -10,6 +10,10 @@
     "delegate": "Dispatch bounded work to another role.",
     "escalate": "Ask the parent or user for a decision and wait."
   },
+  "interactions": {
+    "direct": "May own the user's session directly; each adapter exposes this in its native vocabulary.",
+    "delegated": "Default. Runs as a child of another role or the runtime's default agent."
+  },
   "weights": {
     "Light": "Small, reversible, single-owner work with inline artifacts and targeted proof.",
     "Standard": "Normal feature work using the full packet, execution evidence and review.",
@@ -22,7 +26,8 @@
     },
     "explanation": {
       "default": "Operational",
-      "levels": ["Layman", "Operational", "Expert"]
+      "levels": ["Layman", "Operational", "Expert"],
+      "optIn": true
     }
   },
   "ownership": {
@@ -65,6 +70,7 @@
       "skills": [],
       "capabilities": ["inspect", "shell", "artifact-write", "delegate", "escalate"],
       "mutability": "artifacts-only",
+      "interaction": "direct",
       "contracts": ["topology"]
     },
     "planner": {
@@ -72,21 +78,24 @@
       "role": "roles/pipeline/planner.md",
       "skills": ["undumbify", "shapeify"],
       "capabilities": ["inspect", "shell", "artifact-write", "escalate"],
-      "mutability": "artifacts-only"
+      "mutability": "artifacts-only",
+      "interaction": "direct"
     },
     "questar": {
       "group": "session",
       "role": "roles/session/questar.md",
       "skills": ["orientify", "researchify", "undumbify", "shapeify", "teachify"],
       "capabilities": ["inspect", "shell", "artifact-write", "web-research", "escalate"],
-      "mutability": "artifacts-only"
+      "mutability": "artifacts-only",
+      "interaction": "direct"
     },
     "teacher": {
       "group": "teaching",
       "role": "roles/teaching/teacher.md",
       "skills": ["teachify", "researchify"],
       "capabilities": ["inspect", "shell", "artifact-write", "web-research", "escalate"],
-      "mutability": "artifacts-only"
+      "mutability": "artifacts-only",
+      "interaction": "direct"
     },
     "researcher": {
       "group": "recon",

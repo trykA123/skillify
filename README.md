@@ -90,7 +90,7 @@ How should I handle the login idea?
    Undumbify · Standard · Concise · Operational · Solo
 
 2. Fast — Use conservative assumptions and stop only on a blocking product decision.
-   Undumbify · Light · Terse · Operational · Solo
+   Undumbify · Light · Terse · Solo
 
 3. Guided — Explain each missing decision without assuming authentication knowledge.
    Undumbify · Standard · Detailed · Layman · Solo
@@ -161,7 +161,7 @@ Default: **Concise**.
 | **Operational** | Explain what changes action, risk, or verification |
 | **Expert** | Assume domain fluency; define only local or surprising terms |
 
-Default: **Operational**.
+Default: **Operational**, applied silently unless the user asks for a level.
 
 ### Ownership controls topology
 

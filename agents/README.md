@@ -29,7 +29,8 @@ The choice card shows plain impact first and compact controls second. It never g
 mutation authority. A tiny reversible task may use a one-line selection receipt and
 continue.
 
-Choosing Customize opens Weight, Verbosity, Explanation, and Ownership. `Team` asks the
+Choosing Customize opens Weight, Verbosity, and Ownership, with Explanation available as
+an optional extra. `Team` asks the
 parent to propose an exact minimal role map; `Custom team` lets the user name roles. The
 map shows each role's mutability and its coordinator, then waits for confirmation. A
 simple sequential handoff stays parent-coordinated. Team selection alone never adds an
@@ -104,7 +105,8 @@ A native adapter must:
 5. make required capabilities available or fail before dispatch;
 6. load the role's method skills;
 7. enforce mutability;
-8. carry selection, weight, verbosity, explanation, and ownership through every handoff;
+8. carry selection, weight, verbosity, and ownership through every handoff (explanation
+   when set);
 9. return unresolved decisions to the parent or user.
 
 `globalContracts` remains the backward-compatible complete list. New adapters should use
@@ -126,8 +128,8 @@ checks freshness, and removes stale managed definitions.
 |---|---|---|
 | Codex | Main session discovers skills | Native roles use base + handoff |
 | Claude Code | `--agent` receives selection through `initialPrompt` | The same role body omits root-only contracts |
-| OpenCode | Questar and Teacher retain the interactive profile | Subagent-mode roles use base + handoff |
-| VS Code/Copilot | Orchestrator is the visible interactive team entry | Nine hidden roles are model-invocable subagents |
+| OpenCode | `interaction: direct` roles render as `mode: all`; the rest are `mode: subagent` | Subagent-mode roles use base + handoff |
+| VS Code/Copilot | `interaction: direct` roles are user-invocable team entries | Remaining roles are model-invocable subagents |
 
 The Copilot adapter writes personal `.agent.md` files to `~/.copilot/agents` or project
 files to `.github/agents`. Its capability map grants `read` + `search` for inspection,

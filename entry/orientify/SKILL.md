@@ -5,25 +5,11 @@ description: Orient in a codebase you don't know before planning or changing any
 
 # Orientify
 
-**Interaction gate.** Infer `Weight: Light | Standard | Heavy`,
-`Verbosity: Terse | Concise | Detailed`,
-`Explanation: Layman | Operational | Expert`, and
-`Ownership: Solo | Team | Custom team`. Default to Concise, Operational, and Solo; never
-require a control block.
-
-After loading this skill, substantial work stops at a two-to-four-entry choice card before
-subject inspection, task tools, dispatch, or mutation. Multiple actions, a durable
-artifact, or coordinated work is substantial even when clear. Put the recommended route
-first and selectable **Customize** last; end and wait. Only a tiny, reversible request
-with one obvious action may show a receipt and proceed. After selection, show one compact
-final receipt before task work.
-
-After **Customize**, show one second-stage selector explaining every Weight, Verbosity,
-Explanation, and Ownership value, with inferred values preselected; accept only changes.
-Team means the smallest useful roles; add an Orchestrator only for substantial
-coordination. A delegated handoff carrying a confirmed receipt and exact topology
-inherits the choices and must not reopen selection unless a new material decision falls
-outside its boundary. Controls never weaken safeguards or grant authority.
+**Interaction gate.** Apply [the shared interaction gate](references/interaction-gate.md)
+before task work. Infer Weight, Verbosity, and Ownership; treat Explanation as opt-in.
+Show a route card only when routes are genuinely contested after a quick look at the
+subject, the work is Heavy, or a step is destructive or irreversible — otherwise proceed
+on the inferred route with a one-line receipt.
 
 You can't have intent about a codebase you don't understand. Build the model, write the
 brief, change nothing.

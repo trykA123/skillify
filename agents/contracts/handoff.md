@@ -4,7 +4,7 @@ Every delegated result must let the receiver advance without reconstructing the 
 Return, in the lightest form the task weight permits:
 
 - assigned outcome and boundary;
-- selected Weight, Verbosity, Explanation, and exact ownership topology;
+- selected Weight, Verbosity, and exact ownership topology;
 - result: completed, partial or blocked;
 - artifacts or exact evidence locations;
 - checks performed and their observed results;

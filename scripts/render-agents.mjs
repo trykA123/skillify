@@ -69,16 +69,19 @@ function compose(contracts, role) {
   return sections.join("\n\n");
 }
 
-function openCodeMode(name) {
-  return ["questar", "teacher"].includes(name) ? "all" : "subagent";
+function isDirect(spec) {
+  const interaction = spec.interaction ?? "delegated";
+  if (interaction !== "direct" && interaction !== "delegated") {
+    throw new Error(`unknown interaction '${interaction}'; use direct or delegated`);
+  }
+  return interaction === "direct";
 }
 
-function isDirectCapable(harnessName, name) {
-  return (harnessName === "opencode" && openCodeMode(name) === "all") ||
-    (harnessName === "copilot" && name === "orchestrator");
+function openCodeMode(spec) {
+  return isDirect(spec) ? "all" : "subagent";
 }
 
-function contractNamesFor(manifest, harnessName, name, spec) {
+function contractNamesFor(manifest, name, spec) {
   const profiles = manifest.contractProfiles;
   if (!profiles) return [...manifest.globalContracts, ...(spec.contracts ?? [])];
   for (const profile of ["base", "interactive", "delegated"]) {
@@ -86,7 +89,7 @@ function contractNamesFor(manifest, harnessName, name, spec) {
       throw new Error(`manifest contractProfiles.${profile} must be an array`);
     }
   }
-  const directCapable = isDirectCapable(harnessName, name);
+  const directCapable = isDirect(spec);
   const profileNames = directCapable
     ? ["base", "interactive", "delegated"]
     : ["base", "delegated"];
@@ -158,13 +161,13 @@ function render(harnessName, name, description, source, spec) {
   if (harnessName === "copilot") {
     const tools = toolsFor("copilot", spec);
     const agents = spec.capabilities.includes("delegate") ? `agents: ["*"]\n` : "";
-    const userInvocable = isDirectCapable("copilot", name);
+    const userInvocable = isDirect(spec);
     const disableModelInvocation = userInvocable;
     return `---\nname: ${yamlString(name)}\ndescription: ${yamlString(description)}\n` +
       `target: vscode\nuser-invocable: ${userInvocable}\ndisable-model-invocation: ${disableModelInvocation}\n` +
       `tools: ${JSON.stringify(tools)}\n${agents}---\n\n${body}\n`;
   }
-  const mode = openCodeMode(name);
+  const mode = openCodeMode(spec);
   return `---\ndescription: ${description}\nmode: ${mode}\n---\n\n${body}\n`;
 }
 
@@ -186,7 +189,7 @@ for (const [name, spec] of Object.entries(manifest.agents).sort(([a], [b]) => a.
   const rolePath = join(fleet, spec.role);
   const parsed = splitFrontmatter(await readFile(rolePath, "utf8"));
   if (parsed.meta.name !== name) throw new Error(`${spec.role}: role name must be ${name}`);
-  const contractNames = contractNamesFor(manifest, harness, name, spec);
+  const contractNames = contractNamesFor(manifest, name, spec);
   const contracts = [];
   for (const contractName of contractNames) {
     const target = manifest.contracts[contractName];

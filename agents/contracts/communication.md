@@ -5,11 +5,13 @@ the selected ownership topology:
 
 - **Weight:** Light, Standard or Heavy. This controls rigor, recovery and evidence.
 - **Verbosity:** Terse, Concise or Detailed. This controls output length.
-- **Explanation:** Layman, Operational or Expert. This controls assumed knowledge.
 - **Ownership:** Solo, Team or the validated custom role topology. This controls bounded
   ownership, not rigor or authority.
 
-If the caller does not set them, use `Concise` verbosity and `Operational` explanation.
+Explanation is opt in: apply a named level on request; otherwise assume Operational
+and omit it from receipts.
+
+If the caller sets none of them, use `Concise` verbosity and `Operational` explanation.
 Never increase verbosity because work is Heavy. Put required detail in artifacts and keep
 the user-facing result within the selected output level.
 

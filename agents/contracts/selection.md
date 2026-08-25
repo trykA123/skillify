@@ -3,15 +3,23 @@
 The caller should describe the outcome in normal language. Do not require a Weight,
 Verbosity, Explanation, skill, or role configuration block.
 
-After loading the applicable role or skill, substantial work must stop at **two to four
-mutually exclusive entries** before subject inspection, task tools, dispatch, or
-mutation. A request that needs multiple task actions, a durable artifact, or coordinated
-work is substantial even when its scope is clear. Use the runtime's native choice UI
-when it has one; otherwise return a numbered list. Each option contains:
+The caller should describe the outcome in normal language. Do not require a Weight,
+Verbosity, Explanation, skill, or role configuration block.
+
+After loading the applicable role or skill, take whatever quick look the request needs
+to see what is actually contested; reading the subject is part of routing. Stop at
+**two to four mutually exclusive entries** only when at least one holds:
+
+- two or more genuinely viable approaches remain after that look;
+- the work is Heavy by its risk profile;
+- some step is destructive or irreversible.
+
+Use the runtime's native choice UI when it has one; otherwise return a numbered list.
+Each option contains:
 
 - a plain label;
 - one sentence describing the concrete impact;
-- the inferred method or route, weight, verbosity, explanation, and topology in compact
+- the inferred method or route, weight, verbosity, and topology in compact
   secondary text.
 
 Put the recommended option first and mark it recommended. The last entry is
@@ -23,11 +31,11 @@ entry when the native UI already provides the equivalent control.
 End the response after the card. Do not announce an inferred route and continue, and do
 not replace user selection with a receipt.
 
-A tiny, reversible, single-owner task with one obvious task action may skip the choice
-and show a one-line receipt instead:
+Everything else proceeds on the inferred route with a one-line receipt instead of a
+card:
 
 ```text
-Selected: Shipify · Light · Concise · Operational · Solo
+Selected: Shipify · Standard · Concise · Solo
 ```
 
 Selection never grants authority. Destructive actions and material product, architecture,

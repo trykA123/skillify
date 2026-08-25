@@ -116,38 +116,6 @@ for (const family of skillFamilies) {
       fail(`${relative(root, skillPath)}: frontmatter name must be ${entry.name}`);
     }
     if (!meta.description) fail(`${relative(root, skillPath)}: description is required`);
-    if (agnosticTerms.test(source)) {
-      fail(`${relative(root, skillPath)}: portable skill contains a vendor or model name`);
-    }
-    if (!source.includes("Weight: Light | Standard | Heavy") ||
-        !source.includes("Verbosity: Terse | Concise | Detailed") ||
-        !source.includes("Explanation: Layman | Operational | Expert")) {
-      fail(`${relative(root, skillPath)}: missing portable output controls`);
-    }
-    if (!source.includes("choice") && !source.includes("Choice")) {
-      fail(`${relative(root, skillPath)}: missing natural-language choice behavior`);
-    }
-    if (!source.includes("**Customize**") ||
-        !source.includes("one second-stage selector") ||
-        !source.includes("Ownership value") ||
-        !source.includes("smallest useful roles") ||
-        !source.includes("confirmed receipt")) {
-      fail(`${relative(root, skillPath)}: missing second-stage customization behavior`);
-    }
-
-    const guidePath = join(familyRoot, entry.name, "README.md");
-    if (!(await exists(guidePath))) {
-      fail(`${relative(root, dirname(skillPath))}/README.md: missing human guide`);
-    } else {
-      const guideSource = await text(guidePath);
-      await markdownReferences(guidePath, guideSource);
-      if (!guideSource.includes("```mermaid")) {
-        fail(`${relative(root, guidePath)}: missing visual flow`);
-      }
-    }
-
-    if (skills.has(entry.name)) fail(`duplicate skill name: ${entry.name}`);
-    skills.set(entry.name, skillPath);
 
     const reachedMarkdown = new Set([resolve(skillPath)]);
     const pendingMarkdown = (await markdownReferences(skillPath, source))
@@ -164,6 +132,42 @@ for (const family of skillFamilies) {
       const children = await markdownReferences(referencePath, await text(referencePath));
       pendingMarkdown.push(...children.filter((path) => path.endsWith(".md")));
     }
+    const referencedTexts = await Promise.all(
+      [...reachedMarkdown].filter((path) => path !== resolve(skillPath)).map((path) => text(path)),
+    );
+    const portableSource = [source, ...referencedTexts].join("\n\n");
+    if (agnosticTerms.test(portableSource)) {
+      fail(`${relative(root, skillPath)}: portable skill contains a vendor or model name`);
+    }
+    if (!portableSource.includes("Weight: Light | Standard | Heavy") ||
+        !portableSource.includes("Verbosity: Terse | Concise | Detailed") ||
+        !portableSource.includes("Explanation: Layman | Operational | Expert")) {
+      fail(`${relative(root, skillPath)}: missing portable output controls`);
+    }
+    if (!portableSource.includes("choice") && !portableSource.includes("Choice")) {
+      fail(`${relative(root, skillPath)}: missing natural-language choice behavior`);
+    }
+    if (!portableSource.includes("**Customize**") ||
+        !portableSource.includes("one second-stage selector") ||
+        !portableSource.includes("Ownership value") ||
+        !portableSource.includes("smallest useful roles") ||
+        !portableSource.includes("confirmed receipt")) {
+      fail(`${relative(root, skillPath)}: missing second-stage customization behavior`);
+    }
+
+    const guidePath = join(familyRoot, entry.name, "README.md");
+    if (!(await exists(guidePath))) {
+      fail(`${relative(root, dirname(skillPath))}/README.md: missing human guide`);
+    } else {
+      const guideSource = await text(guidePath);
+      await markdownReferences(guidePath, guideSource);
+      if (!guideSource.includes("```mermaid")) {
+        fail(`${relative(root, guidePath)}: missing visual flow`);
+      }
+    }
+
+    if (skills.has(entry.name)) fail(`duplicate skill name: ${entry.name}`);
+    skills.set(entry.name, skillPath);
 
     const referenceRoot = join(familyRoot, entry.name, "references");
     if (await exists(referenceRoot)) {

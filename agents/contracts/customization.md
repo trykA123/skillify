@@ -10,8 +10,10 @@ in one short, concrete sentence:
 |---|---|---|
 | Weight | Light · Standard · Heavy | Rigor, recovery, and proof |
 | Verbosity | Terse · Concise · Detailed | User-facing response length |
-| Explanation | Layman · Operational · Expert | Knowledge the response may assume |
 | Ownership | Solo · Team · Custom team | Whether separate roles own bounded work |
+
+Explanation (Layman · Operational · Expert) is not a selector axis by default. Offer it
+as one optional extra line for users who want to set the assumed knowledge explicitly.
 
 Use one multi-field native form when the runtime supports it. In a text-only runtime,
 label choices so numbers cannot be confused across axes:
@@ -21,11 +23,11 @@ Customize this run
 
 Weight:     W1 Light · W2 Standard · W3 Heavy
 Verbosity:  V1 Terse · V2 Concise · V3 Detailed
-Explanation:E1 Layman · E2 Operational · E3 Expert
 Ownership:  O1 Solo · O2 Team · O3 Custom team
+Optional:   Explanation E1 Layman · E2 Operational · E3 Expert
 
-Current: W2 · V2 · E2 · O1
-Reply with all values or only changes, for example: W1 V2 E2 O2
+Current: W2 · V2 · O1
+Reply with all values or only changes, for example: W1 V2 O2
 ```
 
 The real selector includes the short meanings, not only the compact example above.
@@ -46,7 +48,7 @@ additional bounded role question only when the requested roles cannot be inferre
 After selection, show one receipt and wait for any required authority decision:
 
 ```text
-Selected: Light · Concise · Operational · Team
+Selected: Light · Concise · Team
 Suggested team: Scout → Worker
 ```
 
