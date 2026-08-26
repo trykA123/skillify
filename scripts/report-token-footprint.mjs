@@ -6,18 +6,20 @@ import process from "node:process";
 
 const repo = resolve(dirname(new URL(import.meta.url).pathname), "..");
 let jsonOutput = false;
+let markdownOutput = false;
 let check = false;
 let budgetPath = join(repo, "evals/token-budgets.json");
 
 function usage(code = 0) {
   const stream = code ? process.stderr : process.stdout;
-  stream.write("Usage: node scripts/report-token-footprint.mjs [--json] [--check] [--budgets FILE]\n");
+  stream.write("Usage: node scripts/report-token-footprint.mjs [--json] [--markdown] [--check] [--budgets FILE]\n");
   process.exit(code);
 }
 
 const args = process.argv.slice(2);
 for (let i = 0; i < args.length; i += 1) {
   if (args[i] === "--json") jsonOutput = true;
+  else if (args[i] === "--markdown") markdownOutput = true;
   else if (args[i] === "--check") check = true;
   else if (args[i] === "--budgets") budgetPath = resolve(args[++i]);
   else if (args[i] === "-h" || args[i] === "--help") usage(0);
@@ -147,6 +149,56 @@ for (const agent of report.agents) {
 
 if (jsonOutput) {
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+} else if (markdownOutput) {
+  const rows = [];
+  const status = (bytes, limit) => {
+    const ratio = bytes / limit;
+    return ratio > 1 ? "🔴" : ratio >= 0.85 ? "🟡" : "🟢";
+  };
+  const discoveryLimit = budgets.discovery.maxBytes;
+  rows.push(`| Subject | Bytes | Budget | |`);
+  rows.push(`|---|---:|---:|:-:|`);
+  rows.push(`| discovery | ${report.discovery.bytes} | ${discoveryLimit} | ${status(report.discovery.bytes, discoveryLimit)} |`);
+  for (const skill of report.skills) {
+    const exception = budgets.skillEntrypoint.exceptions?.[skill.name];
+    const limit = exception?.maxBytes ?? budgets.skillEntrypoint.defaultMaxBytes;
+    rows.push(`| skill:${skill.name} | ${skill.entrypoint.bytes} | ${limit} | ${status(skill.entrypoint.bytes, limit)} |`);
+  }
+  for (const agent of report.agents) {
+    const rootLimit = budgets.rootAgent.defaultMaxBytes;
+    const delegatedLimit = budgets.delegatedAgent.defaultMaxBytes;
+    rows.push(`| agent:${agent.name} root | ${agent.root.bytes} | ${rootLimit} | ${status(agent.root.bytes, rootLimit)} |`);
+    rows.push(`| agent:${agent.name} delegated | ${agent.delegated.bytes} | ${delegatedLimit} | ${status(agent.delegated.bytes, delegatedLimit)} |`);
+  }
+  const chartNames = report.skills.map((s) => `"${s.name}"`);
+  const chartValues = report.skills.map((s) => s.entrypoint.bytes);
+  const skillLimits = report.skills.map((s) => {
+    const exception = budgets.skillEntrypoint.exceptions?.[s.name];
+    return exception?.maxBytes ?? budgets.skillEntrypoint.defaultMaxBytes;
+  });
+  const agentNames = report.agents.map((a) => `"${a.name}"`);
+  console.log("## Prompt footprint", "");
+  console.log(`Discovery: **${report.discovery.bytes}** / ${discoveryLimit} bytes`, "");
+  console.log("| Subject | Bytes | Budget | |");
+  console.log(rows.slice(2).join("\n"), "");
+  console.log("Legend: 🟢 under 85% · 🟡 near limit · 🔴 over budget", "");
+  console.log("```mermaid");
+  console.log("xychart-beta");
+  console.log('    title "Skill entrypoints vs budget (bytes)"');
+  console.log(`    x-axis [${chartNames.join(", ")}]`);
+  console.log(`    y-axis "Bytes" 0 --> ${Math.max(...chartValues, ...skillLimits)}`);
+  console.log(`    bar [${chartValues.join(", ")}]`);
+  console.log(`    line [${skillLimits.join(", ")}]`);
+  console.log("```", "");
+  console.log("```mermaid");
+  console.log("xychart-beta");
+  console.log('    title "Agent prompt size: root vs delegated (bytes)"');
+  console.log(`    x-axis [${agentNames.join(", ")}]`);
+  console.log(`    y-axis "Bytes" 0 --> ${Math.max(...report.agents.map((a) => Math.max(a.root.bytes, a.delegated.bytes)))}`);
+  console.log(`    bar [${report.agents.map((a) => a.root.bytes).join(", ")}]`);
+  console.log(`    bar [${report.agents.map((a) => a.delegated.bytes).join(", ")}]`);
+  console.log("```", "");
+  console.log("Root = base + interactive + delegated contracts; delegated = base + handoff.");
 } else {
   console.log("Skillify prompt footprint (bytes / words; not exact model tokens)\n");
   console.log(`Discovery: ${report.discovery.bytes} / ${report.discovery.words}`);

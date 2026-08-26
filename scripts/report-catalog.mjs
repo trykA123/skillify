@@ -37,6 +37,38 @@ for (const [name, spec] of Object.entries(manifest.agents).sort(([a], [b]) => a.
     `| ${spec.group} | ${name} | ${interaction} | ${spec.mutability} | ${description.replaceAll("|", "\\|")} |`,
   );
 }
-lines.push("");
 
+const familyCounts = {};
+for (const family of ["entry", "pipeline", "teaching"]) {
+  const entries = (await readdir(join(root, family), { withFileTypes: true }))
+    .filter((e) => e.isDirectory());
+  familyCounts[family] = entries.length;
+}
+lines.push("", "### Shape", "", "```mermaid", "pie showData title Skills per family");
+for (const [family, count] of Object.entries(familyCounts)) lines.push(`    "${family}" : ${count}`);
+lines.push("```");
+
+lines.push("", "### Eval coverage", "");
+lines.push("| Suite | Cases |");
+lines.push("|---|---:|");
+let total = 0;
+const suiteNames = [];
+const suiteCounts = [];
+for (const dir of (await readdir(join(root, "evals"), { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
+  if (!dir.isDirectory() || dir.name === "adapters") continue;
+  const casePath = join(root, "evals", dir.name, "cases.json");
+  try {
+    const suite = JSON.parse(await readFile(casePath, "utf8"));
+    const count = Array.isArray(suite.cases) ? suite.cases.length : 0;
+    total += count;
+    suiteNames.push(`"${dir.name}"`);
+    suiteCounts.push(count);
+    lines.push(`| ${dir.name} | ${count} |`);
+  } catch { /* no cases.json in this directory */ }
+}
+lines.push(`| **total** | **${total}** |`, "");
+if (suiteNames.length) {
+  lines.push("```mermaid", "xychart-beta", '    title "Behavioral cases per suite"', `    x-axis [${suiteNames.join(", ")}]`, `    bar [${suiteCounts.join(", ")}]`, "```", "");
+}
+lines.push("");
 process.stdout.write(lines.join("\n"));

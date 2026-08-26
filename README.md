@@ -444,9 +444,10 @@ node scripts/report-token-footprint.mjs --check
 ```
 
 The report uses deterministic UTF-8 bytes and whitespace-delimited words. These are
-cross-model proxies, not exact token counts. CI prints this table on every push; run
-`node scripts/report-token-footprint.mjs --check` locally to test against the reviewed
-limits in [`evals/token-budgets.json`](evals/token-budgets.json).
+cross-model proxies, not exact token counts. CI renders a budget table plus bar charts
+into every run summary; run `node scripts/report-token-footprint.mjs --check` locally
+to test against the reviewed limits in
+[`evals/token-budgets.json`](evals/token-budgets.json).
 
 ## Verification
 

@@ -32,13 +32,7 @@ jobs:
       - name: Check patch whitespace
         run: git diff --check HEAD
       - name: Show prompt footprint
-        run: |
-          {
-            echo "### Prompt footprint"
-            echo '```'
-            node scripts/report-token-footprint.mjs
-            echo '```'
-          } >> "${GITHUB_STEP_SUMMARY}"
+        run: node scripts/report-token-footprint.mjs --markdown >> "${GITHUB_STEP_SUMMARY}"
   reports:
     runs-on: ubuntu-latest
     permissions:
