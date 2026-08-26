@@ -68,7 +68,7 @@ for (const dir of (await readdir(join(root, "evals"), { withFileTypes: true })).
 }
 lines.push(`| **total** | **${total}** |`, "");
 if (suiteNames.length) {
-  lines.push("```mermaid", "xychart-beta", '    title "Behavioral cases per suite"', `    x-axis [${suiteNames.join(", ")}]`, `    bar [${suiteCounts.join(", ")}]`, "```", "");
+  lines.push("```mermaid", "xychart-beta horizontal", '    title "Behavioral cases per suite"', `    x-axis [${suiteNames.join(", ")}]`, `    y-axis "Cases" 0 --> ${Math.max(...suiteCounts)}`, `    bar [${suiteCounts.join(", ")}]`, "```", "");
 }
 lines.push("");
 process.stdout.write(lines.join("\n"));
