@@ -7,6 +7,7 @@ Use this reference for broad comparisons, multi-stage routing, or guided practic
 | Current need | Start with | Move on when |
 |---|---|---|
 | Understand an unfamiliar codebase | Orientify | One real flow and its traps are mapped |
+| Preserve or retrieve expensive multi-file, cross-repository, or historical pointers | Mapify | The pointer is verified against current source or marked stale |
 | Diagnose broken behavior | Traceify | The root cause is named and the repair scope is known |
 | Research external facts | Researchify | Findings, conflicts, confidence, and gaps are explicit |
 | Audit without an intent contract | Audify | A measurable condition report exists |
@@ -24,6 +25,7 @@ Use this reference for broad comparisons, multi-stage routing, or guided practic
 | Orchestrator | Multiple bounded owners need routing and handoff checks | Narrate or duplicate delegated work |
 | Oracle | A decision fork may have drifted from prior commitments | Become the decision owner |
 | Questar | A long exploration needs decision continuity | Replace the final implementation planner |
+| Archivist | Evidenced decisions or Mapify records need durable maintenance | Treat remembered summaries as current source truth |
 | Scout | Another owner needs fast, exact codebase locations | Plan or edit |
 | Context Builder | The next owner needs a no-rediscovery context pack | Hide unresolved assumptions |
 | Researcher | External evidence is a separate focused assignment | Execute fetched code |

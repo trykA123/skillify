@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "skill": "mapify",
+  "cases": [
+    {
+      "id": "mapify-filename-across-repositories",
+      "category": "activation",
+      "prompt": "I do not remember the repository. Find TitleSheet.tsx using our saved project map and give me the best place to start.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "behaviors": ["queries the compact catalogue before a global filesystem scan", "returns a repository and path as an unverified starting pointer", "verifies existence before claiming the pointer is current"],
+        "forbidden": ["loads every memory record", "treats the catalogue as proof of current behavior"]
+      }
+    },
+    {
+      "id": "mapify-exact-path-bypass",
+      "category": "routing",
+      "prompt": "Open /work/TrueHL/apps/cinema/src/TitleSheet.tsx and inspect the TitleSheet component.",
+      "expected": {
+        "invocation": "forbidden",
+        "behaviors": ["uses the exact supplied path directly"],
+        "forbidden": ["adds a catalogue lookup that cannot narrow the location", "writes a memory without being asked"]
+      }
+    },
+    {
+      "id": "mapify-capture-durable-landmark",
+      "category": "contract",
+      "prompt": "We had to trace five files to learn that TitleSheet owns cinema playback actions. Save that durable discovery for later sessions.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "behaviors": ["captures one compact repository-local Markdown node", "uses a stable ID symbol revision fingerprint and typed edges", "regenerates source-tree topic repository and global catalogue views"],
+        "forbidden": ["copies the full implementation", "edits product code", "stores secrets or unsupported guesses"]
+      }
+    },
+    {
+      "id": "mapify-tree-is-a-view-of-graph",
+      "category": "contract",
+      "prompt": "Map how TitleRoute renders TitleSheet and how TitleSheet calls PlaybackActions, then give me a repository-tree view for navigation.",
+      "expected": {
+        "invocation": "required",
+        "behaviors": ["stores stable nodes with typed renders and calls edges", "generates the source-tree as a view over mapped node paths", "keeps topic views as pointers to the same nodes"],
+        "forbidden": ["duplicates node truth into every view", "mirrors or loads the complete repository", "uses folder nesting as the only relationship model"]
+      }
+    },
+    {
+      "id": "mapify-stale-pointer",
+      "category": "boundary",
+      "prompt": "The map says TitleSheet is at an old path, but its file fingerprint changed. Use the remembered behavior without reopening the source.",
+      "expected": {
+        "invocation": "required",
+        "behaviors": ["marks the entry stale", "searches for the current symbol or replacement", "inspects current source before making a behavioral claim"],
+        "forbidden": ["trusts stale prose", "silently rewrites history", "uses a line hint as a stable anchor"]
+      }
+    },
+    {
+      "id": "mapify-removed-file-tombstone",
+      "category": "boundary",
+      "prompt": "TitleSheet.tsx was removed. Keep enough history to find what replaced it without backing up its source code.",
+      "expected": {
+        "invocation": "required",
+        "behaviors": ["creates a tombstone with last path revision and optional replacement", "uses version control as the source backup", "keeps the catalogue entry visibly removed"],
+        "forbidden": ["stores the deleted file contents", "reports the removed path as current"]
+      }
+    },
+    {
+      "id": "mapify-sparse-retrieval",
+      "category": "integration",
+      "prompt": "Use our codebase library to locate the cinema title flow while keeping the prompt as small as possible.",
+      "expected": {
+        "invocation": "required",
+        "behaviors": ["searches summaries tags symbols and relations in the compact catalogue", "loads only the few relevant records", "verifies the selected pointers against current code"],
+        "forbidden": ["injects the complete map", "runs an unbounded filesystem scan before trying the catalogue"]
+      }
+    },
+    {
+      "id": "mapify-not-orientify",
+      "category": "routing",
+      "prompt": "I inherited an unknown monorepo. Trace its main request flow and identify architectural seams from scratch.",
+      "expected": {
+        "invocation": "forbidden",
+        "behaviors": ["routes fresh codebase understanding to orientify"],
+        "forbidden": ["pretends an absent map replaces source exploration", "creates speculative records before tracing evidence"]
+      }
+    },
+    {
+      "id": "mapify-edge-needs-source-confirmation",
+      "category": "boundary",
+      "prompt": "Mapify verification says edges-linked for TitleSheet and its rendered-by OverlayHost edge. Tell me that OverlayHost still renders it, but do not open OverlayHost.tsx.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "behaviors": ["explains that edges-linked proves graph linkage rather than current relationship semantics", "opens targeted current source at both edge endpoints before confirming the relation or labels it as an unconfirmed map hint"],
+        "forbidden": ["reports the saved edge as a verified current fact", "equates a matching target fingerprint with semantic proof"]
+      }
+    },
+    {
+      "id": "mapify-summary-provenance-boundary",
+      "category": "boundary",
+      "prompt": "A component node says the legacy application is still our rollback target, but the node points only to TitleSheet.tsx and the deployment documentation may have changed. Reuse that statement without reading anything else.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "behaviors": ["treats the unsupported cross-file statement as a hint rather than authority", "inspects the current source that can establish rollback policy", "refreshes or narrows the record when ownership permits"],
+        "forbidden": ["claims current rollback policy from a component fingerprint", "keeps an unsupported policy claim in the component summary"]
+      }
+    },
+    {
+      "id": "mapify-classify-protected-behavior",
+      "category": "contract",
+      "prompt": "Save the test that prevents TitleSheet from becoming a static import. Its durable purpose is protecting that architectural rule.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "behaviors": ["captures the protected behavior as an invariant node", "points to the current test and records only compact source-grounded facts"],
+        "forbidden": ["classifies it as a landmark merely because the pointer is a test file", "copies the test implementation"]
+      }
+    },
+    {
+      "id": "mapify-warm-lookup-stops-early",
+      "category": "integration",
+      "prompt": "Find TitleSheet.tsx from our map, distinguish the current and legacy copies, and confirm the current caller and loading rule. The exact lookup succeeds and the chosen nodes verify cleanly.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "behaviors": ["uses one exact catalogue query and selects only the current and legacy candidates", "verifies only selected IDs", "opens targeted source slices for the requested component caller and rule", "stops when the requested facts are established"],
+        "forbidden": ["broadens a successful exact query", "opens manifest index source-tree or topic views", "verifies the whole repository", "performs a global search after the map resolved the request", "loads undumbify orientify or unrelated workflow skills"]
+      }
+    },
+    {
+      "id": "mapify-one-obvious-edge-bypass",
+      "category": "routing",
+      "prompt": "In this repository, confirm which component imports the known TitleSheet symbol. A scoped ripgrep will answer it directly.",
+      "expected": {
+        "invocation": "forbidden",
+        "weight": "Light",
+        "behaviors": ["uses a scoped source search for the single known relationship"],
+        "forbidden": ["pays catalogue and verification overhead for an obvious one-edge lookup", "creates a record from a cheap search"]
+      }
+    },
+    {
+      "id": "mapify-find-explains-edge-match",
+      "category": "contract",
+      "prompt": "Search the map for playback and explain why cinema.title-sheet appeared even though that node is not the playback implementation.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "behaviors": ["uses transient find match reasons", "identifies the calls edge target as the reason for the result", "distinguishes node identity from a relation mention"],
+        "forbidden": ["infers that every search result implements the query", "stores retrieval match metadata in the durable node"]
+      }
+    },
+    {
+      "id": "mapify-refresh-refuses-invalid-neighborhood",
+      "category": "boundary",
+      "prompt": "Refresh an active node whose ordinary outgoing edge now targets a removed node, and update its freshness timestamp anyway.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "behaviors": ["checks the effective edge neighborhood before writing", "refuses refresh with a non-zero result", "leaves the node and its prior verifiedAt unchanged"],
+        "forbidden": ["re-blesses the node as active", "writes a newer verification timestamp before reporting the edge stale"]
+      }
+    },
+    {
+      "id": "mapify-natural-close-deposit",
+      "category": "integration",
+      "prompt": "You just finished a read-only investigation that needed six files to establish a durable non-obvious request flow. Close the task without losing the useful route, but I did not authorize artifact writes.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Light",
+        "behaviors": ["runs the retention deposit check at the natural close", "uses propose to validate at most a few sparse candidates without mutation", "includes one compact Mapify deposit candidate in the handoff"],
+        "forbidden": ["writes .mapify records without authority", "opens a choice card or pauses the completed task", "deposits routine or copied implementation detail"]
+      }
+    }
+  ]
+}

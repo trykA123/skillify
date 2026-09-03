@@ -103,6 +103,8 @@ if (!(await exists(agentsReadmePath))) {
 
 const skillFamilies = ["entry", "pipeline", "teaching"];
 const skills = new Map();
+const PIPELINE_SKILLS = new Set(["undumbify", "shapeify", "shipify", "reviewify", "testify", "releaseify", "refactorify", "migrateify"]);
+const PIPELINE_CORE = ["undumbify", "shapeify", "shipify", "reviewify"];
 
 for (const family of skillFamilies) {
   const familyRoot = join(root, family);
@@ -153,6 +155,14 @@ for (const family of skillFamilies) {
         !portableSource.includes("smallest useful roles") ||
         !portableSource.includes("confirmed receipt")) {
       fail(`${relative(root, skillPath)}: missing second-stage customization behavior`);
+    }
+    if (PIPELINE_SKILLS.has(entry.name)) {
+      if (!source.includes("references/artifacts.md")) {
+        fail(`${relative(root, skillPath)}: pipeline skill must link references/artifacts.md`);
+      }
+      if (!source.includes("references/pipeline-mode.md")) {
+        fail(`${relative(root, skillPath)}: pipeline skill must link references/pipeline-mode.md`);
+      }
     }
 
     const guidePath = join(familyRoot, entry.name, "README.md");
@@ -207,6 +217,7 @@ const choiceCardRules = new Set(["required", "optional", "forbidden"]);
 const evalIds = new Set();
 let skillCustomizationCases = 0;
 let skillNaturalPauseCases = 0;
+const skillCategories = new Map();
 
 function validateCustomization(expected, caseLabel) {
   const customization = expected.customization;
@@ -267,6 +278,8 @@ for (const [skillName, skillPath] of skills) {
     if (!evalCategories.has(evalCase.category)) {
       fail(`${caseLabel}: unknown category ${evalCase.category ?? "missing"}`);
     }
+    if (!skillCategories.has(skillName)) skillCategories.set(skillName, new Set());
+    skillCategories.get(skillName).add(evalCase.category);
     if (typeof evalCase.prompt !== "string" || evalCase.prompt.trim().length < 10) {
       fail(`${caseLabel}: prompt must contain a realistic request`);
     }
@@ -323,6 +336,25 @@ if (skillCustomizationCases < 1) {
 }
 if (skillNaturalPauseCases < 1) {
   fail("evals: at least one unforced natural-pause case is required");
+}
+for (const core of PIPELINE_CORE) {
+  const cats = skillCategories.get(core) ?? new Set();
+  if (!cats.has("integration")) {
+    fail(`evals/${core}/cases.json: pipeline core requires at least one integration case`);
+  }
+  if (!cats.has("handoff")) {
+    fail(`evals/${core}/cases.json: pipeline core requires at least one handoff case`);
+  }
+}
+for (const sharedFile of ["shared/artifacts.md", "shared/pipeline-mode.md", "shared/light-packet.md"]) {
+  if (!(await exists(join(root, sharedFile)))) fail(`${sharedFile}: required pipeline contract is missing`);
+}
+
+const pipelineSuitePath = join(root, "evals", "pipeline", "cases.json");
+const pipelineSuite = await json(pipelineSuitePath, "evals/pipeline/cases.json");
+if (pipelineSuite) {
+  const { validatePipelineSuite } = await import("./run-pipeline-evals.mjs");
+  for (const error of validatePipelineSuite(pipelineSuite)) fail(`evals/pipeline/cases.json: ${error}`);
 }
 
 const manifestPath = join(root, "agents", "manifest.json");
@@ -550,6 +582,38 @@ if (agentSuite) {
           }
         }
       }
+      if (expected.topology !== undefined) {
+        const topology = expected.topology;
+        if (!topology || typeof topology !== "object" || Array.isArray(topology)) {
+          fail(`${caseLabel}: topology must be an object`);
+        } else {
+          if (topology.exact_count !== undefined &&
+              (!Number.isInteger(topology.exact_count) || topology.exact_count < 1)) {
+            fail(`${caseLabel}: topology exact_count must be a positive integer`);
+          }
+          for (const field of ["allowed_roles", "forbidden_roles", "exact_roles"]) {
+            if (topology[field] !== undefined &&
+                (!Array.isArray(topology[field]) || topology[field].length === 0 ||
+                 new Set(topology[field]).size !== topology[field].length)) {
+              fail(`${caseLabel}: topology ${field} must be a non-empty unique array`);
+            }
+            for (const role of topology[field] ?? []) {
+              if (!manifest?.agents?.[role]) fail(`${caseLabel}: topology references unknown role ${role}`);
+            }
+          }
+          const allowed = new Set(topology.allowed_roles ?? []);
+          for (const role of topology.forbidden_roles ?? []) {
+            if (allowed.has(role)) fail(`${caseLabel}: topology role ${role} is both allowed and forbidden`);
+          }
+          if (topology.exact_roles && topology.exact_count !== undefined &&
+              topology.exact_roles.length !== topology.exact_count) {
+            fail(`${caseLabel}: topology exact_roles length must equal exact_count`);
+          }
+          if (!topology.exact_count && !topology.allowed_roles?.length && !topology.exact_roles?.length) {
+            fail(`${caseLabel}: topology must declare exact_count, allowed_roles, or exact_roles`);
+          }
+        }
+      }
       if (!Array.isArray(expected.behaviors) || expected.behaviors.length === 0) {
         fail(`${caseLabel}: expected.behaviors must be non-empty`);
       }
@@ -572,7 +636,7 @@ const installedSkills = [...installerList].sort();
 if (JSON.stringify(sourceSkills) !== JSON.stringify(installedSkills)) {
   fail(`install.sh: SKILLS does not match source skills\n  source: ${sourceSkills.join(", ")}\n  installer: ${installedSkills.join(", ")}`);
 }
-for (const option of ["--skill", "--family", "--exclude", "--update", "--status", "--dry-run", "--agents-only", "--agents-target", "--native-agents"]) {
+for (const option of ["--profile", "--skill", "--family", "--exclude", "--update", "--status", "--dry-run", "--agents-only", "--agents-target", "--native-agents"]) {
   if (!installer.includes(option)) fail(`install.sh: missing public option ${option}`);
 }
 

@@ -18,6 +18,7 @@
   ],
   "skills": [
     "./entry/orientify",
+    "./entry/mapify",
     "./pipeline/undumbify",
     "./pipeline/shapeify",
     "./pipeline/migrateify",

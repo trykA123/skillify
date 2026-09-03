@@ -6,16 +6,18 @@
 
 Context Builder turns a request and codebase into a no-rediscovery handoff.
 
-It traces callers, tests, fixtures, configuration, documentation, constraints, risks,
-and current external facts when required. It distills the result into a context pack and
-a compact task contract for the next role.
+It uses relevant verified Mapify pointers when available, then traces callers, tests,
+fixtures, configuration, documentation, constraints, risks, and current external facts
+when required. It distills the result into a context pack and a compact task contract
+for the next role.
 
 ## Handoff shape
 
 ```mermaid
 %%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
 flowchart TB
-    Request --> Inspect[Callers, tests, config, constraints]
+    Request --> Map[Relevant verified Mapify pointers]
+    Map --> Inspect[Callers, tests, config, constraints]
     Inspect --> Resolve[Resolve discoverable questions]
     Resolve --> Pack[Context pack + task contract]
     Pack --> Planner
@@ -30,4 +32,4 @@ mark every remaining gap or assumption.
 
 | Mutability | Primary skills | Typical receiver |
 |---|---|---|
-| Artifacts only | Undumbify · Researchify | Planner |
+| Artifacts only | Mapify · Undumbify · Researchify | Planner |

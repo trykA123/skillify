@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { readFile, readdir } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { readFile, readdir, realpath, stat } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import process from "node:process";
 
@@ -49,13 +50,51 @@ async function markdownBelow(root) {
     for (const entry of await readdir(path, { withFileTypes: true })) {
       const target = join(path, entry.name);
       if (entry.isDirectory()) await walk(target);
-      else if (entry.isFile() && entry.name.endsWith(".md")) result.push(target);
+      else if ((entry.isFile() || entry.isSymbolicLink()) && entry.name.endsWith(".md")) result.push(target);
     }
   }
   try { await walk(root); } catch (error) {
     if (error.code !== "ENOENT") throw error;
   }
   return result.sort();
+}
+
+const localMarkdownLinks = (source) => [...source.matchAll(/\]\(([^)#]+)(?:#[^)]*)?\)/g)]
+  .map((match) => match[1].trim())
+  .filter((target) => target && !/^(?:https?:|mailto:)/.test(target) && !target.includes("<"));
+
+async function canonical(path) {
+  try { return await realpath(path); } catch { return resolve(path); }
+}
+
+async function promptFiles(entrypoint, weight) {
+  const files = [];
+  const visited = new Set();
+  async function visit(path, kind = "reference") {
+    const canonicalPath = await canonical(path);
+    if (visited.has(canonicalPath)) return;
+    visited.add(canonicalPath);
+    const source = await readFile(path, "utf8");
+    files.push({
+      path: relative(repo, path),
+      canonicalPath: relative(repo, canonicalPath),
+      kind,
+      ...measure(source),
+      hash: createHash("sha256").update(source).digest("hex"),
+    });
+    for (const target of localMarkdownLinks(source)) {
+      const linked = resolve(dirname(path), target);
+      if (!await stat(linked).then(() => true, () => false)) continue;
+      const linkedRelative = relative(dirname(entrypoint), linked);
+      if (/^references[\\/]weights[\\/](?:light|standard|heavy)\.md$/.test(linkedRelative)) continue;
+      await visit(linked);
+    }
+  }
+
+  await visit(entrypoint, "entrypoint");
+  const standard = join(dirname(entrypoint), "references", "weights", `${String(weight).toLowerCase()}.md`);
+  if (await stat(standard).then(() => true, () => false)) await visit(standard, `${weight} weight`);
+  return files;
 }
 
 const skills = [];
@@ -86,6 +125,8 @@ skills.sort((a, b) => a.name.localeCompare(b.name));
 
 const fleetRoot = join(repo, "agents");
 const manifest = await json(join(fleetRoot, "manifest.json"));
+const budgetConfig = await json(budgetPath);
+const budgets = budgetConfig.budgets;
 const contractText = new Map();
 for (const [name, path] of Object.entries(manifest.contracts)) {
   contractText.set(name, await readFile(join(fleetRoot, path), "utf8"));
@@ -119,17 +160,80 @@ for (const [name, spec] of Object.entries(manifest.agents).sort(([a], [b]) => a.
   });
 }
 
+const chainSkills = budgets.pipelineChain?.skills ?? ["undumbify", "shapeify", "shipify", "reviewify"];
+const chainFilesByCanonicalPath = new Map();
+const chainStages = [];
+for (const chainSkill of chainSkills) {
+  const skill = skills.find((candidate) => candidate.name === chainSkill);
+  if (!skill) {
+    chainStages.push({ name: chainSkill, weight: "Standard", files: [], bytes: 0, words: 0, missing: true });
+    continue;
+  }
+  const files = await promptFiles(resolve(repo, skill.path), "Standard");
+  const stageCanonicalPaths = new Set();
+  for (const file of files) {
+    stageCanonicalPaths.add(file.canonicalPath);
+    const existing = chainFilesByCanonicalPath.get(file.canonicalPath);
+    if (existing) {
+      existing.paths.push(file.path);
+      existing.canonicalPaths.push(file.canonicalPath);
+      if (!existing.kinds.includes(file.kind)) existing.kinds.push(file.kind);
+      if (!existing.stages.includes(chainSkill)) existing.stages.push(chainSkill);
+    } else {
+      chainFilesByCanonicalPath.set(file.canonicalPath, {
+        hash: file.hash,
+        path: file.path,
+        canonicalPath: file.canonicalPath,
+        paths: [file.path],
+        canonicalPaths: [file.canonicalPath],
+        kinds: [file.kind],
+        stages: [chainSkill],
+        words: file.words,
+        bytes: file.bytes,
+      });
+    }
+  }
+  const stageFiles = files.map((file) => ({
+    path: file.path,
+    canonicalPath: file.canonicalPath,
+    kind: file.kind,
+    words: file.words,
+    bytes: file.bytes,
+    hash: file.hash,
+  }));
+  const uniqueStageFiles = files.filter((file) => stageCanonicalPaths.has(file.canonicalPath) &&
+    files.findIndex((candidate) => candidate.canonicalPath === file.canonicalPath) === files.indexOf(file));
+  chainStages.push({
+    name: chainSkill,
+    weight: "Standard",
+    files: stageFiles,
+    bytes: uniqueStageFiles.reduce((sum, file) => sum + file.bytes, 0),
+    words: uniqueStageFiles.reduce((sum, file) => sum + file.words, 0),
+  });
+}
+const chainFiles = [...chainFilesByCanonicalPath.values()];
+const pipelineChain = {
+  schemaVersion: 1,
+  weight: "Standard",
+  skills: chainSkills,
+  bytes: chainFiles.reduce((sum, file) => sum + file.bytes, 0),
+  words: chainFiles.reduce((sum, file) => sum + file.words, 0),
+  files: chainFiles,
+  stages: chainStages,
+  deduplication: "canonical resolved path; aliases of the same symlink target count once, distinct files count separately",
+};
+if (budgets.pipelineChain?.maxBytes !== undefined) pipelineChain.maxBytes = budgets.pipelineChain.maxBytes;
+
 const report = {
   schemaVersion: 1,
   measurement: "UTF-8 bytes and whitespace-delimited words; model token counts vary",
   discovery: measure([...skillDescriptions.sort(), ...agentDescriptions.sort()].join("\n")),
   skills,
   agents,
+  pipelineChain,
 };
 
-const budgetConfig = await json(budgetPath);
 const failures = [];
-const budgets = budgetConfig.budgets;
 if (report.discovery.bytes > budgets.discovery.maxBytes) {
   failures.push(`discovery: ${report.discovery.bytes} > ${budgets.discovery.maxBytes} bytes`);
 }
@@ -144,6 +248,14 @@ for (const agent of report.agents) {
   }
   if (agent.delegated.bytes > budgets.delegatedAgent.defaultMaxBytes) {
     failures.push(`${agent.name} delegated: ${agent.delegated.bytes} > ${budgets.delegatedAgent.defaultMaxBytes} bytes`);
+  }
+}
+if (budgets.pipelineChain) {
+  if (pipelineChain.stages.some((stage) => stage.missing)) {
+    failures.push(`pipelineChain: missing configured skill (${pipelineChain.stages.filter((stage) => stage.missing).map((stage) => stage.name).join(", ")})`);
+  }
+  if (pipelineChain.bytes > budgets.pipelineChain.maxBytes) {
+    failures.push(`pipelineChain (${chainSkills.join("+")} Standard): ${pipelineChain.bytes} > ${budgets.pipelineChain.maxBytes} bytes`);
   }
 }
 
@@ -168,6 +280,9 @@ if (jsonOutput) {
     rows.push(`| ${agent.name} · root | ${agent.root.bytes} | ${budgets.rootAgent.defaultMaxBytes} | ${status(agent.root.bytes, budgets.rootAgent.defaultMaxBytes)} |`);
     rows.push(`| ${agent.name} · delegated | ${agent.delegated.bytes} | ${budgets.delegatedAgent.defaultMaxBytes} | ${status(agent.delegated.bytes, budgets.delegatedAgent.defaultMaxBytes)} |`);
   }
+  if (budgets.pipelineChain) {
+    rows.push(`| pipeline chain · Standard | ${report.pipelineChain.bytes} | ${budgets.pipelineChain.maxBytes} | ${status(report.pipelineChain.bytes, budgets.pipelineChain.maxBytes)} |`);
+  }
 
   const hChart = (title, names, values) => {
     console.log("```mermaid");
@@ -181,6 +296,14 @@ if (jsonOutput) {
 
   console.log("## Prompt footprint", "");
   console.log(`Discovery: **${report.discovery.bytes}** / ${discoveryLimit} bytes`, "");
+  if (budgets.pipelineChain) {
+    console.log(`Pipeline chain (Standard, deduplicated): **${report.pipelineChain.bytes}** / ${budgets.pipelineChain.maxBytes} bytes`, "");
+    console.log("| Chain stage | Unique stage bytes | Files |", "|---|---:|---:|");
+    for (const stage of report.pipelineChain.stages) {
+      console.log(`| ${stage.name} | ${stage.bytes} | ${stage.files.length}${stage.missing ? " (missing)" : ""} |`);
+    }
+    console.log(`Unique files: ${report.pipelineChain.files.length}; aliases of one canonical resolved path are counted once.`, "");
+  }
   console.log(rows.join("\n"), "");
   console.log("🟢 under 85% · 🟡 near limit · 🔴 over budget", "");
   hChart(
@@ -208,6 +331,16 @@ if (jsonOutput) {
   console.log("\nAgents (root -> delegated):");
   for (const agent of report.agents) {
     console.log(`  ${agent.name.padEnd(16)} ${String(agent.root.bytes).padStart(6)} -> ${String(agent.delegated.bytes).padStart(6)}`);
+  }
+  console.log(`\nPipeline chain (Standard, deduplicated): ${report.pipelineChain.bytes} / ${budgets.pipelineChain?.maxBytes ?? "unbounded"} bytes`);
+  console.log(`  skills: ${report.pipelineChain.skills.join(" -> ")}`);
+  console.log(`  unique files: ${report.pipelineChain.files.length}`);
+  for (const stage of report.pipelineChain.stages) {
+    console.log(`  ${stage.name.padEnd(16)} ${String(stage.bytes).padStart(6)} / ${stage.files.length} files${stage.missing ? " · MISSING" : ""}`);
+  }
+  for (const file of report.pipelineChain.files) {
+    const aliases = file.paths.length > 1 ? ` aliases=${file.paths.length - 1}` : "";
+    console.log(`    ${file.path} -> ${file.canonicalPath} (${file.bytes} bytes${aliases})`);
   }
 }
 

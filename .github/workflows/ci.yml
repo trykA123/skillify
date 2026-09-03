@@ -18,19 +18,25 @@ jobs:
       - name: Validate portable contracts
         run: node scripts/validate-core.mjs
       - name: Validate shell syntax
-        run: bash -n install.sh scripts/test-installer.sh scripts/test-agent-adapters.sh scripts/test-eval-runner.sh scripts/test-token-footprint.sh
+        run: bash -n install.sh scripts/test-installer.sh scripts/test-agent-adapters.sh scripts/test-eval-runner.sh scripts/test-mapify.sh scripts/test-token-footprint.sh
       - name: Test installer safety
         run: bash scripts/test-installer.sh
       - name: Test native agent adapters
         run: bash scripts/test-agent-adapters.sh
       - name: Test executable eval runner
         run: bash scripts/test-eval-runner.sh
+      - name: Test Mapify library and catalogue
+        run: bash scripts/test-mapify.sh
+      - name: Test prompt footprint failure boundaries
+        run: bash scripts/test-token-footprint.sh
       - name: Validate interactive lesson template
         run: node teaching/teachify/scripts/validate-lesson.mjs teaching/teachify/assets/lesson-template.html
       - name: Test interactive lesson behavior
         run: node scripts/test-teachify-interaction.mjs
       - name: Check patch whitespace
         run: git diff --check HEAD
+      - name: Check prompt footprint budgets
+        run: node scripts/report-token-footprint.mjs --check
       - name: Show prompt footprint
         run: node scripts/report-token-footprint.mjs --markdown >> "${GITHUB_STEP_SUMMARY}"
   reports:

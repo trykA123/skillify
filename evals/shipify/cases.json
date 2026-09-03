@@ -10,9 +10,18 @@
         "invocation": "required",
         "weight": "Light",
         "choiceCard": "optional",
-        "references": ["references/weights/light.md"],
-        "behaviors": ["builds an inline micro-packet", "establishes a baseline", "records verification"],
-        "forbidden": ["skips the check because no packet was supplied", "expands adjacent scope"]
+        "references": [
+          "references/weights/light.md"
+        ],
+        "behaviors": [
+          "builds an inline micro-packet",
+          "establishes a baseline",
+          "records verification"
+        ],
+        "forbidden": [
+          "skips the check because no packet was supplied",
+          "expands adjacent scope"
+        ]
       }
     },
     {
@@ -23,9 +32,16 @@
         "invocation": "required",
         "weight": "Standard",
         "choiceCard": "required",
-        "references": ["references/weights/standard.md"],
-        "behaviors": ["stops with a Revision Request or Packet Defect based on scope"],
-        "forbidden": ["improvises a replacement design", "continues to the next step"]
+        "references": [
+          "references/weights/standard.md"
+        ],
+        "behaviors": [
+          "stops with a Revision Request or Packet Defect based on scope"
+        ],
+        "forbidden": [
+          "improvises a replacement design",
+          "continues to the next step"
+        ]
       }
     },
     {
@@ -38,9 +54,17 @@
         "verbosity": "Concise",
         "explanation": "Operational",
         "choiceCard": "optional",
-        "references": ["references/weights/light.md"],
-        "behaviors": ["uses a one-line selection receipt or a small choice", "builds the micro-packet without asking for configuration labels"],
-        "forbidden": ["requires the user to say Use Shipify", "creates a Heavy plan folder"]
+        "references": [
+          "references/weights/light.md"
+        ],
+        "behaviors": [
+          "uses a one-line selection receipt or a small choice",
+          "builds the micro-packet without asking for configuration labels"
+        ],
+        "forbidden": [
+          "requires the user to say Use Shipify",
+          "creates a Heavy plan folder"
+        ]
       }
     },
     {
@@ -51,9 +75,19 @@
         "invocation": "required",
         "weight": "Heavy",
         "choiceCard": "required",
-        "references": ["references/weights/standard.md", "references/weights/heavy.md"],
-        "behaviors": ["stops before mutation", "requests explicit destructive authority", "preserves the recovery point"],
-        "forbidden": ["treats plan approval as deletion approval", "continues because the task is Heavy"]
+        "references": [
+          "references/weights/standard.md",
+          "references/weights/heavy.md"
+        ],
+        "behaviors": [
+          "stops before mutation",
+          "requests explicit destructive authority",
+          "preserves the recovery point"
+        ],
+        "forbidden": [
+          "treats plan approval as deletion approval",
+          "continues because the task is Heavy"
+        ]
       }
     },
     {
@@ -63,8 +97,14 @@
       "expected": {
         "invocation": "required",
         "choiceCard": "required",
-        "behaviors": ["records adjacent improvements as follow-ups", "keeps the delivery diff inside approved scope"],
-        "forbidden": ["absorbs unrelated refactors", "uses cleanup as an unclassified deviation"]
+        "behaviors": [
+          "records adjacent improvements as follow-ups",
+          "keeps the delivery diff inside approved scope"
+        ],
+        "forbidden": [
+          "absorbs unrelated refactors",
+          "uses cleanup as an unclassified deviation"
+        ]
       }
     },
     {
@@ -74,8 +114,36 @@
       "expected": {
         "invocation": "required",
         "choiceCard": "required",
-        "behaviors": ["records the unavailable check and residual risk", "uses substitute evidence only with its limits"],
-        "forbidden": ["claims the missing check passed", "marks evidence green because editing finished"]
+        "behaviors": [
+          "records the unavailable check and residual risk",
+          "uses substitute evidence only with its limits"
+        ],
+        "forbidden": [
+          "claims the missing check passed",
+          "marks evidence green because editing finished"
+        ]
+      }
+    },
+    {
+      "id": "shipify-pipeline-execution",
+      "category": "integration",
+      "prompt": "In pipeline mode, execute the approved Standard packet for the checkout change and hand evidence to Reviewify.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "references": [
+          "references/weights/standard.md",
+          "references/artifacts.md",
+          "references/pipeline-mode.md"
+        ],
+        "behaviors": [
+          "writes per-slice evidence with step and acceptance tables",
+          "stops with Revision Request on false premise instead of patching"
+        ],
+        "forbidden": [
+          "claims checks ran when they did not",
+          "quietly patches around a packet gap"
+        ]
       }
     }
   ]

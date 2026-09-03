@@ -13,7 +13,8 @@ on the inferred route with a one-line receipt.
 
 **Refactoring is moving code while its promises hold still.** The output is judged by
 two proofs: the structure improved, and nothing observable changed. Either proof alone
-is failure.
+is failure. In pipeline use, pins are `T*` claims per [artifacts](references/artifacts.md).
+Follow [pipeline mode](references/pipeline-mode.md).
 
 ## Pin behavior first
 

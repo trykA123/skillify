@@ -12,7 +12,9 @@ subject, the work is Heavy, or a step is destructive or irreversible — otherwi
 on the inferred route with a one-line receipt.
 
 **Rough prompt in, clear and complete intent out.** First rung of the ladder: the user
-brings the problem, you bring the judgment they don't have yet.
+brings the problem, you bring the judgment they don't have yet. In pipeline mode,
+read [pipeline mode](references/pipeline-mode.md) once and emit the Brief per
+[artifacts](references/artifacts.md) so Shapeify converts it without rediscovery.
 
 Two jobs, and the second is the one that matters.
 

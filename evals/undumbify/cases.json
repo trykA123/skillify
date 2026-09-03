@@ -10,8 +10,15 @@
         "invocation": "required",
         "choiceCard": "required",
         "mode": "converge",
-        "behaviors": ["supplies experienced missing decisions", "asks only material questions", "labels conservative assumptions"],
-        "forbidden": ["asks the user to design every missing behavior", "starts implementation"]
+        "behaviors": [
+          "supplies experienced missing decisions",
+          "asks only material questions",
+          "labels conservative assumptions"
+        ],
+        "forbidden": [
+          "asks the user to design every missing behavior",
+          "starts implementation"
+        ]
       }
     },
     {
@@ -20,8 +27,12 @@
       "prompt": "Change the documented timeout constant from 20 to 30 and run its existing unit test.",
       "expected": {
         "invocation": "forbidden",
-        "behaviors": ["treats the task as decision-ready"],
-        "forbidden": ["creates unnecessary architecture questions"]
+        "behaviors": [
+          "treats the task as decision-ready"
+        ],
+        "forbidden": [
+          "creates unnecessary architecture questions"
+        ]
       }
     },
     {
@@ -34,8 +45,15 @@
         "verbosity": "Concise",
         "explanation": "Operational",
         "choiceCard": "required",
-        "behaviors": ["offers two to four concrete shaping approaches", "recommends one", "does not require explicit control labels"],
-        "forbidden": ["asks the user to restate the request in Skillify syntax", "starts implementation"]
+        "behaviors": [
+          "offers two to four concrete shaping approaches",
+          "recommends one",
+          "does not require explicit control labels"
+        ],
+        "forbidden": [
+          "asks the user to restate the request in Skillify syntax",
+          "starts implementation"
+        ]
       }
     },
     {
@@ -45,8 +63,14 @@
       "expected": {
         "invocation": "required",
         "choiceCard": "required",
-        "behaviors": ["asks only unknowns whose plausible answers change hard-to-reverse outcomes", "uses conservative labeled assumptions for immaterial gaps"],
-        "forbidden": ["turns the interaction into an exhaustive questionnaire", "asks for facts discoverable in the repository"]
+        "behaviors": [
+          "asks only unknowns whose plausible answers change hard-to-reverse outcomes",
+          "uses conservative labeled assumptions for immaterial gaps"
+        ],
+        "forbidden": [
+          "turns the interaction into an exhaustive questionnaire",
+          "asks for facts discoverable in the repository"
+        ]
       }
     },
     {
@@ -56,8 +80,14 @@
       "expected": {
         "invocation": "required",
         "choiceCard": "required",
-        "behaviors": ["raises material missing decisions with recommendations", "names at least one failure mode the user did not mention"],
-        "forbidden": ["merely paraphrases the request", "asks the user to invent every architectural concern"]
+        "behaviors": [
+          "raises material missing decisions with recommendations",
+          "names at least one failure mode the user did not mention"
+        ],
+        "forbidden": [
+          "merely paraphrases the request",
+          "asks the user to invent every architectural concern"
+        ]
       }
     },
     {
@@ -66,8 +96,52 @@
       "prompt": "This healthy design is already settled, but the implementation now returns a reproducible null-pointer error. Diagnose it.",
       "expected": {
         "invocation": "forbidden",
-        "behaviors": ["routes the reproducible defect to traceify"],
-        "forbidden": ["reopens settled product intent", "converts a diagnosis into an intent workshop"]
+        "behaviors": [
+          "routes the reproducible defect to traceify"
+        ],
+        "forbidden": [
+          "reopens settled product intent",
+          "converts a diagnosis into an intent workshop"
+        ]
+      }
+    },
+    {
+      "id": "undumbify-pipeline-brief",
+      "category": "integration",
+      "prompt": "Run pipeline mode for a vague checkout improvement: supply missing decisions, then hand a Brief to Shapeify without rediscovery.",
+      "expected": {
+        "invocation": "required",
+        "references": [
+          "references/artifacts.md",
+          "references/pipeline-mode.md"
+        ],
+        "behaviors": [
+          "emits Intent Brief fields per artifacts schema",
+          "marks pipeline inheritance so Shapeify converts without rediscovery"
+        ],
+        "forbidden": [
+          "emits free-form intent with no mappable R/I source",
+          "reopens selection inside the lane"
+        ]
+      }
+    },
+    {
+      "id": "undumbify-handoff-shapeify",
+      "category": "handoff",
+      "prompt": "The checkout direction is now clear with constraints and priorities settled. Hand it to planning.",
+      "expected": {
+        "invocation": "required",
+        "references": [
+          "references/artifacts.md"
+        ],
+        "behaviors": [
+          "returns a Brief that maps to R/I without further questions",
+          "routes to shapeify and does no planning itself"
+        ],
+        "forbidden": [
+          "plans steps or locations",
+          "asks settled material questions again"
+        ]
       }
     }
   ]

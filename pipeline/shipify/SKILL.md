@@ -12,7 +12,9 @@ subject, the work is Heavy, or a step is destructive or irreversible — otherwi
 on the inferred route with a one-line receipt.
 
 **A junior-executable plan in, senior-grade work out.** Establish a baseline, verify
-each step before the next, and never improvise around a false premise.
+each step before the next, and never improvise around a false premise. Follow
+[artifacts](references/artifacts.md) for evidence paths and Revision Request vs
+Packet Defect. In pipeline mode, follow [pipeline mode](references/pipeline-mode.md).
 
 ## Resolve the packet and weight
 

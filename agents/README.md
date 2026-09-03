@@ -57,12 +57,12 @@ independent and carried unchanged through handoffs.
 
 | Group | Role | Purpose | Mutability | Method skills |
 |---|---|---|---|---|
-| Memory | [Archivist](guides/archivist/README.md) | Consolidates dossiers and findings into durable decision memory | artifacts-only | — |
+| Memory | [Archivist](guides/archivist/README.md) | Consolidates dossiers, findings, and verified code pointers into durable memory | artifacts-only | mapify |
 | Oversight | [Orchestrator](guides/orchestrator/README.md) | Selects the smallest topology and verifies handoffs | artifacts-only | — |
 | Oversight | [Oracle](guides/oracle/README.md) | Checks decision consistency on clean context | read-only | — |
 | Session | [Questar](guides/questar/README.md) | Preserves a long exploration until intent settles | artifacts-only | orientify, researchify, undumbify, shapeify, teachify |
-| Recon | [Scout](guides/scout/README.md) | Returns fast, exact code locations | artifacts-only | orientify |
-| Recon | [Context Builder](guides/context-builder/README.md) | Produces a no-rediscovery context pack | artifacts-only | undumbify, researchify |
+| Recon | [Scout](guides/scout/README.md) | Returns fast, exact code locations | artifacts-only | mapify, orientify |
+| Recon | [Context Builder](guides/context-builder/README.md) | Produces a no-rediscovery context pack | artifacts-only | mapify, undumbify, researchify |
 | Recon | [Researcher](guides/researcher/README.md) | Returns focused current external evidence | artifacts-only | researchify |
 | Pipeline | [Planner](guides/planner/README.md) | Produces an executable worker packet | artifacts-only | undumbify, shapeify |
 | Pipeline | [Worker](guides/worker/README.md) | Owns the single product-code writer lane | code | shipify, traceify |

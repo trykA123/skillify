@@ -13,7 +13,9 @@ on the inferred route with a one-line receipt.
 
 **A migration swaps contracts under living code.** The application keeps running; the
 promises around it move. Discipline comes from three habits: pin where you stand, read
-where you are going, and land one hop at a time.
+where you are going, and land one hop at a time. In pipeline use, hops are `S*`
+slices per [artifacts](references/artifacts.md). Follow
+[pipeline mode](references/pipeline-mode.md).
 
 ## Baseline before the first hop
 

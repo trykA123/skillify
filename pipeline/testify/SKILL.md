@@ -13,7 +13,9 @@ on the inferred route with a one-line receipt.
 
 **A test suite is evidence design, not coverage accounting.** Every test is a small bet:
 this behavior matters, and it can fail in a way worth catching before release. Write
-bets you can defend; delete bets you cannot.
+bets you can defend; delete bets you cannot. In pipeline use, each test is a `T*`
+claim mapping to one `A*` or `R*` per [artifacts](references/artifacts.md). Follow
+[pipeline mode](references/pipeline-mode.md) for inheritance.
 
 ## Derive targets from risk
 

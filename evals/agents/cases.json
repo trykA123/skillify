@@ -124,6 +124,30 @@
       }
     },
     {
+      "id": "agent-orchestrator-binding-topology",
+      "category": "topology",
+      "prompt": "Coordinate exactly four worker roles for this isolated parallel change. Do not add a planner, reviewer, or context-builder; preserve one-writer-per-worktree safety and stop for approval if an invariant cannot be preserved.",
+      "expected": {
+        "role": "orchestrator",
+        "choiceCard": "forbidden",
+        "topology": {
+          "exact_count": 4,
+          "allowed_roles": ["worker"],
+          "forbidden_roles": ["planner", "reviewer", "context-builder"]
+        },
+        "behaviors": [
+          "honors the exact role count and closed allow-list",
+          "does not add forbidden planner reviewer or context-builder roles",
+          "uses separate worktrees and a named integration owner for workers",
+          "stops and requests approval before changing the requested topology when a safety invariant conflicts"
+        ],
+        "forbidden": [
+          "silently adds a reviewer or planning stage",
+          "places two workers in one working directory"
+        ]
+      }
+    },
+    {
       "id": "agent-questar-long-decision",
       "category": "selection",
       "prompt": "Steward a long exploration with several unresolved product decisions and preserve rejected paths.",

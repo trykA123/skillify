@@ -12,7 +12,13 @@
         }
       }
     },
-    "rootAgent": { "defaultMaxBytes": 14000 },
-    "delegatedAgent": { "defaultMaxBytes": 9000 }
+    "rootAgent": { "defaultMaxBytes": 16000 },
+    "delegatedAgent": { "defaultMaxBytes": 11000 },
+    "pipelineChain": {
+      "maxBytes": 38000,
+      "skills": ["undumbify", "shapeify", "shipify", "reviewify"],
+      "weight": "Standard",
+      "reason": "Unattended Undumbify→Shapeify→Shipify→Reviewify prompts include reachable shared references and the selected Standard modules; identical symlink targets count once."
+    }
   }
 }

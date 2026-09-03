@@ -130,6 +130,10 @@ is how a bug becomes permanent.
 Dispatched as a delegated agent, return the whole report — and the Root-Cause Brief instead of
 a fix when the fix is non-trivial, so the parent can route it.
 
+When finding the root cause required durable multi-file or historical reasoning, run
+Mapify's deposit check at the natural close. In a read-only lane, return one sparse
+candidate rather than writing it; routine single-file fixes need no deposit.
+
 ## Before you close
 
 The failure mode here isn't process, it's self-deception: check that the root cause was

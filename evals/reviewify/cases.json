@@ -11,9 +11,18 @@
         "weight": "Standard",
         "choiceCard": "required",
         "mode": "full",
-        "references": ["references/weights/standard.md"],
-        "behaviors": ["reads packet before diff", "maps requirements and invariants to proof", "issues exactly one verdict"],
-        "forbidden": ["grades personal style as correctness", "approves an unaccepted Material risk"]
+        "references": [
+          "references/weights/standard.md"
+        ],
+        "behaviors": [
+          "reads packet before diff",
+          "maps requirements and invariants to proof",
+          "issues exactly one verdict"
+        ],
+        "forbidden": [
+          "grades personal style as correctness",
+          "approves an unaccepted Material risk"
+        ]
       }
     },
     {
@@ -24,9 +33,17 @@
         "invocation": "required",
         "weight": "Heavy",
         "choiceCard": "required",
-        "references": ["references/weights/standard.md", "references/weights/heavy.md"],
-        "behaviors": ["discloses lack of reviewer independence"],
-        "forbidden": ["issues Approve without independent review", "silently accepts Material risk"]
+        "references": [
+          "references/weights/standard.md",
+          "references/weights/heavy.md"
+        ],
+        "behaviors": [
+          "discloses lack of reviewer independence"
+        ],
+        "forbidden": [
+          "issues Approve without independent review",
+          "silently accepts Material risk"
+        ]
       }
     },
     {
@@ -37,8 +54,15 @@
         "invocation": "required",
         "weight": "Standard",
         "choiceCard": "required",
-        "behaviors": ["offers bounded review depths or output modes", "recommends one based on the handoff need", "does not require control syntax"],
-        "forbidden": ["starts with the diff before intent", "asks the user to configure labels without impacts"]
+        "behaviors": [
+          "offers bounded review depths or output modes",
+          "recommends one based on the handoff need",
+          "does not require control syntax"
+        ],
+        "forbidden": [
+          "starts with the diff before intent",
+          "asks the user to configure labels without impacts"
+        ]
       }
     },
     {
@@ -47,8 +71,13 @@
       "prompt": "There is no plan or stated intent. Tell me the general health of this whole repository.",
       "expected": {
         "invocation": "forbidden",
-        "behaviors": ["routes contractless health assessment to audify"],
-        "forbidden": ["invents a worker packet", "uses review verdicts for an audit"]
+        "behaviors": [
+          "routes contractless health assessment to audify"
+        ],
+        "forbidden": [
+          "invents a worker packet",
+          "uses review verdicts for an audit"
+        ]
       }
     },
     {
@@ -58,8 +87,14 @@
       "expected": {
         "invocation": "required",
         "choiceCard": "required",
-        "behaviors": ["withholds Approve", "requires a named decision owner and reason for acceptance"],
-        "forbidden": ["lets the writer or reviewer silently accept the risk", "downgrades risk to reach approval"]
+        "behaviors": [
+          "withholds Approve",
+          "requires a named decision owner and reason for acceptance"
+        ],
+        "forbidden": [
+          "lets the writer or reviewer silently accept the risk",
+          "downgrades risk to reach approval"
+        ]
       }
     },
     {
@@ -70,8 +105,53 @@
         "invocation": "required",
         "weight": "Standard",
         "choiceCard": "optional",
-        "behaviors": ["uses a delta review", "rechecks prior findings changed lines evidence and repair consequences"],
-        "forbidden": ["repeats full coverage without a trigger", "ignores regressions caused by the repair"]
+        "behaviors": [
+          "uses a delta review",
+          "rechecks prior findings changed lines evidence and repair consequences"
+        ],
+        "forbidden": [
+          "repeats full coverage without a trigger",
+          "ignores regressions caused by the repair"
+        ]
+      }
+    },
+    {
+      "id": "reviewify-pipeline-verdict",
+      "category": "integration",
+      "prompt": "In pipeline mode, review the pipeline implementation against its packet and route the verdict to Shipify or Shapeify.",
+      "expected": {
+        "invocation": "required",
+        "references": [
+          "references/artifacts.md",
+          "references/pipeline-mode.md"
+        ],
+        "behaviors": [
+          "names F findings with affected R/I and one mechanical verdict",
+          "routes Fix/Rework to Shipify and Replan to Shapeify as Packet Defect"
+        ],
+        "forbidden": [
+          "edits the subject directly",
+          "issues a verdict without coverage evidence"
+        ]
+      }
+    },
+    {
+      "id": "reviewify-handoff-shipify",
+      "category": "handoff",
+      "prompt": "Review found a Blocking requirement violation but the plan still holds. Route it back.",
+      "expected": {
+        "invocation": "required",
+        "references": [
+          "references/artifacts.md"
+        ],
+        "behaviors": [
+          "issues Fix required with located F finding and concrete fix",
+          "routes to Shipify, not silent rewrite"
+        ],
+        "forbidden": [
+          "edits code directly",
+          "downgrades Blocking to Advisory to approve"
+        ]
       }
     }
   ]

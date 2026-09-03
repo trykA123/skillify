@@ -35,6 +35,14 @@ the question is narrow ("where does X live?"), write five lines and stop:
 Escalate only if that reveals more than expected — unclear boundaries, more modules than
 the file count suggested.
 
+If Mapify is available and a catalogue or `.mapify/` library exists, query its compact
+index before a broad scan. Treat every hit as an unverified starting pointer: confirm
+the current path and symbol, then trace current code normally. A missing or stale map
+changes nothing about the orientation bar. Orientify remains read-only; when a durable
+multi-file or historical discovery passes Mapify's retention gate, use its read-only
+`propose` operation and include one compact deposit candidate after the brief rather
+than writing memory during orientation.
+
 ## Full orient
 
 **Scan.** README, CONTEXT.md or AGENTS.md for the intended story. Entry points — main,

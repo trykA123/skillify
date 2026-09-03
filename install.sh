@@ -9,11 +9,12 @@ CONFIG_BASE="${XDG_CONFIG_HOME:-$HOME/.config}"
 CODEX_BASE="${CODEX_HOME:-$HOME/.codex}"
 CLAUDE_BASE="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 
-SKILLS=(orientify undumbify shapeify shipify reviewify traceify skillify teachify researchify audify migrateify testify releaseify refactorify)
+SKILLS=(orientify mapify undumbify shapeify shipify reviewify traceify skillify teachify researchify audify migrateify testify releaseify refactorify)
 RETIRED_SKILLS=(promptify explainify recordify librify)
 
 declare -A SKILL_FAMILY=(
   [orientify]=entry
+  [mapify]=entry
   [traceify]=entry
   [researchify]=entry
   [audify]=entry
@@ -132,6 +133,7 @@ declare -A HARNESS_ALIAS=(
 MODE="link"
 SCOPE="global"
 ACTION="install"
+PROFILE=""
 FORCE=0
 REPLACE_LINKS=0
 WITH_AGENTS=0
@@ -159,10 +161,12 @@ Targets:
   --agents-target DIR     Override the portable fleet package destination
 
 Selection:
+  --profile pipeline       Opt in to the complete Undumbify→Shapeify→Shipify→Reviewify core
   --skill NAME[,NAME]     Install only named skills; repeatable
   --family NAME[,NAME]    Install only entry, pipeline, or teaching
   --exclude NAME[,NAME]   Exclude named skills from the selection
   --with-agents           Also install the portable agent fleet package
+                         (does not generate native callable agents)
   --agents-only           Install only the portable agent fleet package
   --native-agents NAMES   Generate native agents for codex, claude, opencode, or copilot
 
@@ -290,6 +294,60 @@ destination_status() {
   fi
 }
 
+# Skill directories contain a small, known set of internal shared-reference symlinks.
+# Copies must remain portable: materialize only those allowlisted files and reject every
+# other symlink instead of recursively following an unknown target.
+ALLOWED_SHARED_REFS=(interaction-gate.md artifacts.md pipeline-mode.md light-packet.md)
+
+materialize_skill() {
+  local src="$1"
+  local dst="$2"
+  local item relative target resolved basename allowed
+
+  mkdir -p -- "$dst"
+  while IFS= read -r -d '' item; do
+    relative="${item#"$src"/}"
+    target="$dst/$relative"
+    if [[ -L "$item" ]]; then
+      resolved="$(readlink -f -- "$item")"
+      [[ -f "$resolved" && -r "$resolved" ]] || {
+        echo "install: refusing unreadable shared reference '$item'" >&2
+        return 1
+      }
+      case "$resolved" in
+        "$REPO_DIR/shared/"*) ;;
+        *)
+          echo "install: refusing symlink outside shared references '$item' -> '$resolved'" >&2
+          return 1
+          ;;
+      esac
+      basename="${resolved##*/}"
+      allowed=0
+      for shared_ref in "${ALLOWED_SHARED_REFS[@]}"; do
+        [[ "$basename" == "$shared_ref" ]] && allowed=1
+      done
+      [[ "$allowed" -eq 1 ]] || {
+        echo "install: refusing unknown shared reference '$item' -> '$resolved'" >&2
+        return 1
+      }
+      mkdir -p -- "$(dirname "$target")"
+      cp -- "$resolved" "$target"
+      [[ -f "$target" && ! -L "$target" && -r "$target" ]] || {
+        echo "install: failed to materialize shared reference '$target'" >&2
+        return 1
+      }
+    elif [[ -d "$item" ]]; then
+      mkdir -p -- "$target"
+    elif [[ -f "$item" ]]; then
+      mkdir -p -- "$(dirname "$target")"
+      cp -- "$item" "$target"
+    else
+      echo "install: refusing unsupported source entry '$item'" >&2
+      return 1
+    fi
+  done < <(find "$src" -mindepth 1 -print0)
+}
+
 validate_fleet_target() {
   local target="$1"
   while [[ "$target" != "/" && "$target" == */ ]]; do target="${target%/}"; done
@@ -322,6 +380,12 @@ while [[ $# -gt 0 ]]; do
     --link) MODE="link"; shift ;;
     --copy) MODE="copy"; shift ;;
     --project) SCOPE="project"; shift ;;
+    --profile)
+      [[ $# -ge 2 ]] || { echo "install: --profile needs a name" >&2; exit 2; }
+      PROFILE="$2"
+      [[ "$PROFILE" == "pipeline" ]] || { echo "install: unknown profile '$PROFILE'; supported profile: pipeline" >&2; exit 2; }
+      shift 2
+      ;;
     --uninstall) ACTION="uninstall"; shift ;;
     --status) ACTION="status"; shift ;;
     --update) REPLACE_LINKS=1; shift ;;
@@ -393,7 +457,9 @@ for skill in "${EXCLUSIONS[@]}"; do
   EXCLUDED_SKILLS["$skill"]=1
 done
 
-if [[ ${#SKILL_REQUESTS[@]} -eq 0 && ${#FAMILY_REQUESTS[@]} -eq 0 ]]; then
+if [[ "$PROFILE" == "pipeline" && ${#SKILL_REQUESTS[@]} -eq 0 && ${#FAMILY_REQUESTS[@]} -eq 0 ]]; then
+  for skill in undumbify shapeify shipify reviewify; do REQUESTED_SKILLS["$skill"]=1; done
+elif [[ ${#SKILL_REQUESTS[@]} -eq 0 && ${#FAMILY_REQUESTS[@]} -eq 0 ]]; then
   for skill in "${SKILLS[@]}"; do REQUESTED_SKILLS["$skill"]=1; done
 else
   for skill in "${SKILL_REQUESTS[@]}"; do
@@ -414,9 +480,39 @@ for skill in "${SKILLS[@]}"; do
     ACTIVE_SKILLS+=("$skill")
   fi
 done
+
+if [[ "$PROFILE" == "pipeline" ]]; then
+  [[ "$AGENTS_ONLY" -eq 0 ]] || {
+    echo "install: --profile pipeline requires skill installation; remove --agents-only" >&2
+    exit 2
+  }
+  for skill in undumbify shapeify shipify reviewify; do
+    [[ -z "${EXCLUDED_SKILLS[$skill]:-}" ]] || {
+      echo "install: --profile pipeline requires '$skill'; remove --exclude $skill" >&2
+      exit 2
+    }
+    REQUESTED_SKILLS["$skill"]=1
+  done
+  ACTIVE_SKILLS=()
+  for skill in "${SKILLS[@]}"; do
+    if [[ -n "${REQUESTED_SKILLS[$skill]:-}" && -z "${EXCLUDED_SKILLS[$skill]:-}" ]]; then
+      ACTIVE_SKILLS+=("$skill")
+    fi
+  done
+fi
 if [[ "$AGENTS_ONLY" -eq 0 && ${#ACTIVE_SKILLS[@]} -eq 0 ]]; then
   echo "install: skill selection is empty" >&2
   exit 2
+fi
+
+# Pipeline completeness is checked only for the explicit pipeline profile. Ordinary
+# single-skill installs remain independently usable and emit no pipeline warnings.
+PIPELINE_CORE=(undumbify shapeify shipify reviewify)
+if [[ "$PROFILE" == "pipeline" && "$AGENTS_ONLY" -eq 0 ]]; then
+  if [[ "$WITH_AGENTS" -eq 0 ]]; then
+    echo "install: warning: pipeline profile has no portable agent package — add --with-agents for Planner→Worker→Reviewer role definitions" >&2
+    echo "install: note: --with-agents installs portable roles only; use --native-agents with a supported harness to generate callable native roles" >&2
+  fi
 fi
 
 if [[ ${#HARNESS_REQUESTS[@]} -eq 0 && ${#CUSTOM_TARGETS[@]} -eq 0 && "$AGENTS_ONLY" -eq 0 ]]; then
@@ -467,6 +563,7 @@ printf 'Skillify installer\n'
 printf '  mode: %s · scope: %s · action: %s' "$MODE" "$SCOPE" "$ACTION"
 [[ "$DRY_RUN" -eq 0 ]] || printf ' · dry-run'
 printf '\n'
+[[ -n "$PROFILE" ]] && printf '  profile: %s\n' "$PROFILE"
 if [[ "$AGENTS_ONLY" -eq 0 ]]; then
   printf '  skills: %s\n' "$(IFS=,; printf '%s' "${ACTIVE_SKILLS[*]}")"
 fi
@@ -506,7 +603,7 @@ if [[ "$AGENTS_ONLY" -eq 0 ]]; then
         ln -s "$src" "$dst"
         printf '    linked %s\n' "$skill"
       else
-        cp -R "$src" "$dst"
+        materialize_skill "$src" "$dst"
         printf 'managed-by=skillify\nskill=%s\nsource=%s\n' "$skill" "$src" > "$dst/.skillify-managed"
         printf '    copied %s\n' "$skill"
       fi

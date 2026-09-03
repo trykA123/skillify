@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "suite": "pipeline-chain",
+  "stages": ["undumbify", "shapeify", "shipify", "reviewify"],
+  "cases": [
+    {
+      "id": "pipeline-chain-approve",
+      "category": "integration",
+      "prompt": "Run the approved checkout change through the complete pipeline and carry each artifact to the final review verdict.",
+      "scenario": { "kind": "approve" },
+      "expected": {
+        "terminal": "approved",
+        "stages": ["undumbify", "shapeify", "shipify", "reviewify"],
+        "singleReceipt": true,
+        "stableIds": true,
+        "stableTopology": true,
+        "indexStatuses": ["draft", "ready", "active", "review-ready", "done"],
+        "termination": "approved"
+      }
+    },
+    {
+      "id": "pipeline-chain-authority-stop",
+      "category": "authority",
+      "prompt": "Run the checkout pipeline until execution discovers an unapproved production deletion; stop before mutation and escalate to the parent.",
+      "scenario": { "kind": "authority-escalation" },
+      "expected": {
+        "terminal": "blocked",
+        "stages": ["undumbify", "shapeify", "shipify"],
+        "singleReceipt": true,
+        "stableIds": true,
+        "stableTopology": true,
+        "authorityEscalation": true,
+        "indexStatuses": ["draft", "ready", "active", "blocked"],
+        "termination": "authority-stop"
+      }
+    },
+    {
+      "id": "pipeline-chain-delta-repair",
+      "category": "integration",
+      "prompt": "Run the checkout pipeline, delta-review its first finding, repair it with new evidence, and finish only after the final verdict is supported.",
+      "scenario": {
+        "kind": "delta-repair",
+        "repairEvidence": ["A1 proof now exercises the persisted checkout state on the reviewed revision."]
+      },
+      "expected": {
+        "terminal": "approved",
+        "stages": ["undumbify", "shapeify", "shipify", "reviewify", "shipify", "reviewify"],
+        "singleReceipt": true,
+        "stableIds": true,
+        "stableTopology": true,
+        "deltaRepair": true,
+        "indexStatuses": ["draft", "ready", "active", "review-ready", "changes-requested", "active", "review-ready", "done"],
+        "termination": "approved"
+      }
+    },
+    {
+      "id": "pipeline-chain-equivalent-repair-stop",
+      "category": "boundary",
+      "prompt": "Run the pipeline when the same review finding survives an equivalent repair with no new evidence; terminate instead of retrying forever.",
+      "scenario": { "kind": "no-progress" },
+      "expected": {
+        "terminal": "blocked",
+        "stages": ["undumbify", "shapeify", "shipify", "reviewify", "shipify", "reviewify"],
+        "singleReceipt": true,
+        "stableIds": true,
+        "stableTopology": true,
+        "deltaRepair": true,
+        "indexStatuses": ["draft", "ready", "active", "review-ready", "changes-requested", "active", "review-ready", "blocked"],
+        "termination": "equivalent-repair"
+      }
+    }
+  ]
+}

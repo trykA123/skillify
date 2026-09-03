@@ -13,6 +13,9 @@ on the inferred route with a one-line receipt.
 
 **Work in, one evidence-backed verdict out.** Judge the implementation against its
 requirements, invariants, priorities and anti-examples—not against personal taste.
+Follow [artifacts](references/artifacts.md) for F* findings, coverage, and review
+paths. In pipeline mode, follow [pipeline mode](references/pipeline-mode.md) for the
+bound repair loop.
 
 ## Resolve weight and output mode
 

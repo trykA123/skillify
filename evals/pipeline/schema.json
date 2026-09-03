@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillify.local/evals/pipeline/schema.json",
+  "title": "Skillify executable pipeline-chain evaluation suite",
+  "type": "object",
+  "required": ["schemaVersion", "suite", "stages", "cases"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "suite": { "const": "pipeline-chain" },
+    "stages": {
+      "const": ["undumbify", "shapeify", "shipify", "reviewify"]
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["id", "category", "prompt", "scenario", "expected"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "category": { "enum": ["integration", "authority", "boundary"] },
+          "prompt": { "type": "string", "minLength": 10 },
+          "scenario": {
+            "type": "object",
+            "required": ["kind"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": { "enum": ["approve", "authority-escalation", "delta-repair", "no-progress"] },
+              "repairEvidence": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+            }
+          },
+          "expected": {
+            "type": "object",
+            "required": ["terminal", "stages", "singleReceipt", "stableIds", "stableTopology", "indexStatuses", "termination"],
+            "additionalProperties": false,
+            "properties": {
+              "terminal": { "enum": ["approved", "blocked"] },
+              "stages": {
+                "type": "array",
+                "minItems": 3,
+                "items": { "enum": ["undumbify", "shapeify", "shipify", "reviewify"] }
+              },
+              "singleReceipt": { "const": true },
+              "stableIds": { "const": true },
+              "stableTopology": { "const": true },
+              "indexStatuses": {
+                "type": "array",
+                "minItems": 3,
+                "items": { "enum": ["draft", "ready", "active", "review-ready", "changes-requested", "blocked", "done"] }
+              },
+              "authorityEscalation": { "type": "boolean" },
+              "deltaRepair": { "type": "boolean" },
+              "termination": { "enum": ["approved", "authority-stop", "equivalent-repair"] }
+            }
+          }
+        }
+      }
+    }
+  }
+}

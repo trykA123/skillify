@@ -16,6 +16,11 @@ simple sequential handoff. Use Orchestrator only when coordination itself needs 
 dedicated owner: parallel lanes, branching handoffs, several roles, integration, or an
 iterative repair and review loop.
 
+Explicit topology requests are binding. `exact_count` counts dispatched roles,
+`allowed_roles` is a closed allow-list, and `forbidden_roles` prevents silent additions.
+If those constraints conflict with a stated safety or capability invariant, stop and
+request approval for the smallest change; do not add a reviewer or stage while waiting.
+
 ## Control loop
 
 ```mermaid

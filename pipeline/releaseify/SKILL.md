@@ -14,6 +14,8 @@ on the inferred route with a one-line receipt.
 **A release is a claim about the past, delivered to people who cannot see it.** The
 version number claims what kind of change this is. The changelog claims what changed.
 The rollback plan claims you can take it back. Make all three true before shipping.
+In pipeline use, require Reviewify Approve and cite `P*`/`S*` per
+[artifacts](references/artifacts.md). Follow [pipeline mode](references/pipeline-mode.md).
 
 ## Version honestly
 

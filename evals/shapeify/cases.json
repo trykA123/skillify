@@ -10,9 +10,19 @@
         "invocation": "required",
         "choiceCard": "required",
         "weight": "Heavy",
-        "references": ["references/weights/standard.md", "references/weights/heavy.md"],
-        "behaviors": ["names decision and proof owners", "defines rollback and recovery", "defines a single-writer topology"],
-        "forbidden": ["treats backup existence as recovery proof", "leaves destructive authority implicit"]
+        "references": [
+          "references/weights/standard.md",
+          "references/weights/heavy.md"
+        ],
+        "behaviors": [
+          "names decision and proof owners",
+          "defines rollback and recovery",
+          "defines a single-writer topology"
+        ],
+        "forbidden": [
+          "treats backup existence as recovery proof",
+          "leaves destructive authority implicit"
+        ]
       }
     },
     {
@@ -23,9 +33,16 @@
         "invocation": "required",
         "choiceCard": "optional",
         "weight": "Light",
-        "references": ["references/weights/light.md"],
-        "behaviors": ["produces an inline micro-packet with located steps and an observable done condition"],
-        "forbidden": ["creates a plan folder", "adds Heavy ceremony"]
+        "references": [
+          "references/weights/light.md"
+        ],
+        "behaviors": [
+          "produces an inline micro-packet with located steps and an observable done condition"
+        ],
+        "forbidden": [
+          "creates a plan folder",
+          "adds Heavy ceremony"
+        ]
       }
     },
     {
@@ -36,9 +53,18 @@
         "invocation": "required",
         "weight": "Standard",
         "choiceCard": "required",
-        "references": ["references/weights/standard.md"],
-        "behaviors": ["offers concrete planning depths or slice strategies", "recommends one", "does not require a control block"],
-        "forbidden": ["starts editing", "asks the user to select abstract labels without impact text"]
+        "references": [
+          "references/weights/standard.md"
+        ],
+        "behaviors": [
+          "offers concrete planning depths or slice strategies",
+          "recommends one",
+          "does not require a control block"
+        ],
+        "forbidden": [
+          "starts editing",
+          "asks the user to select abstract labels without impact text"
+        ]
       }
     },
     {
@@ -48,8 +74,14 @@
       "expected": {
         "invocation": "required",
         "choiceCard": "required",
-        "behaviors": ["routes material intent gaps to undumbify", "marks unresolved decisions rather than inventing them"],
-        "forbidden": ["produces a confident implementation packet from guessed intent", "chooses product priorities"]
+        "behaviors": [
+          "routes material intent gaps to undumbify",
+          "marks unresolved decisions rather than inventing them"
+        ],
+        "forbidden": [
+          "produces a confident implementation packet from guessed intent",
+          "chooses product priorities"
+        ]
       }
     },
     {
@@ -60,9 +92,17 @@
         "invocation": "required",
         "weight": "Standard",
         "choiceCard": "required",
-        "references": ["references/weights/standard.md"],
-        "behaviors": ["maps each requirement and invariant to steps and acceptance", "names exact locations checks and proof owners"],
-        "forbidden": ["uses update as needed", "leaves proof ownership implicit"]
+        "references": [
+          "references/weights/standard.md"
+        ],
+        "behaviors": [
+          "maps each requirement and invariant to steps and acceptance",
+          "names exact locations checks and proof owners"
+        ],
+        "forbidden": [
+          "uses update as needed",
+          "leaves proof ownership implicit"
+        ]
       }
     },
     {
@@ -72,8 +112,36 @@
       "expected": {
         "invocation": "required",
         "choiceCard": "required",
-        "behaviors": ["adds traps only for plausible executor mistakes", "keeps low-value ceremony out"],
-        "forbidden": ["manufactures identical generic traps", "hides real failure signals in boilerplate"]
+        "behaviors": [
+          "adds traps only for plausible executor mistakes",
+          "keeps low-value ceremony out"
+        ],
+        "forbidden": [
+          "manufactures identical generic traps",
+          "hides real failure signals in boilerplate"
+        ]
+      }
+    },
+    {
+      "id": "shapeify-pipeline-packet",
+      "category": "integration",
+      "prompt": "In pipeline mode, turn the settled checkout Brief into a Standard packet another agent can execute without this conversation.",
+      "expected": {
+        "invocation": "required",
+        "weight": "Standard",
+        "references": [
+          "references/weights/standard.md",
+          "references/artifacts.md",
+          "references/pipeline-mode.md"
+        ],
+        "behaviors": [
+          "maps Brief fields to R/I/A/P with stable IDs",
+          "defines plan folder index and acceptance proof owners"
+        ],
+        "forbidden": [
+          "drops Brief constraints without R/I coverage",
+          "renames IDs mid-delivery"
+        ]
       }
     }
   ]

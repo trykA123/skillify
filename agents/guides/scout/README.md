@@ -6,15 +6,17 @@
 
 Scout performs fast codebase reconnaissance and returns the minimum useful context.
 
-It searches first, reads selectively, labels inference, cites exact locations, and names
-the first file the receiver must open. It does not plan or edit.
+It checks a compact Mapify catalogue when available, then searches current source,
+reads selectively, labels inference, cites exact locations, and names the first file the
+receiver must open. It does not plan, edit, or trust a remembered pointer without verification.
 
 ## Recon path
 
 ```mermaid
 %%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
 flowchart TB
-    Question --> Search[Search broadly]
+    Question --> Map[Query optional Mapify catalogue]
+    Map --> Search[Verify pointer or search broadly]
     Search --> Read[Read selectively]
     Read --> Trace[Trace one real flow]
     Trace --> Handoff[Exact locations + first file]
@@ -29,4 +31,4 @@ the worker must read. Do not propose a fix.
 
 | Mutability | Primary skill | Excludes |
 |---|---|---|
-| Artifacts only | Orientify | Planning and edits |
+| Artifacts only | Mapify · Orientify | Planning, edits, and memory writes |

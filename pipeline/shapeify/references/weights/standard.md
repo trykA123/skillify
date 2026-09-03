@@ -1,10 +1,13 @@
 # Standard packet
 
-Use this for normal multi-file or feature work. The packet must stand alone.
+Use this for normal multi-file or feature work. The packet must stand alone. When the
+request includes an Intent Brief, preserve conditional Brief provenance; without one,
+use `[STANDALONE]` sources from the request and inspected evidence.
 
 ```markdown
 ## Worker Packet
 
+**schemaVersion:** 1
 **Weight:** Standard
 
 ### Outcome
@@ -44,6 +47,9 @@ Hard limits, priority ordering `X > Y > Z`, and anti-examples.
 ### Acceptance
 - A1: <command or observation> → <expected> — proof owner: <who or what> — proves: R1, I1
 
+Shapeify defines `A*` and assigns its proof owner. If Testify is selected, it may
+implement a `T*` claim for that `A*`; it does not change the acceptance condition.
+
 ### Stop Conditions
 <what makes Shipify stop rather than improvise>
 
@@ -65,12 +71,14 @@ Use a folder only for sliced work, cross-session execution, or an explicit user 
 
 ```text
 plans/<YYYY-MM-DD>-<slug>/
-  README.md
+  index.md
   packet.md
   slices/S1-<slug>.md
   evidence/
   reviews/
 ```
 
+`index.md` is the canonical lifecycle owner. Shapeify creates it; the parent or named
+integration owner applies later status changes from Shipify and Reviewify artifacts.
 Before emitting, test requirement and invariant coverage, proof ownership, dependency
-direction, concrete locations and commands, and every failure signal.
+direction, concrete locations and commands, every failure signal, and `schemaVersion`.

@@ -91,4 +91,32 @@ if node "$REPO_DIR/scripts/run-evals.mjs" \
   exit 1
 fi
 
+node "$REPO_DIR/scripts/run-evals.mjs" \
+  --adapter fixture \
+  --suite pipeline-chain \
+  --out "$TEST_ROOT/pipeline.jsonl" >/dev/null
+[[ "$(wc -l < "$TEST_ROOT/pipeline.jsonl")" -eq 4 ]]
+grep -q '"case":"pipeline-chain-authority-stop"' "$TEST_ROOT/pipeline.jsonl"
+grep -q '"reason":"equivalent-repair"' "$TEST_ROOT/pipeline.jsonl"
+grep -q 'PASS packet artifact' "$TEST_ROOT/pipeline.jsonl"
+grep -q 'PASS execution artifact' "$TEST_ROOT/pipeline.jsonl"
+grep -q 'PASS review artifact' "$TEST_ROOT/pipeline.jsonl"
+
+for fault in reselect break-provenance drift-id skip-review; do
+  if SKILLIFY_PIPELINE_FAULT="$fault" node "$REPO_DIR/scripts/run-evals.mjs" \
+    --adapter fixture \
+    --suite pipeline-chain >/dev/null 2>&1; then
+    echo "eval runner test: pipeline fault '$fault' incorrectly passed" >&2
+    exit 1
+  fi
+done
+
+node --input-type=module -e 'import { readFile } from "node:fs/promises"; const { evaluateCase }=await import(process.argv[1]); const suite=JSON.parse(await readFile(process.argv[2],"utf8")); for (const [field,value,label] of [["terminal","blocked","expected terminal"],["authorityEscalation",true,"expected authority escalation"],["deltaRepair",true,"expected delta repair"]]) { const item=structuredClone(suite.cases[0]); item.expected[field]=value; const result=evaluateCase(item); if (result.passed || !result.evidence.some(x=>x.startsWith(`FAIL ${label}:`))) process.exit(1); }' \
+  "file://$REPO_DIR/scripts/run-pipeline-evals.mjs" \
+  "$REPO_DIR/evals/pipeline/cases.json"
+
+node --input-type=module -e 'import { readFile } from "node:fs/promises"; const { validatePipelineSuite }=await import(process.argv[1]); const suite=JSON.parse(await readFile(process.argv[2],"utf8")); suite.cases[0].scenario.kind="made-up"; const errors=validatePipelineSuite(suite); if (!errors.some(error=>error.includes("scenario.kind is invalid"))) process.exit(1);' \
+  "file://$REPO_DIR/scripts/run-pipeline-evals.mjs" \
+  "$REPO_DIR/evals/pipeline/cases.json"
+
 printf 'Skillify evaluation runner tests passed.\n'

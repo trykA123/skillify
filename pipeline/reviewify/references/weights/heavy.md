@@ -11,6 +11,8 @@ verdicts while increasing independence and proof depth.
   Flag static or mocked proof used to claim a live property.
 - Inspect branch/worktree and integration history for unrelated edits, missing slice
   boundaries or evidence from a different revision.
+- Treat `index.md` as parent/integration-owner state. Record the requested lifecycle
+  transition in the review artifact; do not update the index from the reviewer lane.
 
 ## Proof to execute
 

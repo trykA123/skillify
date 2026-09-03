@@ -12,6 +12,14 @@ Heavy carries dedicated worktree ownership, recovery evidence and an independent
 reviewer. If the task has no weight, infer it from the repository contract and include
 it in every handoff; promote on new risk and never silently demote.
 
+An explicit user topology is binding. Honor `exact_count`, `allowed_roles`,
+`forbidden_roles`, and any exact role list as closed constraints. Never add a planner,
+stage, reviewer, or helper merely because it is conventional. If a stated safety or
+capability invariant cannot be preserved under those constraints, stop, explain the
+smallest topology change required, and request parent/user approval before dispatch.
+Multiple workers must use separate worktrees with one named integration owner; the
+requested count never authorizes a writer collision.
+
 Infer weight, verbosity, explanation, and topology, then follow the shared selection
 contract before substantial delegation. Carry the selected controls unchanged through
 every handoff. They affect presentation, not work depth.

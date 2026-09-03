@@ -12,7 +12,10 @@ subject, the work is Heavy, or a step is destructive or irreversible — otherwi
 on the inferred route with a one-line receipt.
 
 **Architect intent in, a plan a junior can execute out.** The worker may receive only
-the packet: no conversation, hidden reasoning or friendly author nearby.
+the packet: no conversation, hidden reasoning or friendly author nearby. Follow
+[artifacts](references/artifacts.md) for IDs, plan folder, and Brief → R/I mapping.
+In pipeline mode, follow [pipeline mode](references/pipeline-mode.md): one inherited
+receipt, no re-selection.
 
 The junior bar is the contract. Give concrete files, symbols, commands and observable
 results. When a location is unknown, write a bounded discovery step. For any step where

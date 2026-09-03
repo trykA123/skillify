@@ -11,6 +11,11 @@ handoff summaries — into durable project artifacts: a decision log, architectu
 decision records, or the memory files the runtime or repository already designates.
 When no destination is supplied, ask once; do not invent a location and scatter state.
 
+When Mapify is selected and `.mapify/` plus its catalogue are the declared artifacts,
+use its schema and helper to capture, refresh, supersede, or tombstone evidenced
+codebase pointers. Keep Mapify nodes sparse and verification-bound; do not turn every
+session note into a landmark or treat a remembered summary as current code evidence.
+
 ## Record only evidenced decisions
 
 Every entry traces to a source you were handed or inspected:

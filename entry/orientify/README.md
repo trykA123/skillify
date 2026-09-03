@@ -15,6 +15,10 @@ Orientify builds a trustworthy codebase map before planning or editing starts.
 It traces an entry-to-exit path, tests module seams with the deletion test, and names
 traps. It does not fix them.
 
+When a Mapify library exists, Orientify may use its verified pointers to choose where
+current inspection begins. It still traces current code, and hands durable discoveries
+to Mapify separately rather than writing memory during its read-only pass.
+
 ## Output
 
 Small repositories receive a short orientation. Larger repositories receive a Codebase

@@ -1,7 +1,7 @@
 # Skillify
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-0f766e.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/skills-14-2563eb.svg)](#skills)
+[![Skills](https://img.shields.io/badge/skills-15-2563eb.svg)](#skills)
 [![Roles](https://img.shields.io/badge/agent_roles-11-7c3aed.svg)](#agent-roles)
 [![Harnesses](https://img.shields.io/badge/native_agents-Codex%20%7C%20Claude%20%7C%20OpenCode%20%7C%20Copilot-e11d48.svg)](#native-agent-adapters)
 
@@ -178,12 +178,13 @@ ownership, or an iterative repair loop.
 
 ## Skills
 
-Fourteen methods. Entry skills diagnose from outside; pipeline skills carry work through;
+Fifteen methods. Entry skills diagnose from outside; pipeline skills carry work through;
 teaching skills transfer knowledge.
 
 | Family | Skill | Use it when |
 |---|---|---|
 | Entry | [Orientify](entry/orientify/README.md) | You need a real codebase map before planning |
+| Entry | [Mapify](entry/mapify/README.md) | Expensive multi-file, cross-repository, or historical discovery should survive as verified pointers |
 | Entry | [Traceify](entry/traceify/README.md) | Something is broken and the cause is unknown |
 | Entry | [Researchify](entry/researchify/README.md) | A decision depends on current external evidence |
 | Entry | [Audify](entry/audify/README.md) | A subject has no intent contract and needs a measurable condition report |
@@ -202,6 +203,7 @@ teaching skills transfer knowledge.
 %%{init: {"themeVariables": {"fontSize": "22px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 40}}}%%
 flowchart TB
     Unknown[Unknown codebase] --> Orientify
+    Repeated[Repeated codebase discovery] --> Mapify
     Broken[Broken behavior] --> Traceify
     External[External facts] --> Researchify
     NoContract[No intent contract] --> Audify
@@ -215,6 +217,27 @@ flowchart TB
 
 These are routes, not mandatory pipelines. Stop as soon as one method can safely own the
 outcome.
+
+### Pipeline mode (opt-in)
+
+Name `pipeline` to run unattended `Undumbify → Shapeify → Shipify → Reviewify` with
+one entry receipt and inheritance afterwards:
+
+```text
+Run pipeline mode for the approved checkout change.
+Selected: Pipeline · Standard · Concise · Team: Planner → Worker → Reviewer
+```
+
+Contracts: [artifacts](shared/artifacts.md) owns IDs (`R*`/`I*`/`A*`/`P*`/`S*`/`F*`/`T*`),
+plan folder `plans/<date>-<slug>/index.md`, and side-skill hooks. [pipeline
+mode](shared/pipeline-mode.md) owns the single receipt, repair bound (Worker→Reviewer
+loops only with new evidence, max two cycles), and stop-escalate rules. Light uses the
+canonical [light packet](shared/light-packet.md). Pipeline mode changes ceremony, never
+authority: destructive actions still need explicit approval. Install with
+`--profile pipeline` to opt into the complete core. Add `--with-agents` only when you
+want the portable role package; it does not generate callable native roles. Use
+`--native-agents <harness>` for supported native adapters. Ordinary `--skill shapeify`
+or `--skill shipify` installs stay standalone and do not warn about pipeline completeness.
 
 ## Agent roles
 
@@ -470,7 +493,7 @@ skillify/
 ├── entry/                 # orientation, diagnosis, research, audit
 ├── pipeline/              # intent, planning, migration, tests, releases, refactors
 ├── teaching/              # Teachify and the Skillify router
-├── shared/                # the shared interaction gate, linked into every skill
+├── shared/                # interaction gate, artifacts, pipeline mode, light packet (linked into skills)
 ├── agents/
 │   ├── contracts/         # authority, selection, communication, handoffs
 │   ├── roles/             # portable role contracts

@@ -50,6 +50,12 @@ for (let i = 0; i < args.length; i += 1) {
 if (!["fixture", "codex", "claude", "opencode"].includes(adapter)) usage(64);
 if (!Number.isInteger(repeat) || repeat < 1 || !Number.isInteger(limit) && limit !== Infinity) usage(64);
 
+if (suiteName === "pipeline" || suiteName === "chain" || suiteName === "pipeline-chain") {
+  const { runPipelineEvals } = await import("./run-pipeline-evals.mjs");
+  process.exitCode = await runPipelineEvals({ adapter, caseId, repeat, limit, out: outputPath, dryRun });
+  process.exit();
+}
+
 const json = async (path) => JSON.parse(await readFile(path, "utf8"));
 const skillPaths = new Map();
 for (const family of ["entry", "pipeline", "teaching"]) {

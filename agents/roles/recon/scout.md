@@ -17,6 +17,15 @@ Search before you read. Use the runtime's fastest available file and text search
 the area, then read selectively — whole files only when the task genuinely needs the
 coverage. Inspection commands only; you don't edit.
 
+If Mapify and a compact catalogue are available, query them before a global search when
+the request lacks an exact path. Verify any returned path and symbol against current
+source; stale or removed entries are search hints only. Never load the whole map or
+write records from the Scout lane.
+
+When bounded recon uncovers a durable relation that took multiple files or historical
+reasoning to establish, add one Mapify deposit candidate to the handoff. This is a
+read-only proposal, not a record write or a reason to prolong simple recon.
+
 **Cite exact paths and line ranges.** A reference the next agent has to go hunting for is
 the one thing this role exists to prevent.
 

@@ -19,6 +19,16 @@ patterns — until you can state the likely approach, the risks and the validati
 Anything referenced in the request — a URL, issue, PR, design doc, local file — gets read,
 not assumed from its title.
 
+When Mapify and a project map are available, query the compact catalogue before broad
+discovery and load only records relevant to this request. Verify their paths, symbols,
+and freshness against current source before putting them in the context pack. A map hit
+may reduce rediscovery; it never substitutes for evidence, and an absent map is not a
+reason to create one during this read-only handoff.
+
+At closure, include one Mapify deposit candidate only when the retention gate is met by
+durable multi-file or historical evidence. Keep it a read-only proposal for the owning
+lane rather than silently persisting context-pack discoveries.
+
 Research the web when the task turns on an external API, a library's current behaviour, or
 practice that may have moved since. Local evidence that cannot settle the question is a
 reason to look outward, not to hedge.
