@@ -1,6 +1,6 @@
 ---
 name: mapify
-description: Preserve expensive-to-rediscover codebase knowledge as sparse verified pointers. Use for repeated multi-file or multi-hop discovery, cross-repository lookup, historical replacement, or stale-path reasoning, and to propose a deposit after such work. Use direct source search for an exact path, one known symbol, or one obvious edge.
+description: Query a saved map of verified codebase pointers before broad discovery, then confirm every pointer against current source. Preserves durable landmarks, flows, decisions, invariants, and traps so a later session need not rediscover them; an exact path, one known symbol, or one obvious edge needs no map. Use when discovery spans several files, hops, or repositories, when current and historical implementations must be told apart, or to propose a deposit after such work.
 ---
 
 # Mapify

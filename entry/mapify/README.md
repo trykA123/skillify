@@ -70,7 +70,11 @@ entire generated map, unrelated workflow skills, and a redundant global search. 
 excluded from the successful comparison; the failure produced Mapify's bounded warm
 lookup fast path and regression case.
 
-### Haiku-class trial, three paired questions
+### Haiku-class trial, three paired questions (first description)
+
+These runs used the skill description in force at the time, which ended on a negative
+trigger telling the agent to prefer direct source search. See the next section for what
+changed when that ending was rewritten.
 
 A later run used a small, fast model against a private two-app TypeScript
 monorepo of 56 source files that none of the agents had seen. Three questions were
@@ -111,3 +115,45 @@ spread are not evidence of an effect. Source lines read is the most comparable c
 because runtime token counts include map creation, skill loading, and routing that
 differ between conditions. Treat every figure here as an observation that motivated a
 regression case, not as a benchmark.
+
+### Rewriting the description's ending, three repeats
+
+The first trial's most useful result was that the map went unused when merely offered.
+One hypothesis was the description itself: it ended on a negative trigger telling the
+agent to prefer direct source search, and every sibling skill in this repository instead
+ends on a positive `Use when …` clause. The description was rewritten to match that
+house style — the negative moved to a subordinate mid-sentence clause, the ending states
+when the skill applies.
+
+The same offered condition was then run three times against the same repository, with
+the prompt reused verbatim so the description was the only changed variable.
+
+| Run | Used the map? | Source lines | Files | Tool calls | Flow-trace answer |
+|---|---|---:|---:|---:|---|
+| Previous description | no | 1,376 | 8 | 14 | incomplete |
+| A | yes, all three questions | 1,423 | 10 | 25 | complete |
+| B | yes | 778 | 8 | 20 | **incomplete — stopped where the map stopped** |
+| C | no | 2,397 | 13 | 28 | complete, and the most thorough of any run |
+
+Invocation moved from none to two of three. That is movement, not proof: four runs of
+one small model cannot separate a real effect from ordinary variance, and run C shows
+the description alone does not settle the decision.
+
+**Map use did not predict a correct answer.** Run B was the cheapest of every run
+recorded here — less than half the source lines of any other — and gave the worst
+answer. It followed the map's edges from the first indexed node and stopped there, so
+the one file the map did not index dropped silently out of its chain. Run A used the map
+for the same question, then traced past it into unindexed source, and got the chain
+right. Run C ignored the map, paid three times B's reading cost, and was the most
+complete.
+
+The map was deliberately left sparse for these runs, and no node was added after seeing
+any result. That sparseness is the point: a map is always incomplete, and B is what
+inheriting its blind spot looks like from the outside — a confident, cheap, wrong-shaped
+answer. It is the failure this skill's own contract exists to prevent, reproduced under
+the fixed description, and it argues that the retrieval guidance matters more than the
+invocation trigger.
+
+Across all seven runs recorded in both sections, the two single-fact questions were
+answered correctly every time, by every condition. Only the multi-hop trace separated
+them. Cheap lookups are not where a map decides anything.
