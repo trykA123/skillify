@@ -69,3 +69,45 @@ A pre-hardening Gemini warm attempt consumed 392.5K input tokens after loading t
 entire generated map, unrelated workflow skills, and a redundant global search. It is
 excluded from the successful comparison; the failure produced Mapify's bounded warm
 lookup fast path and regression case.
+
+### Haiku-class trial, three paired questions
+
+A later run used a small, fast model against a private two-app TypeScript
+monorepo of 56 source files that none of the agents had seen. Three questions were
+asked in one pass: a multi-hop flow trace crossing both apps, a single-constant
+lookup, and a test-to-source invariant. Every agent was told to report the files it
+opened, the source lines it read, and its tool calls. Answers were graded against a
+chain established independently beforehand.
+
+| Condition | Source lines | Files | Tool calls | Answer quality |
+|---|---:|---:|---:|---|
+| Cold, direct search only | 1,880 | 9 | 18 | all three correct |
+| Map offered, agent chose not to use it | 1,376 | 8 | 14 | **flow trace incomplete — missed the entire browser half of the chain** |
+| Map required | 1,607 | 8 | 22 | all three correct, most complete chain, and it named the files the map did not cover |
+
+Two results matter more than the percentages.
+
+**The map was not invoked when it was merely available.** The middle agent had the
+skill, the catalogue, and the helper path, and still reported using direct search
+because it judged that cheaper — including for the multi-hop trace that is Mapify's
+stated best case. An unused map is not a neutral outcome: that run produced the
+weakest answer of the three while looking like the cheapest.
+
+**Cost alone would have selected the worst answer.** The lowest source-line count
+belongs to the run that silently dropped half the flow. Any comparison of Mapify
+against direct search has to grade correctness, or it rewards the agent that stopped
+early.
+
+Forced use read 15% fewer source lines and consumed 16% fewer runtime tokens than
+cold, but made 22% more tool calls, because `find` and `verify` cost turns before any
+source is opened. On a chain this short that overhead is most of the saving. The
+defensible claim from this trial is about completeness, not speed.
+
+### How to read all of these numbers
+
+Each condition above is a single run, and the earlier trials show cold baselines for
+the same task varying by more than a factor of two. Differences smaller than that
+spread are not evidence of an effect. Source lines read is the most comparable column,
+because runtime token counts include map creation, skill loading, and routing that
+differ between conditions. Treat every figure here as an observation that motivated a
+regression case, not as a benchmark.
