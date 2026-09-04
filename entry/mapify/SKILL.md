@@ -40,8 +40,19 @@ request materially expands beyond retrieval and source confirmation.
 4. Open targeted current-source slices for the selected records and both endpoints of
    every relationship the answer presents as fact. `edges-linked` proves graph linkage,
    not relationship semantics; without source confirmation, label the edge as a map hint.
-5. Stop when the requested fact is source-confirmed or the map has exposed a concrete
-   gap requiring scoped rediscovery.
+5. A map ends where capture ended, not where the subject ends. When the question asks
+   for a complete chain, path, or set — every file in a flow, all callers, the whole
+   sequence — the mapped nodes are the middle of the answer, not its boundary. Before
+   presenting it as whole, search current source for what reaches the first mapped node
+   and what the last one reaches. Unindexed neighbours are the normal case; finding and
+   naming them is part of the answer, and an unextended chain is a map artifact rather
+   than a finding. When the question names an endpoint — from the browser, to the
+   database, every caller — that named endpoint bounds the answer. Confirm in current
+   source that you actually reached it; a mapped node near the edge is not the edge, and
+   a transport or client module is not the user-facing entry point.
+6. Stop when the requested fact is source-confirmed or the map has exposed a concrete
+   gap requiring scoped rediscovery. Confirming each mapped node is not the same as
+   answering a question about a whole path; cheapness is not the completion signal.
 
 Generated manifests, indexes, source-tree/topic views, raw catalogues, whole-repository
 verification, and global scans are maintenance or fallback tools rather than warm-lookup
@@ -96,5 +107,7 @@ When artifact ownership is unclear, return the proposed record instead of persis
 
 A later agent can reach expensive-to-rediscover current evidence with less work, see why
 each result matched, and distinguish a verified pointer from a source-confirmed claim.
+An answer about a whole chain or set states where the map stopped and what current
+source added beyond it.
 If the record would not narrow a future multi-file, cross-repository, or historical
 inspection, do not deposit it.

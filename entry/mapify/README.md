@@ -157,3 +157,36 @@ invocation trigger.
 Across all seven runs recorded in both sections, the two single-fact questions were
 answered correctly every time, by every condition. Only the multi-hop trace separated
 them. Cheap lookups are not where a map decides anything.
+
+### Adding a chain-completeness rule, three repeats
+
+The previous section's most useful result was a cheap, confident, truncated answer. The
+retrieval steps gained a rule for it: a map ends where capture ended, not where the
+subject ends, so for any question asking for a whole chain, path, or set the mapped
+nodes are the middle of the answer and both ends must be established in current source.
+`Done when` gained the matching bar, and a regression case was added.
+
+| Run | Used the map? | Source lines | Files | Tool calls | Result |
+|---|---|---:|---:|---:|---|
+| D | yes, to locate the flow | 2,141 | 14 | 29 | complete chain, both ends reached, three unmapped files added |
+| E | yes, all three questions | 1,695 | 8 | 15 | **still truncated: began at the transport module, not the user-facing entry** |
+| F | no | 1,620 | 13 | 26 | complete chain, but **reported one file under the wrong workspace directory** |
+
+One of three still truncated, so the rule as first written was not enough. E extended the
+chain forward past the map into unindexed files and still would not extend it backward,
+even though the earlier end was itself a mapped node it had already seen. Being told that
+a map is incomplete did not make a small model go looking at the end it had not been
+asked about.
+
+The rule was therefore made concrete rather than general: when the question names an
+endpoint — from the browser, to the database, every caller — that named endpoint bounds
+the answer, a mapped node near the edge is not the edge, and a transport or client module
+is not the user-facing entry point. **That refinement is committed but unverified.** The
+runs meant to test it did not complete, and no result is recorded for it here.
+
+F is worth keeping for a different reason. It is the only factual error in nine recorded
+runs, it is a wrong path, and it came from the run that skipped the map. Across every run
+so far, no run that consulted the map misreported a path, and the map records that path
+exactly. The sample is far too small to call that an effect, but path accuracy is a
+different axis from reading cost, and it is the axis a pointer library should be expected
+to help with.
