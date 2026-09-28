@@ -9,7 +9,7 @@
     {
       "name": "skillify",
       "source": "./",
-      "description": "The complete Skillify skill set as a managed Claude Code plugin.",
+      "description": "Lean engineering skills for planning, building, debugging, and reviewing code.",
       "category": "development",
       "keywords": [
         "agent-skills",

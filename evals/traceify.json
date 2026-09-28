@@ -1,0 +1,31 @@
+{
+  "skill": "traceify",
+  "cases": [
+    {
+      "id": "flaky",
+      "route": "traceify",
+      "prompt": "Our CI test for checkout fails maybe one run in ten. It passes locally every time."
+    },
+    {
+      "id": "feature-not-bug",
+      "route": [
+        "undumbify",
+        "shapeify"
+      ],
+      "prompt": "I want to make the search faster and add filters by date."
+    },
+    {
+      "id": "hypotheses-before-fix",
+      "prompt": "After upgrading Node from 20 to 22, our image upload endpoint returns 413 for files over 1 MB. It worked before.",
+      "behaviors": [
+        "captures or asks for symptom details before fixing",
+        "lists multiple ranked hypotheses with a way to falsify each",
+        "proposes a cheapest discriminating test",
+        "does not apply a fix before the root cause is stated"
+      ],
+      "forbidden": [
+        "immediately recommends a fix such as raising a size limit without testing a hypothesis"
+      ]
+    }
+  ]
+}

@@ -8,51 +8,15 @@ permissions:
   contents: read
 
 jobs:
-  contracts:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 22
-      - name: Validate portable contracts
-        run: node scripts/validate-core.mjs
-      - name: Validate shell syntax
-        run: bash -n install.sh scripts/test-installer.sh scripts/test-agent-adapters.sh scripts/test-eval-runner.sh scripts/test-mapify.sh scripts/test-token-footprint.sh
-      - name: Test installer safety
-        run: bash scripts/test-installer.sh
-      - name: Test native agent adapters
-        run: bash scripts/test-agent-adapters.sh
-      - name: Test executable eval runner
-        run: bash scripts/test-eval-runner.sh
-      - name: Test Mapify library and catalogue
-        run: bash scripts/test-mapify.sh
-      - name: Test prompt footprint failure boundaries
-        run: bash scripts/test-token-footprint.sh
-      - name: Validate interactive lesson template
-        run: node teaching/teachify/scripts/validate-lesson.mjs teaching/teachify/assets/lesson-template.html
-      - name: Test interactive lesson behavior
-        run: node scripts/test-teachify-interaction.mjs
-      - name: Check patch whitespace
-        run: git diff --check HEAD
-      - name: Check prompt footprint budgets
-        run: node scripts/report-token-footprint.mjs --check
-      - name: Show prompt footprint
-        run: node scripts/report-token-footprint.mjs --markdown >> "${GITHUB_STEP_SUMMARY}"
-  reports:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-      - name: Render skill and agent catalog
-        run: node scripts/report-catalog.mjs > catalog.md
-      - name: Attach catalog to the run summary
-        run: cat catalog.md >> "${GITHUB_STEP_SUMMARY}"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: catalog
-          path: catalog.md
+      - run: bash -n install.sh scripts/test.sh
+      - run: node scripts/validate.mjs
+      - run: bash scripts/test.sh
+      - run: node scripts/test-teachify-interaction.mjs
+      - run: node scripts/validate.mjs --report >> "$GITHUB_STEP_SUMMARY"

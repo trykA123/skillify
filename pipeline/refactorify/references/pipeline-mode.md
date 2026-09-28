@@ -1,1 +1,0 @@
-../../../shared/pipeline-mode.md

@@ -1,7 +1,7 @@
 {
   "name": "skillify",
-  "version": "0.4.0",
-  "description": "Portable evaluated skills with natural choice cards, independent controls, native agent adapters, and interactive teaching.",
+  "version": "1.0.0",
+  "description": "Nine lean engineering skills (orient, debug, research, clarify, plan, ship, review, audit, teach) and four subagents.",
   "author": {
     "name": "Claudiu Tancau",
     "url": "https://github.com/trykA123"
@@ -17,20 +17,14 @@
     "teaching"
   ],
   "skills": [
-    "./entry/orientify",
-    "./entry/mapify",
-    "./pipeline/undumbify",
-    "./pipeline/shapeify",
-    "./pipeline/migrateify",
-    "./pipeline/testify",
-    "./pipeline/releaseify",
-    "./pipeline/refactorify",
-    "./pipeline/shipify",
-    "./pipeline/reviewify",
-    "./entry/traceify",
-    "./teaching/skillify",
-    "./teaching/teachify",
-    "./entry/researchify",
-    "./entry/audify"
+    "./skills/orientify",
+    "./skills/traceify",
+    "./skills/researchify",
+    "./skills/undumbify",
+    "./skills/shapeify",
+    "./skills/shipify",
+    "./skills/reviewify",
+    "./skills/audify",
+    "./skills/teachify"
   ]
 }

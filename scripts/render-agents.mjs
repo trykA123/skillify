@@ -63,143 +63,43 @@ function splitFrontmatter(source) {
   return { meta, body: match[2].trim() };
 }
 
-function compose(contracts, role) {
-  const sections = contracts.map(({ name, text }) => `## Shared contract: ${name}\n\n${text.trim()}`);
-  sections.push(`## Role\n\n${role.trim()}`);
-  return sections.join("\n\n");
-}
-
-function isDirect(spec) {
-  const interaction = spec.interaction ?? "delegated";
-  if (interaction !== "direct" && interaction !== "delegated") {
-    throw new Error(`unknown interaction '${interaction}'; use direct or delegated`);
-  }
-  return interaction === "direct";
-}
-
-function openCodeMode(spec) {
-  return isDirect(spec) ? "all" : "subagent";
-}
-
-function contractNamesFor(manifest, name, spec) {
-  const profiles = manifest.contractProfiles;
-  if (!profiles) return [...manifest.globalContracts, ...(spec.contracts ?? [])];
-  for (const profile of ["base", "interactive", "delegated"]) {
-    if (!Array.isArray(profiles[profile])) {
-      throw new Error(`manifest contractProfiles.${profile} must be an array`);
-    }
-  }
-  const directCapable = isDirect(spec);
-  const profileNames = directCapable
-    ? ["base", "interactive", "delegated"]
-    : ["base", "delegated"];
-  return [...new Set([
-    ...profileNames.flatMap((profile) => profiles[profile] ?? []),
-    ...(spec.contracts ?? []),
-  ])];
-}
-
-const capabilityTools = {
-  claude: {
-    inspect: ["Glob", "Grep", "Read"], shell: ["Bash"], "artifact-write": ["Write"],
-    "code-edit": ["Edit", "Write"], "web-research": ["WebFetch", "WebSearch"],
-    delegate: ["Agent"], escalate: [],
-  },
-  copilot: {
-    inspect: ["read", "search"], shell: ["execute"], "artifact-write": ["edit"],
-    "code-edit": ["edit"], "web-research": ["web"],
-    delegate: ["agent"], escalate: [],
-  },
-  opencode: {},
-  codex: {},
+const known = new Set(["read", "shell", "edit", "web"]);
+const toolMap = {
+  claude: { read: ["Glob", "Grep", "Read"], shell: ["Bash"], edit: ["Edit", "Write"], web: ["WebFetch", "WebSearch"] },
+  copilot: { read: ["read", "search"], shell: ["execute"], edit: ["edit"], web: ["web"] },
 };
+const tools = (name, caps) => [...new Set(caps.flatMap((cap) => toolMap[name][cap]))].sort();
 
-function claudeTools(spec) {
-  const result = [];
-  for (const capability of spec.capabilities) result.push(...(capabilityTools.claude[capability] ?? []));
-  return [...new Set(result)].sort();
-}
-
-function toolsFor(harnessName, spec) {
-  const result = [];
-  for (const capability of spec.capabilities) {
-    result.push(...(capabilityTools[harnessName]?.[capability] ?? []));
+function render(name, meta, body) {
+  const caps = meta.capabilities.split(",").map((cap) => cap.trim()).filter(Boolean);
+  for (const cap of caps) if (!known.has(cap)) throw new Error(`${name}: unknown capability '${cap}'`);
+  const readOnly = !caps.includes("edit");
+  const description = meta.description;
+  if (harness === "codex") {
+    const sandbox = meta.sandbox === "read-only" ? `sandbox_mode = "read-only"\n` : "";
+    return `name = ${JSON.stringify(name)}\ndescription = ${JSON.stringify(description)}\n${sandbox}\n` +
+      `developer_instructions = """\n${body.replaceAll('"""', '\\"\\"\\"')}\n"""\n`;
   }
-  return [...new Set(result)].sort();
-}
-
-function yamlString(value) {
-  return JSON.stringify(value);
-}
-
-function yamlBlock(value) {
-  return value.split("\n").map((line) => `  ${line}`).join("\n");
-}
-
-function interactiveRootPrompt(contracts) {
-  const sections = contracts.map(({ name, text }) =>
-    `## Interactive root contract: ${name}\n\n${text.trim()}`);
-  return `This role is the direct owner of the current session. Apply the following ` +
-    `interaction contracts before task work. They are supplied as the initial prompt so ` +
-    `delegated uses of the same definition do not pay for or reopen root selection.\n\n` +
-    sections.join("\n\n");
-}
-
-function render(harnessName, name, description, source, spec) {
-  const body = compose(source.contracts, source.role);
-  if (harnessName === "codex") {
-    const escaped = body.replaceAll('"""', '\\"\\"\\"');
-    return `name = ${JSON.stringify(name)}\ndescription = ${JSON.stringify(description)}\n\n` +
-      `developer_instructions = """\n${escaped}\n"""\n`;
+  if (harness === "claude") {
+    return `---\nname: ${name}\ndescription: ${JSON.stringify(description)}\ntools: ${tools("claude", caps).join(", ")}\n---\n\n${body}\n`;
   }
-  if (harnessName === "claude") {
-    const tools = claudeTools(spec);
-    return `---\nname: ${name}\ndescription: ${yamlString(description)}\n` +
-      `initialPrompt: |-\n${yamlBlock(interactiveRootPrompt(source.interactiveContracts))}\n` +
-      `tools: ${tools.join(", ")}\n---\n\n${body}\n`;
+  if (harness === "copilot") {
+    return `---\nname: ${JSON.stringify(name)}\ndescription: ${JSON.stringify(description)}\n` +
+      `tools: ${JSON.stringify(tools("copilot", caps))}\n---\n\n${body}\n`;
   }
-  if (harnessName === "copilot") {
-    const tools = toolsFor("copilot", spec);
-    const agents = spec.capabilities.includes("delegate") ? `agents: ["*"]\n` : "";
-    const userInvocable = isDirect(spec);
-    const disableModelInvocation = userInvocable;
-    return `---\nname: ${yamlString(name)}\ndescription: ${yamlString(description)}\n` +
-      `target: vscode\nuser-invocable: ${userInvocable}\ndisable-model-invocation: ${disableModelInvocation}\n` +
-      `tools: ${JSON.stringify(tools)}\n${agents}---\n\n${body}\n`;
-  }
-  const mode = openCodeMode(spec);
-  return `---\ndescription: ${description}\nmode: ${mode}\n---\n\n${body}\n`;
+  const permission = readOnly ? `permission:\n  edit: deny\n` : "";
+  return `---\ndescription: ${JSON.stringify(description)}\nmode: subagent\n${permission}---\n\n${body}\n`;
 }
 
-const manifestPath = join(fleet, "manifest.json");
-const manifest = await json(manifestPath);
 const extension = harness === "codex" ? ".toml" : harness === "copilot" ? ".agent.md" : ".md";
 const outputs = new Map();
-
-const interactiveContracts = [];
-if (harness === "claude" && manifest.contractProfiles) {
-  for (const contractName of manifest.contractProfiles.interactive ?? []) {
-    const target = manifest.contracts[contractName];
-    if (!target) throw new Error(`unknown interactive contract: ${contractName}`);
-    interactiveContracts.push({ name: contractName, text: await readFile(join(fleet, target), "utf8") });
-  }
-}
-
-for (const [name, spec] of Object.entries(manifest.agents).sort(([a], [b]) => a.localeCompare(b))) {
-  const rolePath = join(fleet, spec.role);
-  const parsed = splitFrontmatter(await readFile(rolePath, "utf8"));
-  if (parsed.meta.name !== name) throw new Error(`${spec.role}: role name must be ${name}`);
-  const contractNames = contractNamesFor(manifest, name, spec);
-  const contracts = [];
-  for (const contractName of contractNames) {
-    const target = manifest.contracts[contractName];
-    contracts.push({ name: contractName, text: await readFile(join(fleet, target), "utf8") });
-  }
-  const text = render(harness, name, parsed.meta.description ?? "", {
-    contracts,
-    interactiveContracts,
-    role: parsed.body,
-  }, spec);
+const roleFiles = (await readdir(fleet)).filter((file) => file.endsWith(".md")).sort();
+for (const file of roleFiles) {
+  const { meta, body } = splitFrontmatter(await readFile(join(fleet, file), "utf8"));
+  const name = basename(file, ".md");
+  if (meta.name !== name) throw new Error(`${file}: frontmatter name must be ${name}`);
+  if (!meta.description || !meta.capabilities) throw new Error(`${file}: needs description and capabilities`);
+  const text = render(name, meta, body);
   outputs.set(name, { file: `${name}${extension}`, text, hash: digest(text) });
 }
 
@@ -277,8 +177,7 @@ for (const output of outputs.values()) await writeFile(join(destination, output.
 const state = {
   schemaVersion: 1,
   harness,
-  source: manifestPath,
-  manifest: digest(await readFile(manifestPath, "utf8")),
+  source: fleet,
   agents: Object.fromEntries([...outputs].map(([name, value]) => [name, { file: value.file, hash: value.hash }])),
 };
 await writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`);

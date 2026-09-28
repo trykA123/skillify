@@ -1,0 +1,26 @@
+{
+  "skill": "teachify",
+  "cases": [
+    {
+      "id": "teach-me",
+      "route": "teachify",
+      "prompt": "Teach me how database indexes work, with some exercises so I can check I get it."
+    },
+    {
+      "id": "quick-fact",
+      "route": "none",
+      "prompt": "What's the default port for Postgres?"
+    },
+    {
+      "id": "lesson-shape",
+      "prompt": "Teach me React's useEffect cleanup. I've used React for a year.",
+      "behaviors": [
+        "pitches the lesson at a practitioner level rather than a beginner",
+        "plans or produces a self-contained HTML lesson with exercises and feedback"
+      ],
+      "forbidden": [
+        "only answers in a chat paragraph without a lesson"
+      ]
+    }
+  ]
+}

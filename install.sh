@@ -9,26 +9,8 @@ CONFIG_BASE="${XDG_CONFIG_HOME:-$HOME/.config}"
 CODEX_BASE="${CODEX_HOME:-$HOME/.codex}"
 CLAUDE_BASE="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 
-SKILLS=(orientify mapify undumbify shapeify shipify reviewify traceify skillify teachify researchify audify migrateify testify releaseify refactorify)
-RETIRED_SKILLS=(promptify explainify recordify librify)
-
-declare -A SKILL_FAMILY=(
-  [orientify]=entry
-  [mapify]=entry
-  [traceify]=entry
-  [researchify]=entry
-  [audify]=entry
-  [undumbify]=pipeline
-  [shapeify]=pipeline
-  [shipify]=pipeline
-  [reviewify]=pipeline
-  [migrateify]=pipeline
-  [testify]=pipeline
-  [releaseify]=pipeline
-  [refactorify]=pipeline
-  [skillify]=teaching
-  [teachify]=teaching
-)
+SKILLS=(orientify traceify researchify undumbify shapeify shipify reviewify audify teachify)
+RETIRED_SKILLS=(promptify explainify recordify librify mapify skillify migrateify testify releaseify refactorify)
 
 declare -A NATIVE_AGENT_GLOBAL_DIR=(
   [codex]="$CODEX_BASE/agents"
@@ -133,19 +115,14 @@ declare -A HARNESS_ALIAS=(
 MODE="link"
 SCOPE="global"
 ACTION="install"
-PROFILE=""
 FORCE=0
 REPLACE_LINKS=0
-WITH_AGENTS=0
-AGENTS_ONLY=0
 DRY_RUN=0
 LIST_TARGETS=0
 LIST_SKILLS=0
-AGENTS_TARGET=""
 HARNESS_REQUESTS=()
 CUSTOM_TARGETS=()
 SKILL_REQUESTS=()
-FAMILY_REQUESTS=()
 EXCLUSIONS=()
 NATIVE_AGENT_REQUESTS=()
 
@@ -158,17 +135,11 @@ Targets:
   --target DIR            Install to an arbitrary skill directory; repeatable
   --all                   Install to every known harness preset
   --project               Use project-local preset paths instead of global paths
-  --agents-target DIR     Override the portable fleet package destination
 
 Selection:
-  --profile pipeline       Opt in to the complete Undumbify→Shapeify→Shipify→Reviewify core
   --skill NAME[,NAME]     Install only named skills; repeatable
-  --family NAME[,NAME]    Install only entry, pipeline, or teaching
   --exclude NAME[,NAME]   Exclude named skills from the selection
-  --with-agents           Also install the portable agent fleet package
-                         (does not generate native callable agents)
-  --agents-only           Install only the portable agent fleet package
-  --native-agents NAMES   Generate native agents for codex, claude, opencode, or copilot
+  --native-agents NAMES   Generate native subagents for codex, claude, opencode, copilot
 
 Actions and safety:
   --link                  Create symlinks into this checkout (default)
@@ -181,13 +152,13 @@ Actions and safety:
 
 Discovery:
   --list                  List harness presets, aliases, and resolved paths
-  --list-skills           List skills and families
+  --list-skills           List skills
   -h, --help              Show this help
 
 Examples:
   ./install.sh --harness claude,opencode
   ./install.sh --harness codex --skill traceify,shipify --update
-  ./install.sh --project --family pipeline --exclude reviewify --copy
+  ./install.sh --project --exclude teachify --copy
   ./install.sh --target /path/to/skills --dry-run
   ./install.sh --harness claude,opencode --status
   ./install.sh --harness codex,claude,opencode,copilot --native-agents codex,claude,opencode,copilot --update
@@ -212,14 +183,15 @@ canonical_harness() {
   printf '%s\n' "${HARNESS_ALIAS[$requested]:-$requested}"
 }
 
+is_skill() {
+  local candidate
+  for candidate in "${SKILLS[@]}"; do [[ "$candidate" == "$1" ]] && return 0; done
+  return 1
+}
+
 skill_src() {
-  local skill="$1"
-  local family="${SKILL_FAMILY[$skill]:-}"
-  if [[ -z "$family" ]]; then
-    echo "install: unknown skill '$skill'" >&2
-    return 1
-  fi
-  printf '%s/%s/%s\n' "$REPO_DIR" "$family" "$skill"
+  is_skill "$1" || { echo "install: unknown skill '$1'" >&2; return 1; }
+  printf '%s/skills/%s\n' "$REPO_DIR" "$1"
 }
 
 list_targets() {
@@ -237,10 +209,7 @@ list_targets() {
 
 list_skills() {
   local skill
-  printf '%-16s %s\n' "SKILL" "FAMILY"
-  for skill in "${SKILLS[@]}"; do
-    printf '%-16s %s\n' "$skill" "${SKILL_FAMILY[$skill]}"
-  done
+  printf '%s\n' "${SKILLS[@]}"
 }
 
 detect_harnesses() {
@@ -294,48 +263,18 @@ destination_status() {
   fi
 }
 
-# Skill directories contain a small, known set of internal shared-reference symlinks.
-# Copies must remain portable: materialize only those allowlisted files and reject every
-# other symlink instead of recursively following an unknown target.
-ALLOWED_SHARED_REFS=(interaction-gate.md artifacts.md pipeline-mode.md light-packet.md)
-
 materialize_skill() {
   local src="$1"
   local dst="$2"
-  local item relative target resolved basename allowed
+  local item relative target
 
   mkdir -p -- "$dst"
   while IFS= read -r -d '' item; do
     relative="${item#"$src"/}"
     target="$dst/$relative"
     if [[ -L "$item" ]]; then
-      resolved="$(readlink -f -- "$item")"
-      [[ -f "$resolved" && -r "$resolved" ]] || {
-        echo "install: refusing unreadable shared reference '$item'" >&2
-        return 1
-      }
-      case "$resolved" in
-        "$REPO_DIR/shared/"*) ;;
-        *)
-          echo "install: refusing symlink outside shared references '$item' -> '$resolved'" >&2
-          return 1
-          ;;
-      esac
-      basename="${resolved##*/}"
-      allowed=0
-      for shared_ref in "${ALLOWED_SHARED_REFS[@]}"; do
-        [[ "$basename" == "$shared_ref" ]] && allowed=1
-      done
-      [[ "$allowed" -eq 1 ]] || {
-        echo "install: refusing unknown shared reference '$item' -> '$resolved'" >&2
-        return 1
-      }
-      mkdir -p -- "$(dirname "$target")"
-      cp -- "$resolved" "$target"
-      [[ -f "$target" && ! -L "$target" && -r "$target" ]] || {
-        echo "install: failed to materialize shared reference '$target'" >&2
-        return 1
-      }
+      echo "install: refusing symlink inside skill source '$item'" >&2
+      return 1
     elif [[ -d "$item" ]]; then
       mkdir -p -- "$target"
     elif [[ -f "$item" ]]; then
@@ -346,17 +285,6 @@ materialize_skill() {
       return 1
     fi
   done < <(find "$src" -mindepth 1 -print0)
-}
-
-validate_fleet_target() {
-  local target="$1"
-  while [[ "$target" != "/" && "$target" == */ ]]; do target="${target%/}"; done
-  case "$target" in
-    ""|"/"|"."|".."|"$HOME"|"$REPO_DIR")
-      echo "install: refusing unsafe fleet target '$1'" >&2
-      return 1
-      ;;
-  esac
 }
 
 cleanup_retired_skills() {
@@ -380,19 +308,11 @@ while [[ $# -gt 0 ]]; do
     --link) MODE="link"; shift ;;
     --copy) MODE="copy"; shift ;;
     --project) SCOPE="project"; shift ;;
-    --profile)
-      [[ $# -ge 2 ]] || { echo "install: --profile needs a name" >&2; exit 2; }
-      PROFILE="$2"
-      [[ "$PROFILE" == "pipeline" ]] || { echo "install: unknown profile '$PROFILE'; supported profile: pipeline" >&2; exit 2; }
-      shift 2
-      ;;
     --uninstall) ACTION="uninstall"; shift ;;
     --status) ACTION="status"; shift ;;
     --update) REPLACE_LINKS=1; shift ;;
     --force) FORCE=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
-    --with-agents) WITH_AGENTS=1; shift ;;
-    --agents-only) AGENTS_ONLY=1; WITH_AGENTS=1; shift ;;
     --native-agents)
       [[ $# -ge 2 ]] || { echo "install: --native-agents needs a comma-separated value" >&2; exit 2; }
       append_csv NATIVE_AGENT_REQUESTS "$2"
@@ -411,19 +331,9 @@ while [[ $# -gt 0 ]]; do
       CUSTOM_TARGETS+=("$2")
       shift 2
       ;;
-    --agents-target)
-      [[ $# -ge 2 ]] || { echo "install: --agents-target needs a directory" >&2; exit 2; }
-      AGENTS_TARGET="$2"
-      shift 2
-      ;;
     --skill)
       [[ $# -ge 2 ]] || { echo "install: --skill needs a comma-separated value" >&2; exit 2; }
       append_csv SKILL_REQUESTS "$2"
-      shift 2
-      ;;
-    --family)
-      [[ $# -ge 2 ]] || { echo "install: --family needs a comma-separated value" >&2; exit 2; }
-      append_csv FAMILY_REQUESTS "$2"
       shift 2
       ;;
     --exclude)
@@ -450,27 +360,18 @@ fi
 declare -A REQUESTED_SKILLS=()
 declare -A EXCLUDED_SKILLS=()
 skill=""
-family=""
 
 for skill in "${EXCLUSIONS[@]}"; do
-  [[ -n "${SKILL_FAMILY[$skill]:-}" ]] || { echo "install: unknown excluded skill '$skill'" >&2; exit 2; }
+  is_skill "$skill" || { echo "install: unknown excluded skill '$skill'" >&2; exit 2; }
   EXCLUDED_SKILLS["$skill"]=1
 done
 
-if [[ "$PROFILE" == "pipeline" && ${#SKILL_REQUESTS[@]} -eq 0 && ${#FAMILY_REQUESTS[@]} -eq 0 ]]; then
-  for skill in undumbify shapeify shipify reviewify; do REQUESTED_SKILLS["$skill"]=1; done
-elif [[ ${#SKILL_REQUESTS[@]} -eq 0 && ${#FAMILY_REQUESTS[@]} -eq 0 ]]; then
+if [[ ${#SKILL_REQUESTS[@]} -eq 0 ]]; then
   for skill in "${SKILLS[@]}"; do REQUESTED_SKILLS["$skill"]=1; done
 else
   for skill in "${SKILL_REQUESTS[@]}"; do
-    [[ -n "${SKILL_FAMILY[$skill]:-}" ]] || { echo "install: unknown skill '$skill'" >&2; exit 2; }
+    is_skill "$skill" || { echo "install: unknown skill '$skill'" >&2; exit 2; }
     REQUESTED_SKILLS["$skill"]=1
-  done
-  for family in "${FAMILY_REQUESTS[@]}"; do
-    [[ "$family" =~ ^(entry|pipeline|teaching)$ ]] || { echo "install: unknown family '$family'" >&2; exit 2; }
-    for skill in "${SKILLS[@]}"; do
-      [[ "${SKILL_FAMILY[$skill]}" == "$family" ]] && REQUESTED_SKILLS["$skill"]=1
-    done
   done
 fi
 
@@ -481,41 +382,12 @@ for skill in "${SKILLS[@]}"; do
   fi
 done
 
-if [[ "$PROFILE" == "pipeline" ]]; then
-  [[ "$AGENTS_ONLY" -eq 0 ]] || {
-    echo "install: --profile pipeline requires skill installation; remove --agents-only" >&2
-    exit 2
-  }
-  for skill in undumbify shapeify shipify reviewify; do
-    [[ -z "${EXCLUDED_SKILLS[$skill]:-}" ]] || {
-      echo "install: --profile pipeline requires '$skill'; remove --exclude $skill" >&2
-      exit 2
-    }
-    REQUESTED_SKILLS["$skill"]=1
-  done
-  ACTIVE_SKILLS=()
-  for skill in "${SKILLS[@]}"; do
-    if [[ -n "${REQUESTED_SKILLS[$skill]:-}" && -z "${EXCLUDED_SKILLS[$skill]:-}" ]]; then
-      ACTIVE_SKILLS+=("$skill")
-    fi
-  done
-fi
-if [[ "$AGENTS_ONLY" -eq 0 && ${#ACTIVE_SKILLS[@]} -eq 0 ]]; then
+if [[ ${#ACTIVE_SKILLS[@]} -eq 0 ]]; then
   echo "install: skill selection is empty" >&2
   exit 2
 fi
 
-# Pipeline completeness is checked only for the explicit pipeline profile. Ordinary
-# single-skill installs remain independently usable and emit no pipeline warnings.
-PIPELINE_CORE=(undumbify shapeify shipify reviewify)
-if [[ "$PROFILE" == "pipeline" && "$AGENTS_ONLY" -eq 0 ]]; then
-  if [[ "$WITH_AGENTS" -eq 0 ]]; then
-    echo "install: warning: pipeline profile has no portable agent package — add --with-agents for Planner→Worker→Reviewer role definitions" >&2
-    echo "install: note: --with-agents installs portable roles only; use --native-agents with a supported harness to generate callable native roles" >&2
-  fi
-fi
-
-if [[ ${#HARNESS_REQUESTS[@]} -eq 0 && ${#CUSTOM_TARGETS[@]} -eq 0 && "$AGENTS_ONLY" -eq 0 ]]; then
+if [[ ${#HARNESS_REQUESTS[@]} -eq 0 && ${#CUSTOM_TARGETS[@]} -eq 0 ]]; then
   while IFS= read -r harness; do HARNESS_REQUESTS+=("$harness"); done < <(detect_harnesses)
 fi
 
@@ -554,7 +426,7 @@ for target in "${CUSTOM_TARGETS[@]}"; do
   fi
 done
 
-if [[ ${#TARGET_DIRS[@]} -eq 0 && "$AGENTS_ONLY" -eq 0 ]]; then
+if [[ ${#TARGET_DIRS[@]} -eq 0 ]]; then
   echo "install: no harness detected; use --harness, --all, or --target" >&2
   exit 1
 fi
@@ -563,88 +435,48 @@ printf 'Skillify installer\n'
 printf '  mode: %s · scope: %s · action: %s' "$MODE" "$SCOPE" "$ACTION"
 [[ "$DRY_RUN" -eq 0 ]] || printf ' · dry-run'
 printf '\n'
-[[ -n "$PROFILE" ]] && printf '  profile: %s\n' "$PROFILE"
-if [[ "$AGENTS_ONLY" -eq 0 ]]; then
-  printf '  skills: %s\n' "$(IFS=,; printf '%s' "${ACTIVE_SKILLS[*]}")"
-fi
+printf '  skills: %s\n' "$(IFS=,; printf '%s' "${ACTIVE_SKILLS[*]}")"
 
-if [[ "$AGENTS_ONLY" -eq 0 ]]; then
-  while IFS= read -r target_dir; do
-    label="${TARGET_DIRS[$target_dir]}"
-    printf '  target: %s (%s)\n' "$target_dir" "$label"
+while IFS= read -r target_dir; do
+  label="${TARGET_DIRS[$target_dir]}"
+  printf '  target: %s (%s)\n' "$target_dir" "$label"
 
-    if [[ "$ACTION" == "install" && "$DRY_RUN" -eq 0 ]]; then
-      mkdir -p "$target_dir"
-    fi
-    if [[ "$ACTION" == "install" ]]; then cleanup_retired_skills "$target_dir"; fi
-
-    for skill in "${ACTIVE_SKILLS[@]}"; do
-      src="$(skill_src "$skill")"
-      dst="$target_dir/$skill"
-      [[ -d "$src" ]] || { echo "install: source missing for '$skill'" >&2; exit 1; }
-
-      if [[ "$ACTION" == "status" ]]; then
-        printf '    %-16s %s\n' "$skill" "$(destination_status "$src" "$dst")"
-        continue
-      fi
-
-      if [[ "$ACTION" == "uninstall" ]]; then
-        if [[ -L "$dst" || -d "$dst" || -f "$dst" ]]; then
-          clear_destination "$src" "$dst"
-          [[ "$DRY_RUN" -eq 1 ]] || printf '    removed %s\n' "$skill"
-        fi
-        continue
-      fi
-
-      clear_destination "$src" "$dst"
-      if [[ "$DRY_RUN" -eq 1 ]]; then
-        printf '    would %s %s\n' "$MODE" "$skill"
-      elif [[ "$MODE" == "link" ]]; then
-        ln -s "$src" "$dst"
-        printf '    linked %s\n' "$skill"
-      else
-        materialize_skill "$src" "$dst"
-        printf 'managed-by=skillify\nskill=%s\nsource=%s\n' "$skill" "$src" > "$dst/.skillify-managed"
-        printf '    copied %s\n' "$skill"
-      fi
-    done
-  done < <(printf '%s\n' "${!TARGET_DIRS[@]}" | sort)
-fi
-
-if [[ "$WITH_AGENTS" -eq 1 ]]; then
-  if [[ -n "$AGENTS_TARGET" ]]; then
-    fleet_dst="$AGENTS_TARGET"
-  elif [[ "$SCOPE" == "project" ]]; then
-    fleet_dst=".agents/fleets/skillify"
-  else
-    fleet_dst="$HOME/.agents/fleets/skillify"
+  if [[ "$ACTION" == "install" && "$DRY_RUN" -eq 0 ]]; then
+    mkdir -p "$target_dir"
   fi
-  validate_fleet_target "$fleet_dst"
-  fleet_root="$(dirname "$fleet_dst")"
+  if [[ "$ACTION" == "install" ]]; then cleanup_retired_skills "$target_dir"; fi
 
-  printf '  fleet: %s\n' "$fleet_dst"
-  if [[ "$ACTION" == "status" ]]; then
-    printf '    %s\n' "$(destination_status "$REPO_DIR/agents" "$fleet_dst")"
-  elif [[ "$ACTION" == "uninstall" ]]; then
-    if [[ -L "$fleet_dst" || -d "$fleet_dst" || -f "$fleet_dst" ]]; then
-      clear_destination "$REPO_DIR/agents" "$fleet_dst"
-      [[ "$DRY_RUN" -eq 1 ]] || printf '    removed portable fleet package\n'
+  for skill in "${ACTIVE_SKILLS[@]}"; do
+    src="$(skill_src "$skill")"
+    dst="$target_dir/$skill"
+    [[ -d "$src" ]] || { echo "install: source missing for '$skill'" >&2; exit 1; }
+
+    if [[ "$ACTION" == "status" ]]; then
+      printf '    %-16s %s\n' "$skill" "$(destination_status "$src" "$dst")"
+      continue
     fi
-  else
-    if [[ "$DRY_RUN" -eq 0 ]]; then mkdir -p "$fleet_root"; fi
-    clear_destination "$REPO_DIR/agents" "$fleet_dst"
+
+    if [[ "$ACTION" == "uninstall" ]]; then
+      if [[ -L "$dst" || -d "$dst" || -f "$dst" ]]; then
+        clear_destination "$src" "$dst"
+        [[ "$DRY_RUN" -eq 1 ]] || printf '    removed %s\n' "$skill"
+      fi
+      continue
+    fi
+
+    clear_destination "$src" "$dst"
     if [[ "$DRY_RUN" -eq 1 ]]; then
-      printf '    would %s portable fleet package\n' "$MODE"
+      printf '    would %s %s\n' "$MODE" "$skill"
     elif [[ "$MODE" == "link" ]]; then
-      ln -s "$REPO_DIR/agents" "$fleet_dst"
-      printf '    linked portable fleet package\n'
+      ln -s "$src" "$dst"
+      printf '    linked %s\n' "$skill"
     else
-      cp -R "$REPO_DIR/agents" "$fleet_dst"
-      printf 'managed-by=skillify\npackage=agents\nsource=%s\n' "$REPO_DIR/agents" > "$fleet_dst/.skillify-managed"
-      printf '    copied portable fleet package\n'
+      materialize_skill "$src" "$dst"
+      printf 'managed-by=skillify\nskill=%s\nsource=%s\n' "$skill" "$src" > "$dst/.skillify-managed"
+      printf '    copied %s\n' "$skill"
     fi
-  fi
-fi
+  done
+done < <(printf '%s\n' "${!TARGET_DIRS[@]}" | sort)
 
 for native_harness in "${NATIVE_AGENT_REQUESTS[@]}"; do
   native_harness="$(canonical_harness "$native_harness")"

@@ -1,0 +1,29 @@
+{
+  "skill": "reviewify",
+  "cases": [
+    {
+      "id": "review-pr",
+      "route": "reviewify",
+      "prompt": "Review this PR against the ticket before I merge it."
+    },
+    {
+      "id": "audit-not-review",
+      "route": "audify",
+      "prompt": "What shape is our infrastructure repo in overall? There's no spec, I just want an honest health check."
+    },
+    {
+      "id": "intent-first",
+      "context": "Ticket: 'Paginate /api/orders, 50 per page, stable ordering by created_at desc.' Diff: adds LIMIT 50 OFFSET ?page*50 to the query; ORDER BY clause unchanged (currently none).",
+      "prompt": "Review this change.",
+      "behaviors": [
+        "identifies the missing ORDER BY as a blocking or high-severity finding tied to the stable-ordering requirement",
+        "gives a concrete fix",
+        "issues exactly one verdict"
+      ],
+      "forbidden": [
+        "pads the review with style nitpicks",
+        "approves the change"
+      ]
+    }
+  ]
+}

@@ -1,1 +1,0 @@
-../../../shared/interaction-gate.md

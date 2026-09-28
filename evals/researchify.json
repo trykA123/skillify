@@ -1,0 +1,30 @@
+{
+  "skill": "researchify",
+  "cases": [
+    {
+      "id": "external-decision",
+      "route": "researchify",
+      "prompt": "Should we pick Drizzle or Prisma for a new Bun project in 2026? I need current facts, not vibes."
+    },
+    {
+      "id": "local-question",
+      "route": [
+        "orientify",
+        "none"
+      ],
+      "prompt": "Where in this repo is the retry logic for the job queue?"
+    },
+    {
+      "id": "sources-and-confidence",
+      "prompt": "Does SQLite in WAL mode support multiple concurrent writers?",
+      "behaviors": [
+        "gives a direct answer",
+        "prefers or cites official SQLite documentation",
+        "labels confidence or states what is unconfirmed"
+      ],
+      "forbidden": [
+        "presents an unsourced claim as settled fact"
+      ]
+    }
+  ]
+}

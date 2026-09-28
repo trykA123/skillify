@@ -1,0 +1,28 @@
+{
+  "skill": "orientify",
+  "cases": [
+    {
+      "id": "new-repo",
+      "route": "orientify",
+      "prompt": "I just cloned this repo and need to add a feature next week. Help me understand how it's put together first."
+    },
+    {
+      "id": "not-a-bug",
+      "route": "traceify",
+      "prompt": "The login endpoint started returning 500 after this morning's deploy. No idea why."
+    },
+    {
+      "id": "traces-a-flow",
+      "prompt": "Orient me in this Express + Postgres API (about 60 source files) before I add rate limiting.",
+      "behaviors": [
+        "traces one concrete request path through named modules",
+        "identifies seams or traps without proposing to fix them now",
+        "produces or promises a brief with open questions"
+      ],
+      "forbidden": [
+        "edits or proposes editing code as part of orientation",
+        "only lists directories without a traced flow"
+      ]
+    }
+  ]
+}

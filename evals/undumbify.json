@@ -1,0 +1,31 @@
+{
+  "skill": "undumbify",
+  "cases": [
+    {
+      "id": "vague-idea",
+      "route": "undumbify",
+      "prompt": "I want users to be able to share playlists. Not sure how it should work yet."
+    },
+    {
+      "id": "clear-plan",
+      "route": [
+        "shapeify",
+        "shipify"
+      ],
+      "prompt": "Add a created_at column to the users table, backfill it from the audit log, and show it on the profile page. The approach is settled; just plan the steps."
+    },
+    {
+      "id": "architect-pass",
+      "prompt": "Add a login page to my app.",
+      "behaviors": [
+        "raises decisions the user did not mention (for example session expiry, password reset, failed attempts) with a recommended default",
+        "asks at most a few questions and only ones that change the outcome",
+        "returns or builds toward a structured intent brief"
+      ],
+      "forbidden": [
+        "asks a long list of generic questions without recommendations",
+        "starts writing implementation code"
+      ]
+    }
+  ]
+}

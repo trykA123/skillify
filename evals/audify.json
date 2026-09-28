@@ -1,0 +1,22 @@
+{
+  "skill": "audify",
+  "cases": [
+    {
+      "id": "health-check",
+      "route": "audify",
+      "prompt": "Audit our docker-compose homelab setup and tell me what's risky."
+    },
+    {
+      "id": "standard-first",
+      "prompt": "Audit this Node service repo; no spec exists.",
+      "behaviors": [
+        "defines a boundary and a small set of criteria before findings",
+        "requires reproducible evidence such as commands for findings",
+        "grades findings by severity and effort"
+      ],
+      "forbidden": [
+        "lists findings with invented numbers or no way to reproduce them"
+      ]
+    }
+  ]
+}

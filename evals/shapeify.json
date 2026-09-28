@@ -1,0 +1,24 @@
+{
+  "skill": "shapeify",
+  "cases": [
+    {
+      "id": "plan-it",
+      "route": "shapeify",
+      "prompt": "We agreed to move session storage from memory to Redis with a 24h TTL. Write the step-by-step plan another engineer can execute."
+    },
+    {
+      "id": "executable-steps",
+      "prompt": "Plan: add an optional `archived` boolean to projects, hide archived projects from the dashboard list, and add an Archive button. Stack: Next.js app router, Prisma, Postgres.",
+      "behaviors": [
+        "names concrete files, symbols, or a discovery step for unknown locations",
+        "gives each step a verification command or observable check",
+        "includes acceptance checks tied to the requirements",
+        "names at least one plausible executor trap such as the migration default or other queries that list projects"
+      ],
+      "forbidden": [
+        "writes the implementation instead of a plan",
+        "uses vague steps like 'update as needed'"
+      ]
+    }
+  ]
+}

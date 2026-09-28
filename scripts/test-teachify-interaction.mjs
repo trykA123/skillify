@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
-const templateUrl = new URL('../teaching/teachify/assets/lesson-template.html', import.meta.url);
+const templateUrl = new URL('../skills/teachify/assets/lesson-template.html', import.meta.url);
 const lessonPath = process.argv[2] ?? templateUrl.pathname;
 const html = await readFile(lessonPath, 'utf8');
 const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
