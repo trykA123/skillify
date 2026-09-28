@@ -8,11 +8,12 @@ flow before planning, state the root cause before fixing, verify each step, and 
 work against its intent. The skills are plain `SKILL.md` folders, so they work in any
 assistant that reads Agent Skills.
 
-![A vague request moves through undumbify, shapeify, shipify, and reviewify with the scout, worker, and reviewer agents, then a failure is traced to its root cause with traceify and the researcher.](docs/tour.gif)
+[![Skillify reel: a two-minute motion piece with sound. Click to watch.](docs/reel/poster.gif)](docs/reel/skillify-reel.mp4)
 
-You write a normal request. The assistant matches it against the skill descriptions and
-loads one skill; that skill's rules shape the work. Agents run a bounded part of the job
-with only the access they need. The animation's source is [docs/tour.html](docs/tour.html).
+**[Watch the 2:16 reel, with sound](docs/reel/skillify-reel.mp4)**: one chapter per skill, the agents, and the eval numbers. You write a normal
+request. The assistant matches it against the skill descriptions and loads one skill;
+that skill's rules shape the work. Agents run a bounded part of the job with only the
+access they need.
 
 ## Skills
 
@@ -34,12 +35,9 @@ stands alone. Use the one that fits the task in front of you.
 
 ## Subagents
 
-![The main session sends the scout and researcher out in parallel, gets short reports back, hands a plan to the worker, then sends the diff to the reviewer, which cannot edit and reports a fix instead; the worker applies it and the reviewer approves.](docs/agents.gif)
-
 The main session delegates bounded jobs and gets short reports back, so the reading an
 agent does stays out of your context. Read-only agents can run side by side; only the
-worker edits, so there is one writer per working copy. Source:
-[docs/agents.html](docs/agents.html).
+worker edits, so there is one writer per working copy.
 
 | Agent | Access | Job |
 |---|---|---|
