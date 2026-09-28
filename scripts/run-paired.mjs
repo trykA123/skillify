@@ -24,17 +24,18 @@ model, and reports score, cost, turns, and time per arm.
   --jobs N           Parallel runs (default: 4)
   --out FILE         JSONL output
   --keep             Keep workspaces for inspection
+  --cli PATH         Claude Code command to run (default: claude), e.g. a wrapper for another provider
 `);
   process.exit(code);
 }
 
-const opts = { reps: 3, model: "sonnet", grader: "codex", arms: "base,skill", jobs: 4 };
+const opts = { reps: 3, model: "sonnet", grader: "codex", arms: "base,skill", jobs: 4, cli: "claude" };
 const argv = process.argv.slice(2);
 for (let i = 0; i < argv.length; i += 1) {
   const flag = argv[i];
   if (flag === "-h" || flag === "--help") usage(0);
   if (flag === "--keep") { opts.keep = true; continue; }
-  const key = { "--task": "task", "--reps": "reps", "--model": "model", "--grader": "grader", "--arms": "arms", "--jobs": "jobs", "--out": "out" }[flag];
+  const key = { "--task": "task", "--reps": "reps", "--model": "model", "--grader": "grader", "--arms": "arms", "--jobs": "jobs", "--out": "out", "--cli": "cli" }[flag];
   if (!key || argv[i + 1] === undefined) usage(64);
   opts[key] = argv[++i];
 }
@@ -104,7 +105,7 @@ async function attempt(task, arm) {
   const started = Date.now();
   let meta = {};
   for (let tries = 0; tries < 3; tries += 1) {
-    const res = await run("claude", args, { cwd: ws, input: task.prompt });
+    const res = await run(opts.cli, args, { cwd: ws, input: task.prompt });
     try { meta = JSON.parse(res.out); } catch { meta = { result: res.out || res.err, is_error: true, terminal_reason: "unparsed" }; }
     if (meta.terminal_reason !== "api_error" && meta.terminal_reason !== "unparsed") break;
     await new Promise((r) => setTimeout(r, 60_000));
@@ -116,10 +117,11 @@ async function attempt(task, arm) {
   }
   const answer = meta.result ?? "";
   const scored = task.kind === "tests" ? await scoreTests(task, ws) : await scoreRubric(task, ws, answer);
+  if (scored.detail?.graderError) scored.invalid = true;
   if (promptFile) await rm(promptFile, { force: true });
   if (!opts.keep) await rm(ws, { recursive: true, force: true });
   return {
-    task: task.name, arm, model: opts.model, score: scored.score, detail: scored.detail,
+    task: task.name, arm, model: opts.model, invalid: scored.invalid, score: scored.score, detail: scored.detail,
     cost: meta.total_cost_usd ?? null, turns: meta.num_turns ?? null, seconds: Math.round((Date.now() - started) / 1000),
     error: meta.is_error ? String(answer).slice(0, 300) : undefined, workspace: opts.keep ? ws : undefined, answer,
   };
@@ -174,7 +176,7 @@ async function worker() {
     const [task, arm] = queue.shift();
     const row = await attempt(task, arm);
     if (!row.invalid) rows.push(row);
-    if (row.invalid) { console.log(`${row.task.padEnd(20)} ${arm.padEnd(5)} INVALID (api error, excluded)`); continue; }
+    if (row.invalid) { console.log(`${row.task.padEnd(20)} ${arm.padEnd(5)} INVALID (api or grader error, excluded)`); continue; }
     console.log(`${row.task.padEnd(20)} ${arm.padEnd(5)} score ${row.score.toFixed(2)}  $${(row.cost ?? 0).toFixed(3)}  ${row.turns ?? "?"} turns  ${row.seconds}s  ${JSON.stringify(row.detail).slice(0, 140)}`);
   }
 }

@@ -89,9 +89,11 @@ three runs per arm (2026-09-28):
 |---|---:|---:|---|
 | Claude Haiku | 0.78 | **0.95** | $0.079 → $0.090 (+13%) |
 | Claude Sonnet | 0.97 | 0.99 | $0.156 → $0.219 (+41%) |
+| DeepSeek-V4.1-Flash | 0.95 | **1.00** | about $0.01 per run (24% more turns) |
 
 - The skills matter most on smaller models. Haiku with the skills scored close to Sonnet
-  without them, at about 58% of the cost.
+  without them, at about 58% of the cost. DeepSeek-V4.1-Flash with the skills scored 1.00
+  on every task at roughly a twentieth of Sonnet's cost.
 - The biggest gains were clarifying a vague feature (undumbify: Haiku 0.13 → 0.87,
   Sonnet 0.80 → 0.93) and reviewing a PR against its intent (reviewify: Haiku 0.73 → 1.00).
 - On small, well-specified coding tasks Sonnet already scores 1.00 without help; there the
@@ -118,6 +120,7 @@ bash scripts/test.sh               # installer safety and all four agent formats
 node scripts/run-evals.mjs --adapter claude --skill traceify --out /tmp/claude.jsonl
 node scripts/compare-evals.mjs baseline.jsonl candidate.jsonl
 node scripts/run-paired.mjs --model haiku --reps 3        # with vs without skills
+node scripts/run-paired.mjs --cli my-wrapper --model m     # any Anthropic-compatible provider
 node scripts/run-evals.mjs --adapter claude --routes-only --catalog ~/.claude/skills
 ```
 
