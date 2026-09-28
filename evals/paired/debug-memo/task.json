@@ -1,0 +1,7 @@
+{
+  "skill": "traceify",
+  "kind": "tests",
+  "history": ["feat: product view with prices and stock", "perf: memoize price and stock lookups"],
+  "prompt": "Support ticket: customers in Germany sometimes see prices in USD instead of EUR. It started after last week's release. Find the cause and fix it. The repo is in the current directory; run tests with `bun test`.",
+  "note": "memoize keys on the first argument only. A symptom fix repairs prices; the root fix in memo.js also repairs stock, which nobody reported."
+}

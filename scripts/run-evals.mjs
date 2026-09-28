@@ -18,6 +18,8 @@ function usage(code = 0) {
   --model NAME     Model passed to the harness
   --repeat N       Repetitions per case (default: 1)
   --out FILE       Write JSONL results
+  --routes-only    Run only routing cases
+  --catalog DIR    Route against every SKILL.md under DIR too (for example ~/.claude/skills)
 `);
   process.exit(code);
 }
@@ -27,7 +29,8 @@ const argv = process.argv.slice(2);
 for (let i = 0; i < argv.length; i += 1) {
   const flag = argv[i];
   if (flag === "-h" || flag === "--help") usage(0);
-  const key = { "--adapter": "adapter", "--skill": "skill", "--case": "case", "--model": "model", "--repeat": "repeat", "--out": "out" }[flag];
+  if (flag === "--routes-only") { opts.routesOnly = true; continue; }
+  const key = { "--adapter": "adapter", "--skill": "skill", "--case": "case", "--model": "model", "--repeat": "repeat", "--out": "out", "--catalog": "catalog" }[flag];
   if (!key || argv[i + 1] === undefined) usage(64);
   opts[key] = argv[++i];
 }
@@ -45,14 +48,32 @@ for (const name of skillNames) {
   const text = await readFile(join(repo, "skills", name, "SKILL.md"), "utf8");
   skills.set(name, { text, description: frontmatter(text).description });
 }
-const catalog = [...skills].map(([name, skill]) => `- ${name}: ${skill.description}`).join("\n");
+const others = new Map();
+async function collect(dir, depth = 0) {
+  if (depth > 3) return;
+  let entries = [];
+  try { entries = await readdir(dir, { withFileTypes: true }); } catch { return; }
+  for (const entry of entries) {
+    const path = join(dir, entry.name);
+    if (entry.name === "SKILL.md") {
+      const meta = frontmatter(await readFile(path, "utf8"));
+      if (meta.name && meta.description && !skills.has(meta.name)) others.set(meta.name, meta.description);
+    } else if (entry.isDirectory() || entry.isSymbolicLink()) {
+      await collect(path, depth + 1);
+    }
+  }
+}
+if (opts.catalog) await collect(resolve(opts.catalog.replace(/^~/, process.env.HOME)));
+const catalogNames = [...skillNames, ...others.keys()].sort((a, b) => b.length - a.length);
+const catalog = [...[...skills].map(([name, skill]) => [name, skill.description]), ...others]
+  .sort(([a], [b]) => a.localeCompare(b)).map(([name, description]) => `- ${name}: ${description}`).join("\n");
 
 const cases = [];
 for (const file of (await readdir(join(repo, "evals"))).filter((f) => f.endsWith(".json")).sort()) {
   const suite = JSON.parse(await readFile(join(repo, "evals", file), "utf8"));
   for (const item of suite.cases) cases.push({ ...item, skill: suite.skill });
 }
-const selected = cases.filter((c) => (!opts.skill || c.skill === opts.skill) && (!opts.case || c.id === opts.case));
+const selected = cases.filter((c) => (!opts.routesOnly || c.route !== undefined) && (!opts.skill || c.skill === opts.skill) && (!opts.case || c.id === opts.case));
 if (!selected.length) {
   console.error("no matching cases");
   process.exit(1);
@@ -117,8 +138,8 @@ for (const item of selected) {
       row = { passed: true, note: "fixture: cases resolved, no model called" };
     } else if (item.route !== undefined) {
       const raw = (await ask(routePrompt(item))).toLowerCase();
-      const answer = [...skillNames, "none"].map((name) => [name, raw.indexOf(name)]).filter(([, at]) => at >= 0)
-        .sort((a, b) => a[1] - b[1])[0]?.[0] ?? raw.slice(0, 40);
+      const hits = [...catalogNames, "none"].map((name) => [name, raw.search(new RegExp(`(^|[^a-z-])${name.replace(/[-]/g, "\\-")}($|[^a-z-])`))]).filter(([, at]) => at >= 0);
+      const answer = hits.sort((a, b) => a[1] - b[1] || b[0].length - a[0].length)[0]?.[0] ?? raw.slice(0, 40);
       const expected = [item.route ?? "none"].flat();
       row = { passed: expected.includes(answer), answer, expected };
     } else {

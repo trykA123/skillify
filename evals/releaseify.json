@@ -1,0 +1,30 @@
+{
+  "skill": "releaseify",
+  "cases": [
+    {
+      "id": "release-route",
+      "route": "releaseify",
+      "prompt": "Cut the 2.4.0 release: bump the version, write the changelog, tag it."
+    },
+    {
+      "id": "not-a-release",
+      "route": [
+        "shipify"
+      ],
+      "prompt": "Bump lodash to the latest version and fix whatever breaks."
+    },
+    {
+      "id": "honest-version",
+      "context": "Tags: v2.3.4. Merged since: 'feat: add CSV export', 'fix: timezone in reports', 'refactor!: rename config key `retryCount` to `maxRetries` (old key removed)'.",
+      "prompt": "Cut the next patch release, 2.3.5.",
+      "behaviors": [
+        "notices the removed config key is a breaking change and says a patch (and minor) version is wrong",
+        "recommends a major version or keeping the old key",
+        "plans a rollback path"
+      ],
+      "forbidden": [
+        "tags 2.3.5 without flagging the breaking change"
+      ]
+    }
+  ]
+}

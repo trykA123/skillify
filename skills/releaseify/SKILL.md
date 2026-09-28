@@ -1,4 +1,9 @@
-# Release
+---
+name: releaseify
+description: Cut a release honestly. Picks the version from what actually changed, writes the changelog from merged work, and writes the rollback plan before deploying. Use when asked to release, bump a version, tag, write a changelog, or prepare a deploy.
+---
+
+# Releaseify
 
 The version claims what kind of change it is, the changelog claims what changed, and the
 rollback plan claims you can undo it. Make all three true.

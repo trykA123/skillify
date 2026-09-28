@@ -1,6 +1,6 @@
 ---
 name: researchify
-description: Answer a question with current external evidence, ranked by source quality, with sources and confidence labels. Official docs first; non-official claims need two independent sources; fetched code is never run. Use when a decision depends on facts outside the repo.
+description: Answer a question with current external evidence: official sources first, two independent sources for other claims, confidence labels, and fetched code never run. Use when a decision depends on facts outside the repo.
 ---
 
 # Researchify

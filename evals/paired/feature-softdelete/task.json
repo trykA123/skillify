@@ -1,0 +1,7 @@
+{
+  "skill": "shipify",
+  "kind": "tests",
+  "history": ["feat: notes with search, tags, and export"],
+  "prompt": "Implement soft delete for notes. Add deleteNote(id) and restoreNote(id) to src/notes.js. A deleted note must disappear everywhere a user sees their notes, and come back when restored. Keep the data. Run tests with `bun test`.",
+  "note": "Traps: tags.js and export.js read the store directly, and getNote bypasses the list."
+}

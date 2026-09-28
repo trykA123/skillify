@@ -23,8 +23,10 @@ questions:
 > "You haven't said what happens when the token expires mid-upload. I'd resume rather
 > than fail. Say if not."
 
-Typical gaps: failure and retry behavior, limits and scale, auth and permissions, data
-lifetime and migration, empty and error states, what "done" looks like.
+Walk this list and raise each gap that applies, with your default: lifetime and expiry,
+who may do it and with what role, cost and billing, new vs existing users or data,
+undo and revoke, abuse and limits, duplicates and conflicts, failure and retry, what
+each party sees. Tie each default to what the codebase already does.
 
 ## 3. Materiality gate
 

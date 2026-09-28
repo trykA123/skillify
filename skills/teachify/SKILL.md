@@ -1,6 +1,6 @@
 ---
 name: teachify
-description: Teach a topic through a self-contained interactive HTML lesson with explanations, exercises, and instant feedback, pitched at the learner's level. Use when asked to teach, explain in depth, or help practice something. Not for quick factual answers.
+description: Teach a topic with a self-contained interactive HTML lesson (explanations, graded exercises) pitched at the learner's level. Use when asked to teach or help practice something; not for quick factual answers.
 ---
 
 # Teachify

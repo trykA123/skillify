@@ -1,0 +1,1 @@
+{ "name": "public-api", "type": "module", "scripts": { "test": "bun test test/" } }

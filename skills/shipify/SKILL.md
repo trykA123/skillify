@@ -1,6 +1,6 @@
 ---
 name: shipify
-description: Implement approved work with evidence. Sets a baseline, verifies each step before the next, classifies every deviation, and inspects the actual result before calling it done. Also covers refactors, dependency or schema migrations, writing tests, and cutting releases. Use when asked to implement, build, fix a known issue, refactor, upgrade, add tests, or release.
+description: Use for any request to implement, build, or change code, execute a plan, refactor, upgrade or migrate, or add tests. Finds every place a change touches, sets a baseline, verifies each step, classifies deviations, and checks the real result before calling it done.
 ---
 
 # Shipify
@@ -14,7 +14,16 @@ before editing.
 - Refactor or dead-code removal: [references/refactor.md](references/refactor.md)
 - Dependency, framework, or schema migration: [references/migration.md](references/migration.md)
 - Writing or fixing tests: [references/tests.md](references/tests.md)
-- Version, changelog, tag, or deploy: [references/release.md](references/release.md)
+- Releasing: use the `releaseify` skill
+
+## Find every place the change touches
+
+Before editing, list every place that reads, computes, or displays what you are
+changing, not only the obvious one. Search for the field, the function, and any
+duplicated logic that recomputes the same value (serializers, exports, reports,
+emails, caches, admin views, direct store access). A requirement like "everywhere the
+user sees it" is a list you build by searching, not by guessing. Each place on the list
+gets a change or a stated reason it needs none.
 
 ## Baseline before the first edit
 
@@ -49,6 +58,8 @@ cannot see it move.
 ## Finish
 
 1. Run every acceptance check plus the project's build, type, lint, and test commands.
+   Then exercise the new behavior through each place on your list, not only the one
+   you edited first.
 2. Look at the result itself: render the page, run the command, read the output. Passing
    checks and a broken artifact coexist easily.
 3. Read the full diff for unrelated files, debug leftovers, and secrets.

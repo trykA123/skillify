@@ -25,11 +25,12 @@ Work in, one evidence-backed verdict out.
 |---|---|
 | **Blocking** | Breaks a requirement, invariant, contract, or safety property |
 | **Material** | Works today but carries concrete risk; fix it or have the owner accept it |
-| **Advisory** | Improvement with no correctness impact; at most three |
+| **Advisory** | Improvement with no correctness impact; only when you are sure, and zero is normal |
 
 Drop anything a linter or type checker already enforces, preferences with no cost,
-rewrites outside the change, and anything you cannot locate or fix concretely. If the
-work is sound, say so; that is a complete review.
+rewrites outside the change, and anything you cannot locate or fix concretely. Before
+reporting a finding, check it against the code once more: a wrong finding costs more
+than a missing advisory. If the work is sound, say so; that is a complete review.
 
 Each finding: `[severity] file:line — problem — consequence — fix — how to verify`.
 

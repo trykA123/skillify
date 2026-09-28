@@ -12,11 +12,6 @@
       "prompt": "Split the 900-line utils.ts into smaller modules without changing behavior."
     },
     {
-      "id": "release-route",
-      "route": "shipify",
-      "prompt": "Cut the 2.4.0 release: bump the version, write the changelog, tag it."
-    },
-    {
       "id": "baseline-and-evidence",
       "prompt": "Rename the config key `retryCount` to `maxRetries` across the codebase, keeping the old key working for one release.",
       "behaviors": [

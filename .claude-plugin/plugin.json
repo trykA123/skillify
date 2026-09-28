@@ -1,7 +1,7 @@
 {
   "name": "skillify",
   "version": "1.0.0",
-  "description": "Nine lean engineering skills (orient, debug, research, clarify, plan, ship, review, audit, teach) and four subagents.",
+  "description": "Ten lean engineering skills (orient, debug, research, clarify, plan, ship, review, release, audit, teach) and four subagents.",
   "author": {
     "name": "Claudiu Tancau",
     "url": "https://github.com/trykA123"
@@ -24,6 +24,7 @@
     "./skills/shapeify",
     "./skills/shipify",
     "./skills/reviewify",
+    "./skills/releaseify",
     "./skills/audify",
     "./skills/teachify"
   ]

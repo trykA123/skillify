@@ -1,6 +1,6 @@
 ---
 name: orientify
-description: Build a working map of an unfamiliar codebase before planning or changing it. Traces one real flow end to end, finds the real seams, and names traps without fixing them. Read-only. Use when entering a new repo or returning after a long gap.
+description: Map an unfamiliar codebase before planning or changing it: trace one real flow end to end, find the seams, name traps without fixing them. Read-only. Use when entering a new repo or returning after a long gap.
 ---
 
 # Orientify

@@ -1,0 +1,9 @@
+{
+  "skill": "shipify",
+  "kind": "tests",
+  "history": [
+    "feat: orders, invoices, receipts, revenue report"
+  ],
+  "prompt": "Add an optional order-level discount: createOrder accepts discountCents (integer cents). The discount comes off the grand total; tax and shipping are calculated exactly as today. Customers must see the discounted total everywhere they see a total, and finance's revenue numbers must reflect it. Run tests with `bun test`.",
+  "note": "Traps: invoice.js recomputes totals itself and feeds the receipt email; revenue.js sums line items directly. Only totals.js is the obvious place."
+}

@@ -1,6 +1,6 @@
 ---
 name: audify
-description: Audit the health of a repo, config, or running system that has no stated spec. Agrees the standard first, backs every finding with a reproducible measurement, grades severity against effort, and delivers one self-contained HTML report. Use for "audit this" or "what shape is this in".
+description: Audit the health of a repo, config, or running system that has no spec. Sets the standard first, backs each finding with a reproducible measurement, grades severity against effort, and writes one HTML report. Use for "audit this" or "what shape is this in".
 ---
 
 # Audify

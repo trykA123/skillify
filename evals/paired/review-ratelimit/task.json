@@ -1,0 +1,15 @@
+{
+  "skill": "reviewify",
+  "kind": "rubric",
+  "history": ["feat: api app with key authentication", "feat: per-key rate limiting (#212)"],
+  "prompt": "Review the latest commit (the rate-limiting PR) against PR.md before I merge it. Don't change any files.",
+  "rubric": {
+    "planted": [
+      "B1: the limiter keys on req.ip instead of the API key (req.client.key / x-api-key); behind the load balancer all clients share one bucket and keys are not isolated",
+      "B2: off-by-one — `entry.count > limit + 1` lets request 101 through; it should be `> limit`",
+      "B3: the 429 response has no Retry-After header, which PR.md requires"
+    ],
+    "scoring": "score = (planted issues clearly identified) / 3, minus 0.15 for each finding that is wrong or a pure style nitpick (min 0). A clearly identified issue names the problem and its location or code. The verdict must not approve the PR; if it approves, score = 0."
+  },
+  "note": "The visible tests pass; each bug needs reading intent against code."
+}

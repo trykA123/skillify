@@ -1,0 +1,19 @@
+{
+  "skill": "undumbify",
+  "kind": "rubric",
+  "history": ["feat: workspaces, magic-link auth, per-seat billing"],
+  "prompt": "I want users to be able to invite teammates to their workspace. Before anyone builds it, work out what we actually need. Don't write code.",
+  "rubric": {
+    "decisions": [
+      "invite expiry / single use",
+      "who may invite (owner only vs members) and the role an invitee gets",
+      "billing: whether pending or accepted invites consume a paid seat, and syncing Stripe quantity",
+      "invitee already has an account vs a new user; invite tied to the invited email vs whoever clicks",
+      "revoking or resending an invite",
+      "abuse limits (invite spam, max pending invites)",
+      "duplicate invites or inviting an existing member",
+      "what the inviter/invitee sees (notifications, pending list)"
+    ],
+    "scoring": "score = min(1, (distinct decisions from the list that the answer raises with a concrete recommended default or answer) / 5). Subtract 0.2 if it asks more than 5 questions of the user, 0.2 if it writes implementation code, 0.1 if it ignores the codebase facts (per-seat Stripe billing, magic-link auth). Minimum 0."
+  }
+}

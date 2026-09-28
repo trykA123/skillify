@@ -1,0 +1,8 @@
+{
+  "skill": "shipify",
+  "references": ["refactor.md"],
+  "kind": "tests",
+  "history": ["feat: ops-kit utilities and backup cli"],
+  "prompt": "src/utils.js has become a grab bag. Split it into focused modules under src/utils/. Other packages import from src/utils.js, so it must keep working for them. This is a pure refactor. Run tests with `bun test`.",
+  "note": "Hidden pins cover edge behavior the visible tests miss; a rewrite that 'cleans up' parsing or messages fails them."
+}

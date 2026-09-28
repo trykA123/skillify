@@ -10,7 +10,9 @@
       "id": "feature-not-bug",
       "route": [
         "undumbify",
-        "shapeify"
+        "shapeify",
+        "shipify",
+        "none"
       ],
       "prompt": "I want to make the search faster and add filters by date."
     },

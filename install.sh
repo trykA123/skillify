@@ -9,8 +9,8 @@ CONFIG_BASE="${XDG_CONFIG_HOME:-$HOME/.config}"
 CODEX_BASE="${CODEX_HOME:-$HOME/.codex}"
 CLAUDE_BASE="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 
-SKILLS=(orientify traceify researchify undumbify shapeify shipify reviewify audify teachify)
-RETIRED_SKILLS=(promptify explainify recordify librify mapify skillify migrateify testify releaseify refactorify)
+SKILLS=(orientify traceify researchify undumbify shapeify shipify reviewify releaseify audify teachify)
+RETIRED_SKILLS=(promptify explainify recordify librify mapify skillify migrateify testify refactorify)
 
 declare -A NATIVE_AGENT_GLOBAL_DIR=(
   [codex]="$CODEX_BASE/agents"

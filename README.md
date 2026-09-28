@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-0f766e.svg)](LICENSE)
 
-Nine small engineering skills and four subagents for AI coding assistants. Each skill
+Ten small engineering skills and four subagents for AI coding assistants. Each skill
 holds the few rules a strong engineer follows and a model tends to skip: trace the
 flow before planning, state the root cause before fixing, verify each step, and judge
 work against its intent. The skills are plain `SKILL.md` folders, so they work in any
@@ -23,8 +23,9 @@ with only the access they need. The animation's source is [docs/tour.html](docs/
 | [researchify](skills/researchify/SKILL.md) | A decision needs outside facts | Source hierarchy, two independent sources, confidence labels |
 | [undumbify](skills/undumbify/SKILL.md) | The idea is still vague | Supplies the missing decisions; asks only material questions |
 | [shapeify](skills/shapeify/SKILL.md) | The goal is clear, the approach is not | Steps with file, check, and trap; plan amendments |
-| [shipify](skills/shipify/SKILL.md) | Implement, refactor, migrate, test, or release | Baseline, verify each step, classify deviations, inspect the result |
+| [shipify](skills/shipify/SKILL.md) | Implement, refactor, migrate, or add tests | Every affected place found first, baseline, verified steps, the real result inspected |
 | [reviewify](skills/reviewify/SKILL.md) | Review a diff, PR, or plan | Intent before diff, located findings, one verdict |
+| [releaseify](skills/releaseify/SKILL.md) | Cut a release | Version from the actual diff, changelog from merged work, rollback before deploy |
 | [audify](skills/audify/SKILL.md) | Health check with no spec | Standard first, reproducible evidence, severity × effort, HTML report |
 | [teachify](skills/teachify/SKILL.md) | Learn a topic properly | Interactive HTML lesson with graded exercises |
 
@@ -49,6 +50,9 @@ worker edits, so there is one writer per working copy. Source:
 
 Agent definitions are portable Markdown. `scripts/render-agents.mjs` turns them into
 each assistant's native format and enforces access with native tool lists or sandboxes.
+Checked live on 2026-09-28: Claude Code (the reviewer had no Edit tool and left the file
+unchanged), Codex, and OpenCode (scout ran as a subagent and returned cited locations).
+The Copilot output is checked structurally only.
 
 ## Install
 
@@ -74,9 +78,34 @@ Claude Code plugin:
 /plugin install skillify@skillify
 ```
 
+## Does it help?
+
+`scripts/run-paired.mjs` runs each task in a real throwaway repo with real tools, once
+without skills and once with the task's skill loaded, and scores the result with hidden
+tests or, for open-ended tasks, a rubric graded by a different model (Codex). Six tasks,
+three runs per arm (2026-09-28):
+
+| Model | Score without skills | Score with skills | Cost per run |
+|---|---:|---:|---|
+| Claude Haiku | 0.78 | **0.95** | $0.079 → $0.090 (+13%) |
+| Claude Sonnet | 0.97 | 0.99 | $0.156 → $0.219 (+41%) |
+
+- The skills matter most on smaller models. Haiku with the skills scored close to Sonnet
+  without them, at about 58% of the cost.
+- The biggest gains were clarifying a vague feature (undumbify: Haiku 0.13 → 0.87,
+  Sonnet 0.80 → 0.93) and reviewing a PR against its intent (reviewify: Haiku 0.73 → 1.00).
+- On small, well-specified coding tasks Sonnet already scores 1.00 without help; there the
+  skills cost more turns and add nothing measurable.
+- Evals also changed the skills: a refactor rule that stopped to ask, a review rule that
+  invited filler findings, and a missing "find every place the change touches" step were
+  all found this way and fixed. Release routing failed inside shipify, so releaseify is a
+  separate skill again.
+
+The sample is small (six fixtures, n=3). Treat it as direction, not proof.
+
 ## Token cost
 
-Only the skill descriptions are always in context: about 2.6 KB for all nine. A skill
+Only the skill descriptions are always in context: about 2.6 KB for all ten. A skill
 body (2–3 KB) loads when it triggers, and references load only when the task needs
 them. Agent prompts are about 1 KB. `node scripts/validate.mjs --report` prints the
 current sizes and fails when a budget is exceeded.
@@ -88,9 +117,12 @@ node scripts/validate.mjs          # frontmatter, links, budgets, installer and 
 bash scripts/test.sh               # installer safety and all four agent formats
 node scripts/run-evals.mjs --adapter claude --skill traceify --out /tmp/claude.jsonl
 node scripts/compare-evals.mjs baseline.jsonl candidate.jsonl
+node scripts/run-paired.mjs --model haiku --reps 3        # with vs without skills
+node scripts/run-evals.mjs --adapter claude --routes-only --catalog ~/.claude/skills
 ```
 
-Eval cases live in `evals/<skill>.json`. A case with `route` checks which skill a model
+Paired fixtures live in `evals/paired/<task>/` (a repo, optional `before/` history, hidden
+tests or a rubric). Route and behavior cases live in `evals/<skill>.json`. A case with `route` checks which skill a model
 picks from the descriptions; a case with `behaviors` runs the skill and has the model
 grade the answer against them. Real adapters use your installed CLI and may cost usage.
 

@@ -51,11 +51,11 @@ header span { color: var(--dim); font-size: 13px; }
 #prompt .caret { display: inline-block; width: 8px; height: 17px; background: var(--text); vertical-align: -3px; margin-left: 1px; }
 #rail {
 	position: absolute; left: 32px; right: 32px; top: 124px;
-	display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px;
+	display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px;
 }
 .chip {
 	text-align: center; padding: 7px 0; border-radius: 7px;
-	font: 12px var(--mono); color: var(--faint);
+	font: 11px var(--mono); color: var(--faint);
 	border: 1px solid var(--line); background: #10151c;
 }
 .chip.on { color: #0d1117; background: var(--skill); border-color: var(--skill); box-shadow: 0 0 22px -4px var(--skill); }
@@ -161,9 +161,9 @@ header span { color: var(--dim); font-size: 13px; }
 
 	<div id="end" class="fade">
 		<h2>Say what you want. The right method loads.</h2>
-		<p>orient · trace · research · clarify · plan · ship · review · audit · teach</p>
+		<p>orient · trace · research · clarify · plan · ship · review · release · audit · teach</p>
 		<div class="stats">
-			<div><b>9</b>skills</div>
+			<div><b>10</b>skills</div>
 			<div><b>4</b>agents</div>
 			<div><b>2.6 KB</b>always in context</div>
 			<div><b>~1 KB</b>per agent</div>
@@ -171,7 +171,7 @@ header span { color: var(--dim); font-size: 13px; }
 	</div>
 </div>
 <script>
-const skills = ["orientify", "traceify", "researchify", "undumbify", "shapeify", "shipify", "reviewify", "audify", "teachify"];
+const skills = ["orientify", "traceify", "researchify", "undumbify", "shapeify", "shipify", "reviewify", "releaseify", "audify", "teachify"];
 document.getElementById("rail").innerHTML = skills.map((s) => `<div class="chip" id="k-${s}">${s}</div>`).join("");
 
 const scenes = [
