@@ -8,6 +8,12 @@ flow before planning, state the root cause before fixing, verify each step, and 
 work against its intent. The skills are plain `SKILL.md` folders, so they work in any
 assistant that reads Agent Skills.
 
+![A vague request moves through undumbify, shapeify, shipify, and reviewify with the scout, worker, and reviewer agents, then a failure is traced to its root cause with traceify and the researcher.](docs/tour.gif)
+
+You write a normal request. The assistant matches it against the skill descriptions and
+loads one skill; that skill's rules shape the work. Agents run a bounded part of the job
+with only the access they need. The animation's source is [docs/tour.html](docs/tour.html).
+
 ## Skills
 
 | Skill | Use it when | What it enforces |
