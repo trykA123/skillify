@@ -33,6 +33,13 @@ stands alone. Use the one that fits the task in front of you.
 
 ## Subagents
 
+![The main session sends the scout and researcher out in parallel, gets short reports back, hands a plan to the worker, then sends the diff to the reviewer, which cannot edit and reports a fix instead; the worker applies it and the reviewer approves.](docs/agents.gif)
+
+The main session delegates bounded jobs and gets short reports back, so the reading an
+agent does stays out of your context. Read-only agents can run side by side; only the
+worker edits, so there is one writer per working copy. Source:
+[docs/agents.html](docs/agents.html).
+
 | Agent | Access | Job |
 |---|---|---|
 | [scout](agents/scout.md) | read-only | Exact files and line ranges for another agent |
