@@ -8,7 +8,7 @@ flow before planning, state the root cause before fixing, verify each step, and 
 work against its intent. The skills are plain `SKILL.md` folders, so they work in any
 assistant that reads Agent Skills.
 
-https://github.com/user-attachments/assets/7c1bb755-4cf3-4bac-a9e3-1582ef36f93c
+**[Watch the 2:31 reel, with sound](docs/reel/skillify-reel.mp4)**: one continuous camera move along a single thread, from a vague request through all ten skills, the agents, and the eval results. It has no flashes or full-screen colour changes; `docs/reel/flashcheck.py` checks every frame.
 
 You write a normal
 request. The assistant matches it against the skill descriptions and loads one skill;
