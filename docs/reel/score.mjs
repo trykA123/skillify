@@ -90,6 +90,10 @@ function thud(t0, g = 0.4) {
 function buzz(t0, g = 0.12) {
 	add(fx, t0, 0.35, (t) => (Math.sin(TAU * 196 * t) + Math.sin(TAU * 207.7 * t)) * 0.5 * Math.sign(Math.sin(TAU * 98 * t)) * 0.5 * env(t, 0.004, 0.12), g, 0, 0.2);
 }
+function crash(t0, g = 0.15) {
+	let p = 0;
+	add(fx, t0, 2.2, (t) => { const x = noise(); const h = x - p; p = x; return h * env(t, 0.002, 0.7); }, g, 0, 0.6);
+}
 function heartbeat(t0, g = 0.5) {
 	add(drums, t0, 0.35, (t) => Math.sin(TAU * (55 + 40 * Math.exp(-t * 30)) * t) * env(t, 0.004, 0.09), g, 0, 0.1);
 }
@@ -123,11 +127,19 @@ for (let k = 0; k < 10; k++) {
 }
 impact(8.0, 0.5);
 
-// 13–16 statement
-pad(13.0, 3.1, [45, 57, 60, 64, 71], 0.09, 0.016, 0.3, 0.3);
-for (let i = 0; i < 10; i++) tick(13.4 + i * 0.03, 0.04, -0.5 + i * 0.1, 3000);
-bell(13.4, 76, 0.1);
-riser(15.0, 1.0, 0.2); whoosh(15.55, 0.5, 0.25, 0.4);
+// 13–16 statement: land, ring, rebuild
+kick(13.0, 1.0);
+impact(13.0, 0.55);
+crash(13.0, 0.16);
+[45, 57, 64, 67, 71, 76].forEach((m, i) => pluck(13.0 + i * 0.012, m, 0.085, -0.5 + i * 0.2, 1.1));
+bass(13.0, 33, 1.95, 0.32);
+pad(13.0, 3.1, [45, 57, 60, 64, 71], 0.1, 0.02, 0.04, 0.3);
+for (let i = 0; i < 10; i++) tick(13.4 + i * 0.03, 0.035, -0.5 + i * 0.1, 3000);
+for (let i = 0; i < 10; i++) tick(13.8 + i * 0.12, 0.05, -0.45 + i * 0.1, 2200 + i * 80);
+for (let b = 0; b < 4; b++) { kick(14 + b * 0.5, 0.42 + b * 0.1); bass(14 + b * 0.5, 45, 0.22, 0.12 + b * 0.04); }
+for (let i = 0; i < 16; i++) hat(14 + i * 0.125, 0.02 + i * 0.004, i % 2 ? 0.3 : -0.3);
+[15.0, 15.25, 15.5, 15.625, 15.75, 15.875].forEach((t, i) => clap(t, 0.08 + i * 0.03));
+riser(14.6, 1.4, 0.2); whoosh(15.55, 0.5, 0.25, 0.4);
 
 // 16–110 groove
 const bars = [];
@@ -220,7 +232,7 @@ for (let i = 0; i < 8; i++) pluck(127.35 + i * 0.045, [69, 72, 76, 79, 81, 84, 8
 bell(129.5, 76, 0.09, 0.2);
 heartbeat(135.0, 0.35); bell(135.0, 81, 0.08);
 
-// sidechain + reverb + master
+// sidechain + stems
 kicks.sort((a, b) => a - b);
 let ki = 0, last = -10;
 for (let i = 0; i < N; i++) {
@@ -229,39 +241,18 @@ for (let i = 0; i < N; i++) {
 	const duck = 1 - 0.5 * Math.exp(-(t - last) / 0.11);
 	music.L[i] *= duck; music.R[i] *= duck;
 }
-function comb(input, d, fb, damp) {
-	const out = new Float32Array(N), buf = new Float32Array(d); let idx = 0, lp = 0;
-	for (let i = 0; i < N; i++) { const y = buf[idx]; lp = y * (1 - damp) + lp * damp; buf[idx] = input[i] + lp * fb; out[i] = y; idx = (idx + 1) % d; }
-	return out;
+function wav(path, L, R) {
+	const data = Buffer.alloc(N * 8);
+	for (let i = 0; i < N; i++) { data.writeFloatLE(L[i], i * 8); data.writeFloatLE(R[i], i * 8 + 4); }
+	const h = Buffer.alloc(44);
+	h.write("RIFF", 0); h.writeUInt32LE(36 + data.length, 4); h.write("WAVE", 8); h.write("fmt ", 12);
+	h.writeUInt32LE(16, 16); h.writeUInt16LE(3, 20); h.writeUInt16LE(2, 22); h.writeUInt32LE(SR, 24);
+	h.writeUInt32LE(SR * 8, 28); h.writeUInt16LE(8, 32); h.writeUInt16LE(32, 34); h.write("data", 36); h.writeUInt32LE(data.length, 40);
+	writeFileSync(path, Buffer.concat([h, data]));
 }
-function allpass(input, d, g = 0.5) {
-	const out = new Float32Array(N), buf = new Float32Array(d); let idx = 0;
-	for (let i = 0; i < N; i++) { const b = buf[idx]; const y = -input[i] + b; buf[idx] = input[i] + b * g; out[i] = y; idx = (idx + 1) % d; }
-	return out;
-}
-function reverb(offset) {
-	const sum = new Float32Array(N);
-	for (const ms of [29.7, 37.1, 41.1, 43.7]) { const c = comb(send, Math.floor((ms + offset) * SR / 1000), 0.8, 0.35); for (let i = 0; i < N; i++) sum[i] += c[i] * 0.25; }
-	return allpass(allpass(sum, Math.floor((5.0 + offset * 0.1) * SR / 1000)), Math.floor((1.7 + offset * 0.05) * SR / 1000));
-}
-const wetL = reverb(0), wetR = reverb(2.3);
-const pcm = Buffer.alloc(N * 4);
-let peak = 0;
-const mixL = new Float32Array(N), mixR = new Float32Array(N);
-for (let i = 0; i < N; i++) {
-	mixL[i] = drums.L[i] + music.L[i] + fx.L[i] + wetL[i] * 0.35;
-	mixR[i] = drums.R[i] + music.R[i] + fx.R[i] + wetR[i] * 0.35;
-	peak = Math.max(peak, Math.abs(mixL[i]), Math.abs(mixR[i]));
-}
-for (let i = 0; i < N; i++) {
-	const fade = Math.min(1, i / (SR * 0.02), (N - i) / (SR * 0.8));
-	const l = Math.tanh(mixL[i] * 0.95) * fade, r = Math.tanh(mixR[i] * 0.95) * fade;
-	pcm.writeInt16LE(Math.round(l * 30000), i * 4);
-	pcm.writeInt16LE(Math.round(r * 30000), i * 4 + 2);
-}
-const head = Buffer.alloc(44);
-head.write("RIFF", 0); head.writeUInt32LE(36 + pcm.length, 4); head.write("WAVE", 8); head.write("fmt ", 12);
-head.writeUInt32LE(16, 16); head.writeUInt16LE(1, 20); head.writeUInt16LE(2, 22); head.writeUInt32LE(SR, 24);
-head.writeUInt32LE(SR * 4, 28); head.writeUInt16LE(4, 32); head.writeUInt16LE(16, 34); head.write("data", 36); head.writeUInt32LE(pcm.length, 40);
-writeFileSync(process.argv[2] ?? "score.wav", Buffer.concat([head, pcm]));
-console.log(`peak before limiter ${peak.toFixed(2)}`);
+const dir = process.argv[2] ?? ".";
+wav(`${dir}/drums.wav`, drums.L, drums.R);
+wav(`${dir}/music.wav`, music.L, music.R);
+wav(`${dir}/fx.wav`, fx.L, fx.R);
+wav(`${dir}/send.wav`, send, send);
+console.log(`stems written to ${dir}`);
