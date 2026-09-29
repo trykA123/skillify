@@ -121,18 +121,20 @@ node scripts/log-feedback.mjs --agent worker --model sonnet-5.5 --harness claude
 node scripts/log-feedback.mjs --summary   # verdict counts per skill
 ```
 
-Entries go to `feedback/field.jsonl`. Logging an entry also regenerates
-[`feedback/index.html`](feedback/index.html), a self-contained dashboard (verdicts per
-skill, over time, per agent and model, searchable entries, recurring asks). Commit both
-files. Every push to `main` that touches `feedback/` redeploys the page to
-https://tryka123.github.io/skillify/ through `.github/workflows/feedback.yml`.
-
-The repository needs Pages enabled with source "GitHub Actions" (Settings, Pages).
-Rebuild by hand with `node scripts/feedback-report.mjs`.
+Entries go to `feedback/field.jsonl`. The dashboard at
+**https://tryka123.github.io/skillify/** is a small app in [`dashboard/`](dashboard/)
+(React, Bun, Base UI): overview, paired evals per model, every task with exactly how it
+is scored (hidden tests or a rubric graded by Codex) and each run's grading, results by
+kind of work (coding, debugging, reviewing, clarifying), field runs, skills, and method.
+Every push to `main` that touches the data or the app rebuilds and redeploys it through
+`.github/workflows/feedback.yml`. Build it locally with
+`cd dashboard && bun install && bun run build` (output in `dashboard/dist`).
+The older single-page report is still built as `one-page.html`, and locally by
+`log-feedback.mjs` as `feedback/index.html`.
 
 ## Token cost
 
-Only the skill descriptions are always in context: about 2.6 KB for all ten. A skill
+Only the skill descriptions are always in context: about 2.8 KB for all eleven. A skill
 body (2–3 KB) loads when it triggers, and references load only when the task needs
 them. Agent prompts are about 1 KB. `node scripts/validate.mjs --report` prints the
 current sizes and fails when a budget is exceeded.

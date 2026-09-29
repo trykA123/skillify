@@ -110,4 +110,14 @@ if node "$REPO_DIR/scripts/log-feedback.mjs" --agent a --task t --verdict helped
 echo '{"verdict":"helped","tools":-1}' > "$ROOT/fb/badc.jsonl"
 if node "$REPO_DIR/scripts/feedback-report.mjs" --input "$ROOT/fb/badc.jsonl" --output "$ROOT/fb/badc.html" >/dev/null 2>&1; then fail "report accepted negative tools"; fi
 
+if command -v bun >/dev/null 2>&1 && [ -d "$REPO_DIR/dashboard/node_modules" ]; then
+  (cd "$REPO_DIR/dashboard" && bun build-data.ts >/dev/null) || fail "dashboard data export"
+  bun -e '
+    const d = await Bun.file(process.argv[1]).json();
+    const bad = d.tasks.filter((t) => !t.scoring || !t.category || t.category === "other" || (t.kind === "rubric" ? !t.rubricItems.length : !t.hiddenTests));
+    if (bad.length) { console.error("tasks missing scoring or category:", bad.map((t) => t.task).join(", ")); process.exit(1); }
+    if (!d.runs.length || !d.models.length || !d.headline?.pre) { console.error("empty export"); process.exit(1); }
+  ' "$REPO_DIR/dashboard/src/data.json" || fail "dashboard data complete"
+fi
+
 echo "all tests passed"

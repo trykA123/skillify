@@ -95,7 +95,7 @@ export function analyzeResults(results, kinds = {}) {
   return { models, tasks: perTask, runsPerArm, fixtures: tasks.length, kinds };
 }
 
-function evalHeadline(models) {
+export function evalHeadline(models) {
   let best = null;
   for (const a of models) for (const b of models) {
     if (a.estimate || b.estimate) continue;

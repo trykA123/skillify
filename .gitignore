@@ -6,3 +6,7 @@ node_modules/
 
 # Full-quality reel master (144 MB, over GitHub's file limit)
 docs/reel/skillify-reel-master.mp4
+
+# Dashboard build output and generated data
+dashboard/dist/
+dashboard/src/data.json

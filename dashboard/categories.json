@@ -1,0 +1,16 @@
+{
+  "categories": [
+    { "id": "coding", "label": "Coding", "blurb": "Implement a feature or refactor in a real repo; hidden tests decide." },
+    { "id": "debugging", "label": "Debugging", "blurb": "Find the root cause of a reported bug and fix it; hidden tests decide." },
+    { "id": "reviewing", "label": "Reviewing", "blurb": "Review a change against its intent; a rubric of planted bugs decides." },
+    { "id": "clarifying", "label": "Clarifying", "blurb": "Turn a vague request into the decisions that matter; a rubric decides." }
+  ],
+  "tasks": {
+    "feature-softdelete": { "category": "coding", "sub": "feature" },
+    "feature-discount": { "category": "coding", "sub": "feature" },
+    "refactor-utils": { "category": "coding", "sub": "refactor" },
+    "debug-memo": { "category": "debugging", "sub": "root cause" },
+    "review-ratelimit": { "category": "reviewing", "sub": "PR review" },
+    "clarify-invites": { "category": "clarifying", "sub": "vague feature" }
+  }
+}
