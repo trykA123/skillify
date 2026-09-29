@@ -28,13 +28,14 @@ access they need.
 | [researchify](skills/researchify/SKILL.md) | A decision needs outside facts | Source hierarchy, two independent sources, confidence labels |
 | [undumbify](skills/undumbify/SKILL.md) | The idea is still vague | Supplies the missing decisions; asks only material questions |
 | [shapeify](skills/shapeify/SKILL.md) | The goal is clear, the approach is not | Steps with file, check, and trap; plan amendments |
+| [promptify](skills/promptify/SKILL.md) | Handing work to another model, or sharpening a prompt | Model and effort, outcome, stop rules, vendor guidance (Claude 5.5 reference) |
 | [shipify](skills/shipify/SKILL.md) | Implement, refactor, migrate, or add tests | Every affected place found first, baseline, verified steps, the real result inspected |
 | [reviewify](skills/reviewify/SKILL.md) | Review a diff, PR, or plan | Intent before diff, located findings, one verdict |
 | [releaseify](skills/releaseify/SKILL.md) | Cut a release | Version from the actual diff, changelog from merged work, rollback before deploy |
 | [audify](skills/audify/SKILL.md) | Health check with no spec | Standard first, reproducible evidence, severity × effort, HTML report |
 | [teachify](skills/teachify/SKILL.md) | Learn a topic properly | Interactive HTML lesson with graded exercises |
 
-A typical feature runs `undumbify → shapeify → shipify → reviewify`, but each skill
+A typical feature runs `undumbify → shapeify → shipify → reviewify` (with `promptify` when shapeify's plan goes to another model), but each skill
 stands alone. Use the one that fits the task in front of you.
 
 ## Subagents

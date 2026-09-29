@@ -5,7 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import process from "node:process";
 
 const repo = resolve(dirname(new URL(import.meta.url).pathname), "..");
-const budget = { description: 400, catalog: 2600, skill: 4500, reference: 3200, agent: 1500 };
+const budget = { description: 400, catalog: 2800, skill: 4500, reference: 3200, agent: 1500 };
 const errors = [];
 const rows = [];
 const exists = (path) => access(path).then(() => true, () => false);

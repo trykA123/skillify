@@ -22,6 +22,7 @@
     "./skills/researchify",
     "./skills/undumbify",
     "./skills/shapeify",
+    "./skills/promptify",
     "./skills/shipify",
     "./skills/reviewify",
     "./skills/releaseify",

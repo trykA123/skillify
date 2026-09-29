@@ -1,0 +1,30 @@
+{
+  "skill": "promptify",
+  "cases": [
+    {
+      "id": "brief-a-subagent",
+      "route": "promptify",
+      "prompt": "Write the prompt I should give a Sonnet subagent to add rate limiting to our /api/login route. We already agreed on 5 attempts per 15 minutes per IP."
+    },
+    {
+      "id": "sharpen-my-prompt",
+      "route": "promptify",
+      "prompt": "Can you improve this prompt before I send it to the model: 'make the dashboard look better and fix whatever is broken, think step by step'"
+    },
+    {
+      "id": "brief-quality",
+      "prompt": "Write the brief for a Claude Sonnet 5.5 worker to migrate our three cron scripts from bash to Bun. Decided: same schedules, same log paths.",
+      "behaviors": [
+        "states the outcome and an observable done check",
+        "sets a model and an explicit effort level",
+        "gives stop rules both ways: keep going until done, stop only when blocked or before a risky step",
+        "requires a real verification that exercises the change",
+        "says what is out of scope"
+      ],
+      "forbidden": [
+        "asks the model to write out its reasoning or think step by step",
+        "tells the model to minimize tool calls"
+      ]
+    }
+  ]
+}
