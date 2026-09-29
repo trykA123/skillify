@@ -12,6 +12,8 @@ assistant that reads Agent Skills.
 
 **[Watch the full 2:37 film, with sound](docs/reel/skillify-reel.mp4)**: 9,000 particles move from a vague idea to ordered method, one formation per skill, then the agents and the eval results. No flashes; `docs/reel/flashcheck.py` checks every frame.
 
+**[Download the 2:00 motion-graphics showreel](showreel/skillify-showreel.mp4)**: an original visual study of the skills, agents, evals, and feedback loop. [Render source](showreel/render.py) · [Storyboard preview](showreel/preview.jpg).
+
 You write a normal
 request. The assistant matches it against the skill descriptions and loads one skill;
 that skill's rules shape the work. Agents run a bounded part of the job with only the
