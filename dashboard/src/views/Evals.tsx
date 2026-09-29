@@ -1,5 +1,5 @@
-import { data, dir, modelName, pctChange, signedPct, usd } from "../lib";
-import { Card, Delta, PairBars, Score, Tip } from "../ui";
+import { catById, data, dir, modelName, pctChange, s2, signedPct, usd } from "../lib";
+import { Card, Chip, Delta, PairBars, Score, Tip } from "../ui";
 
 export function Evals() {
   return (
@@ -92,6 +92,50 @@ export function Evals() {
           );
         })}
       </div>
+      <Card title="Every task, every model" sub="Mean score without → with the task's skill. Green cells gained 10 pts or more; red lost 10 or more. Open a task to see each run and how it was graded.">
+        <div className="scroll-x">
+          <table className="matrix">
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Kind</th>
+                {data.models.map((m) => (
+                  <th key={m.model}>{modelName(m.model)}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.tasks.map((t) => (
+                <tr key={t.task}>
+                  <td>
+                    <a href={`#/tasks/${t.task}`}>{t.task}</a>
+                    <div className="muted small">{t.skill} · {t.kind === "tests" ? `${t.hiddenTests} hidden tests` : "rubric, graded by Codex"}</div>
+                  </td>
+                  <td>
+                    <Chip tone={t.category}>{catById(t.category)?.label}</Chip>
+                  </td>
+                  {data.models.map((m) => {
+                    const c = m.tasks.find((x) => x.task === t.task);
+                    if (!c) return <td key={m.model} className="muted">—</td>;
+                    const d = c.skill.score - c.base.score;
+                    return (
+                      <td key={m.model} className={d >= 0.1 ? "hot" : d <= -0.1 ? "cold" : ""}>
+                        <div className="cell">
+                          <span className="v">
+                            {s2(c.base.score)} → {s2(c.skill.score)}
+                          </span>
+                          <Delta d={d} />
+                          <span className="muted small">{m.estimate ? "cost est." : `cost ${signedPct(pctChange(c.base.cost, c.skill.cost))}`}</span>
+                        </div>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   );
 }

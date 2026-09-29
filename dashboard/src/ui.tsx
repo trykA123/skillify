@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Tooltip } from "@base-ui/react/tooltip";
 import { dir, pts, s2, scoreMeaning } from "./lib";
 
@@ -97,16 +97,30 @@ export function Stat({ label, value, hint }: { label: string; value: ReactNode; 
   );
 }
 
+function useWidth<T extends HTMLElement>(fallback: number) {
+  const ref = useRef<T>(null);
+  const [w, setW] = useState(fallback);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setW(Math.max(280, Math.round(e.contentRect.width))));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, w] as const;
+}
+
 export function Dumbbell({ rows }: { rows: { label: string; base: number; skill: number }[] }) {
+  const [ref, W] = useWidth<HTMLElement>(460);
   const lo = Math.max(0, Math.floor((Math.min(...rows.flatMap((r) => [r.base, r.skill])) - 0.04) * 20) / 20);
-  const W = 460, rowH = 44, pad = { l: 92, r: 56, t: 10, b: 34 };
+  const rowH = W > 700 ? 64 : 48, pad = { l: W > 700 ? 130 : 104, r: 40, t: 14, b: 34 };
   const H = pad.t + rows.length * rowH + pad.b;
   const x = (v: number) => pad.l + ((v - lo) / (1 - lo)) * (W - pad.l - pad.r);
   const ticks: number[] = [];
   for (let t = lo; t <= 1.0001; t += lo <= 0.5 ? 0.1 : 0.05) ticks.push(Math.round(t * 100) / 100);
   return (
-    <figure className="dumbbell">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Mean score without and with skills per model">
+    <figure className="dumbbell" ref={ref}>
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Mean score without and with skills per model">
         {ticks.map((t) => (
           <g key={t}>
             <line x1={x(t)} x2={x(t)} y1={pad.t} y2={H - pad.b + 4} className="grid" />
