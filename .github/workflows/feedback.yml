@@ -6,6 +6,7 @@ on:
     paths:
       - "feedback/**"
       - "scripts/feedback-report.mjs"
+      - "evals/results/**"
       - ".github/workflows/feedback.yml"
   workflow_dispatch:
 

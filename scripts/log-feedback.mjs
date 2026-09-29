@@ -7,7 +7,8 @@ import process from "node:process";
 
 const repo = join(dirname(new URL(import.meta.url).pathname), "..");
 const log = join(repo, "feedback", "field.jsonl");
-const fields = ["agent", "model", "harness", "task", "skills", "helped", "hindered", "missing", "verdict"];
+const fields = ["agent", "model", "harness", "task", "skills", "helped", "hindered", "missing", "verdict", "tokens", "tools", "ms"];
+const counts = ["tokens", "tools", "ms"];
 const verdicts = new Set(["helped", "neutral", "hurt"]);
 
 const args = process.argv.slice(2);
@@ -32,6 +33,13 @@ for (let i = 0; i < args.length; i += 2) {
     process.exit(64);
   }
   entry[key] = args[i + 1] ?? "";
+  if (counts.includes(key)) {
+    if (!/^\d+$/.test(entry[key])) {
+      console.error(`--${key} must be a non-negative integer`);
+      process.exit(64);
+    }
+    entry[key] = Number(entry[key]);
+  }
 }
 entry.skills = (entry.skills ?? "").split(",").map((s) => s.trim()).filter((s) => s && s !== "none");
 if (!verdicts.has(entry.verdict) || !entry.agent || !entry.task) {

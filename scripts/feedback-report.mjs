@@ -1,13 +1,17 @@
 #!/usr/bin/env node
 
-import { readFile, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { readdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, join, relative } from "node:path";
 import process from "node:process";
 
 const repo = join(dirname(new URL(import.meta.url).pathname), "..");
 const VERDICTS = ["helped", "neutral", "hurt"];
 const STOP = new Set(("a an and are as at be been but by for from had has have if in into is it its of on or so that the their then there these this to was were what when which while with without not no nor via per than too very can could should would will just also only own more most some any all each other such our out up over under again about after before because between both do does did doing done get got how i you we they he she them his her my your ours us me").split(" "));
 const GENERIC = new Set("never run shared worker brief guidance skill skills note notes line thing role use used using make made need needs like lack lacked missing way".split(" "));
+const COST_KEYS = ["tokens", "tools", "ms"];
+const RAW_URL = "https://github.com/trykA123/skillify/tree/main/evals/results";
+const BLOB_URL = "https://github.com/trykA123/skillify/blob/main/evals/results";
+const MODEL_NAMES = { haiku: ["Claude Haiku", "Haiku"], sonnet: ["Claude Sonnet", "Sonnet"], "deepseek-flash": ["DeepSeek Flash", "DeepSeek"] };
 const NONE = /^(nothing|none|n\/a|na|-|—|no)\.?$/i;
 
 const args = process.argv.slice(2);
@@ -28,8 +32,187 @@ export function parseEntries(text) {
       throw new Error(`field.jsonl line ${n}: invalid JSON`);
     }
     if (!VERDICTS.includes(r.verdict)) throw new Error(`field.jsonl line ${n}: bad verdict "${r.verdict}"`);
+    for (const k of COST_KEYS) if (r[k] !== undefined && !(Number.isInteger(r[k]) && r[k] >= 0)) throw new Error(`field.jsonl line ${n}: ${k} must be a non-negative integer`);
     return { date: "", agent: "", model: "", harness: "", task: "", helped: "", hindered: "", missing: "", ...r, skills: Array.isArray(r.skills) ? r.skills : [] };
   });
+}
+
+export async function loadResults(dir) {
+  const found = [];
+  const walk = async (d) => {
+    for (const e of await readdir(d, { withFileTypes: true }).catch(() => [])) {
+      const p = join(d, e.name);
+      if (e.isDirectory()) await walk(p);
+      else if (e.name.endsWith(".jsonl")) found.push(relative(dir, p).split("\\").join("/"));
+    }
+  };
+  await walk(dir);
+  found.sort();
+  const groups = new Map();
+  const files = [];
+  for (const file of found) {
+    const models = new Set();
+    (await readFile(join(dir, file), "utf8")).split("\n").forEach((l, i) => {
+      if (!l.trim()) return;
+      let r;
+      try {
+        r = JSON.parse(l);
+      } catch {
+        throw new Error(`${file} line ${i + 1}: invalid JSON`);
+      }
+      if (!r.model || !r.task || !["base", "skill"].includes(r.arm) || ![r.score, r.cost, r.turns, r.seconds].every(Number.isFinite)) throw new Error(`${file} line ${i + 1}: bad result row`);
+      models.add(r.model);
+      const k = `${r.model}\u0000${r.task}\u0000${r.arm}`;
+      const g = groups.get(k);
+      if (g && g.file === file) g.rows.push(r);
+      else groups.set(k, { file, rows: [r] });
+    });
+    files.push({ file, models: [...models] });
+  }
+  return { rows: [...groups.values()].flatMap((g) => g.rows), files };
+}
+
+const mean = (rs, k) => rs.reduce((s, r) => s + r[k], 0) / rs.length;
+const armStat = (rs) => (rs.length ? { n: rs.length, score: mean(rs, "score"), cost: mean(rs, "cost"), turns: mean(rs, "turns"), seconds: mean(rs, "seconds") } : null);
+const change = (a, b) => (a ? Math.round((100 * (b - a)) / a) : null);
+const modelName = (m, short = false) => (MODEL_NAMES[m] ?? [m, m])[short ? 1 : 0];
+
+export function analyzeResults(results, kinds = {}) {
+  const { rows, files } = results;
+  const order = (m) => (m in MODEL_NAMES ? Object.keys(MODEL_NAMES).indexOf(m) : 99);
+  const names = [...new Set(rows.map((r) => r.model))].sort((a, b) => order(a) - order(b) || a.localeCompare(b));
+  const tasks = [...new Set(rows.map((r) => r.task))].sort();
+  const cell = (m, t) => {
+    const pick = (arm) => armStat(rows.filter((r) => r.model === m && r.arm === arm && (t === undefined || r.task === t)));
+    return { base: pick("base"), skill: pick("skill") };
+  };
+  const models = names.map((m) => ({ model: m, estimate: rows.some((r) => r.model === m && r.costSource === 'cli-estimate'), ...cell(m), files: files.filter((f) => f.models.includes(m)).map((f) => f.file), tasks: tasks.map((t) => ({ task: t, ...cell(m, t) })).filter((c) => c.base && c.skill) })).filter((m) => m.base && m.skill);
+  const perTask = tasks.map((t) => {
+    const per = models.map((m) => ({ model: m.model, ...m.tasks.find((c) => c.task === t) })).filter((c) => c.base);
+    return { task: t, skill: kinds[t]?.skill ?? "", kind: kinds[t]?.kind ?? "", per, best: Math.max(-1, ...per.map((c) => c.skill.score - c.base.score)) };
+  }).filter((t) => t.per.length).sort((a, b) => b.best - a.best || a.task.localeCompare(b.task));
+  const runsPerArm = Math.max(0, ...rows.map((r) => rows.filter((x) => x.model === r.model && x.task === r.task && x.arm === r.arm).length));
+  return { models, tasks: perTask, runsPerArm, fixtures: tasks.length, kinds };
+}
+
+function evalHeadline(models) {
+  let best = null;
+  for (const a of models) for (const b of models) {
+    if (a.estimate || b.estimate) continue;
+    if (a === b || !(a.skill.score > a.base.score) || a.skill.score < b.base.score - 0.03 || !(a.skill.cost < b.base.cost)) continue;
+    const ratio = a.skill.cost / b.base.cost;
+    if (!best || b.base.score > best.b.base.score || (b.base.score === best.b.base.score && ratio < best.ratio)) best = { a, b, ratio };
+  }
+  if (best) {
+    const d = best.a.skill.score - best.b.base.score;
+    const verb = d >= 0.005 ? "scores above" : d > -0.005 ? "matches" : "scores close to";
+    return { pre: `${modelName(best.a.model, true)} with skills ${verb} ${modelName(best.b.model, true)} without them (${best.a.skill.score.toFixed(2)} vs ${best.b.base.score.toFixed(2)}), `, em: `at ~${Math.round(best.ratio * 100)}% of the cost.` };
+  }
+  const gain = [...models].sort((x, y) => y.skill.score - y.base.score - (x.skill.score - x.base.score))[0];
+  if (gain && gain.skill.score > gain.base.score) return { pre: `Skills lifted ${modelName(gain.model, true)} from ${gain.base.score.toFixed(2)} to ${gain.skill.score.toFixed(2)}, `, em: `for ${signed(change(gain.base.cost, gain.skill.cost))} cost per run.` };
+  return { pre: "Skills did not raise the mean score for any model in this run.", em: "" };
+}
+
+const signed = (p) => (p === null ? "n/a" : p > 0 ? `+${p}%` : p < 0 ? `\u2212${-p}%` : "0%");
+const usd = (v) => `$${v >= 1 ? v.toFixed(2) : v.toFixed(3)}`;
+const arrow = (d, eps = 0.005) => (d > eps ? "\u25B2" : d < -eps ? "\u25BC" : "=");
+const dir = (d, eps = 0.005) => (d > eps ? "up" : d < -eps ? "down" : "flat");
+const sgn2 = (d) => (Math.abs(d) < 0.005 ? "0.00" : `${d > 0 ? "+" : "\u2212"}${Math.abs(d).toFixed(2)}`);
+
+function bars(base, skill, cls = "") {
+  const row = (lab, v, kind) => `<div class="pb ${kind}"><span class="pl">${lab}</span><span class="trk"><span class="fill" style="--w:${Math.max(0, Math.min(1, v)).toFixed(4)}"></span></span><span class="pv">${v.toFixed(2)}</span></div>`;
+  return `<div class="pbs ${cls}">${row("no skills", base, "b")}${row("with skills", skill, skill < base - 0.005 ? "s down" : "s")}</div>`;
+}
+
+function modelCard(m) {
+  const d = m.skill.score - m.base.score;
+  const kv = (l, a, b, f) => `<div class="kv-r"><dt>${l}</dt><dd>${f(a)} \u2192 ${f(b)} <span class="chg">${signed(change(a, b))}</span></dd></div>`;
+  return `<article class="mcard" data-model="${esc(m.model)}"><h3>${esc(modelName(m.model))}</h3><p class="mn">${m.base.n} runs no skills / ${m.skill.n} runs with skills</p><div class="score2" aria-label="Mean score ${m.base.score.toFixed(2)} without skills, ${m.skill.score.toFixed(2)} with skills"><span>${m.base.score.toFixed(2)}</span><i>\u2192</i><b class="${dir(d)}">${m.skill.score.toFixed(2)}</b><em class="${dir(d)}">${arrow(d)} ${sgn2(d)}</em></div>${bars(m.base.score, m.skill.score)}<dl class="kv">${kv("Cost per run", m.base.cost, m.skill.cost, usd)}${kv("Turns", m.base.turns, m.skill.turns, (v) => v.toFixed(1))}${kv("Time", m.base.seconds, m.skill.seconds, (v) => `${Math.round(v)} s`)}</dl>${m.estimate ? `<p class="mn est">Cost here is Claude Code's estimate at Anthropic prices, not the provider's bill. DeepSeek actually billed about $0.01 per run (account balance before and after).</p>` : ""}</article>`;
+}
+
+function taskCard(t) {
+  const rows = t.per.map((c) => {
+    const d = c.skill.score - c.base.score;
+    const cls = d >= 0.25 ? " win" : d <= -0.25 ? " loss" : "";
+    return `<div class="tk-r${cls}" data-model="${esc(c.model)}" data-delta="${d.toFixed(2)}"><span class="tm">${esc(modelName(c.model, true))}</span><div class="tb"><span class="tv">${c.base.score.toFixed(2)} \u2192 ${c.skill.score.toFixed(2)}</span>${bars(c.base.score, c.skill.score, "mini")}</div><span class="td ${dir(d)}">${arrow(d)} ${sgn2(d)}</span><span class="tc">${signed(change(c.base.cost, c.skill.cost))}</span></div>`;
+  }).join("");
+  const grader = t.kind === "rubric" ? "rubric graded by Codex" : t.kind === "tests" ? "hidden tests" : "";
+  return `<article class="tkcard" data-task="${esc(t.task)}"><h3>${esc(t.task)}</h3><p class="mn">${[t.skill && `skill: ${esc(t.skill)}`, grader].filter(Boolean).join(" / ") || "&nbsp;"}</p><div class="tk-h"><span></span><span>score</span><span>\u0394 score</span><span>\u0394 cost</span></div>${rows}</article>`;
+}
+
+function costPoint(models) {
+  const cpp = (s) => (s.score > 0 ? s.cost / s.score : null);
+  const cell = (m, arm) => {
+    const v = cpp(m[arm]);
+    return `<td class="n" data-cpp="${esc(m.model)}|${arm}">${v === null ? "n/a" : usd(v)}</td>`;
+  };
+  const body = models.map((m) => {
+    if (m.estimate) return `<tr><th scope="row">${esc(modelName(m.model))}</th><td class="n" colspan="3">not comparable: estimated at Anthropic prices, billed about $0.01 per run</td></tr>`;
+    const a = cpp(m.base), b = cpp(m.skill);
+    return `<tr><th scope="row">${esc(modelName(m.model))}</th>${cell(m, "base")}${cell(m, "skill")}<td class="n">${a && b ? signed(change(a, b)) : "n/a"}</td></tr>`;
+  }).join("");
+  return `<div class="scroll"><table class="cpp"><thead><tr><th>Model</th><th class="n">No skills</th><th class="n">With skills</th><th class="n">Change</th></tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function methodNote(ev) {
+  const kinds = Object.values(ev.kinds);
+  const tests = kinds.filter((k) => k.kind === "tests").length;
+  const rubric = kinds.filter((k) => k.kind === "rubric").length;
+  const graders = kinds.length ? `${tests} tasks are graded by hidden tests and ${rubric} by a rubric graded by Codex.` : "Grader type is not recorded for these tasks.";
+  const links = ev.models.map((m) => `<li><b>${esc(modelName(m.model))}</b> ${m.files.map((f) => `<a href="${BLOB_URL}/${esc(f)}">${esc(f.split("/").pop())}</a>`).join(", ")}</li>`).join("");
+  return `<p>${ev.fixtures} ${ev.fixtures === 1 ? "fixture" : "fixtures"}, up to ${ev.runsPerArm} ${ev.runsPerArm === 1 ? "run" : "runs"} per arm per task. ${esc(graders)} Each task runs in a throwaway repo, once with no skills and once with the task's skill loaded.</p><p>Results are read from <a href="${RAW_URL}">evals/results</a> in file-name order. When a later round re-ran a model, task and arm, the later round supersedes the earlier one (r2 supersedes r1). Means are per run. Cost is the CLI's own usage report, not an invoice.</p><ul class="raw">${links}</ul>`;
+}
+
+function measured(ev) {
+  if (!ev || !ev.models.length) return "";
+  const h = evalHeadline(ev.models);
+  const worse = ev.models.filter((m) => m.skill.score < m.base.score - 0.005).map((m) => {
+    const t = [...m.tasks].sort((a, b) => a.skill.score - a.base.score - (b.skill.score - b.base.score))[0];
+    return `${modelName(m.model, true)} scored lower with skills (${m.base.score.toFixed(2)} \u2192 ${m.skill.score.toFixed(2)}), mostly on ${t.task} (${t.base.score.toFixed(2)} \u2192 ${t.skill.score.toFixed(2)}).`;
+  });
+  return `<section class="ch" id="measured"><div class="ch-h"><span class="no">PAIRED EVALS</span><h2>Measured, not claimed</h2></div><p class="ch-d">Does it help, and what does it cost? The same tasks ran twice per model, once without skills and once with them. Every number below is computed from the raw result files.</p>
+<p class="ev-head">${esc(h.pre)}${h.em ? `<em>${esc(h.em)}</em>` : ""}</p>${worse.map((w) => `<p class="ev-warn">${esc(w)}</p>`).join("")}
+<div class="ev-grid">${ev.models.map(modelCard).join("")}</div>
+<div class="panel sub"><h3>Per task</h3><p class="ch-d">Small bars: grey is without skills, colour is with skills. Rows tinted green gained 0.25 or more; red lost 0.25 or more. Tasks are sorted by their biggest gain.</p><div class="tk-grid">${ev.tasks.map(taskCard).join("")}</div></div>
+<div class="panel sub"><h3>Cost per score point</h3><p class="ch-d">Mean cost per run divided by mean score. Lower is cheaper for the same quality. It answers whether the extra spend buys anything.</p>${costPoint(ev.models)}</div>
+<div class="panel sub method"><h3>Method</h3>${methodNote(ev)}</div></section>`;
+}
+
+const median = (a) => {
+  const s = [...a].sort((x, y) => x - y);
+  return s.length ? (s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2) : null;
+};
+const fmtNum = (v) => (v >= 1e6 ? `${(v / 1e6).toFixed(1)}M` : v >= 1e4 ? `${Math.round(v / 1e3)}k` : v >= 1e3 ? `${(v / 1e3).toFixed(1)}k` : String(Math.round(v)));
+const fmtMs = (ms) => {
+  const s = Math.round(ms / 1000);
+  return s >= 60 ? `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s` : `${s}s`;
+};
+const FMT = { tokens: fmtNum, tools: fmtNum, ms: fmtMs };
+const NOREC = `<span class="norec">not recorded</span>`;
+
+function costGroup(rows, keyOf, title) {
+  const m = new Map();
+  for (const r of rows) m.set(keyOf(r), [...(m.get(keyOf(r)) ?? []), r]);
+  const body = [...m].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0])).map(([k, rs]) => {
+    const cells = COST_KEYS.map((c) => {
+      const v = rs.filter((r) => r[c] !== undefined).map((r) => r[c]);
+      return `<td class="n" data-cost="${c}">${v.length ? `${FMT[c](median(v))}<small>${v.length} of ${rs.length}</small>` : NOREC}</td>`;
+    }).join("");
+    return `<tr><th scope="row">${esc(k)}</th><td class="n">${rs.length}</td>${cells}</tr>`;
+  }).join("");
+  return `<div class="scroll"><table class="cpp costt"><thead><tr><th>${title}</th><th class="n">Runs</th><th class="n">Tokens / run</th><th class="n">Tool calls / run</th><th class="n">Duration / run</th></tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function fieldCost(rows) {
+  if (!rows.length) return "";
+  return `<div class="panel sub"><h3>Cost per run</h3><p class="ch-d">Median of the runs that recorded it. "2 of 5" means 2 of 5 entries have the value. Old entries did not record cost, so they are left out, never counted as 0.</p>${costGroup(rows, (r) => r.agent || "(unknown)", "Agent")}${costGroup(rows, (r) => r.model || "(unknown)", "Model")}</div>`;
+}
+
+function cardCost(r) {
+  const parts = COST_KEYS.filter((c) => r[c] !== undefined);
+  if (!parts.length) return `<div class="cost none">cost ${NOREC}</div>`;
+  const lab = { tokens: "tokens", tools: "tool calls", ms: "duration" };
+  return `<div class="cost">${COST_KEYS.map((c) => `<span>${lab[c]} ${r[c] !== undefined ? `<b>${FMT[c](r[c])}</b>` : NOREC}</span>`).join("")}</div>`;
 }
 
 const blank = () => ({ helped: 0, neutral: 0, hurt: 0 });
@@ -245,7 +428,7 @@ function quote(kind, text) {
 }
 
 function card(r, i) {
-  return `<article class="run ${r.verdict}" id="run-${i}" data-verdict="${r.verdict}" data-agent="${esc(r.agent)}" data-skills="${esc(r.skills.length ? r.skills.join("|") : "(none)")}"><header><div class="run-top"><span class="badge ${r.verdict}">${glyph(r.verdict, 14)}${label(r.verdict)}</span><time>${esc(r.date)}</time></div><h3>${esc(r.task)}</h3><div class="meta"><span>${esc(r.agent)}</span><span>${esc(r.model)}</span><span>${esc(r.harness)}</span></div><div class="skills">${(r.skills.length ? r.skills : ["(none)"]).map((s) => `<span class="chip-s${s === "(none)" ? " nn" : ""}">${esc(s)}</span>`).join("")}</div></header>${quote("helped", r.helped)}${quote("hindered", r.hindered)}${quote("missing", r.missing)}</article>`;
+  return `<article class="run ${r.verdict}" id="run-${i}" data-verdict="${r.verdict}" data-agent="${esc(r.agent)}" data-skills="${esc(r.skills.length ? r.skills.join("|") : "(none)")}"><header><div class="run-top"><span class="badge ${r.verdict}">${glyph(r.verdict, 14)}${label(r.verdict)}</span><time>${esc(r.date)}</time></div><h3>${esc(r.task)}</h3><div class="meta"><span>${esc(r.agent)}</span><span>${esc(r.model)}</span><span>${esc(r.harness)}</span></div><div class="skills">${(r.skills.length ? r.skills : ["(none)"]).map((s) => `<span class="chip-s${s === "(none)" ? " nn" : ""}">${esc(s)}</span>`).join("")}</div></header>${quote("helped", r.helped)}${quote("hindered", r.hindered)}${quote("missing", r.missing)}${cardCost(r)}</article>`;
 }
 
 const CSS = `
@@ -375,6 +558,41 @@ footer pre{margin:0;padding:16px;background:var(--panel);border:1px solid var(--
 footer p{margin:0 0 10px;color:var(--muted)}
 footer a{color:var(--accent)}
 .gen{font:.72rem var(--mono);color:var(--muted)}
+.ev-head{font:400 clamp(1.5rem,3.2vw,2.4rem)/1.2 var(--disp);margin:0 0 22px;max-width:52rem;text-wrap:balance}.ev-head em{color:var(--helped)}
+.ev-warn{font:.8rem/1.5 var(--mono);color:var(--hurt);margin:-8px 0 20px}
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px}
+.mcard,.tkcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;min-width:0}
+.mcard h3{font:400 2rem/1.1 var(--disp)}.tkcard h3{font:400 1.5rem/1.15 var(--disp);overflow-wrap:anywhere}
+.mn{font:.72rem/1.4 var(--mono);color:var(--muted);margin:6px 0 14px;letter-spacing:.04em}
+.score2{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;font:400 clamp(2.4rem,5vw,3.4rem)/1 var(--disp);font-variant-numeric:tabular-nums}
+.score2 span{color:var(--muted)}.score2 i{font-style:normal;color:var(--muted);font-size:.6em}
+.up{color:var(--helped)}.down{color:var(--hurt)}.flat{color:var(--muted)}
+.score2 em{font:600 .78rem var(--mono);font-style:normal;letter-spacing:.06em}
+.pbs{display:grid;gap:8px;margin:16px 0 4px}
+.pb{display:grid;grid-template-columns:5.6rem minmax(0,1fr) 2.6rem;gap:10px;align-items:center;font:.72rem var(--mono);color:var(--muted)}
+.pv{text-align:right;color:var(--text);font-variant-numeric:tabular-nums}
+.trk{display:block;height:14px;background:color-mix(in srgb,var(--line) 55%,transparent);border-radius:3px;overflow:hidden}
+.fill{display:block;height:100%;width:100%;border-radius:3px;transform:scaleX(var(--w));transform-origin:left center;animation:barin 1.1s cubic-bezier(.3,.7,.2,1) backwards .3s}
+.pb.b .fill{background:var(--muted)}.pb.s .fill{background:var(--helped)}.pb.s.down .fill{background:var(--hurt)}
+.pbs.mini{gap:3px;margin:4px 0 0}.pbs.mini .pb{grid-template-columns:minmax(0,1fr);}.pbs.mini .pl,.pbs.mini .pv{display:none}.pbs.mini .trk{height:7px}
+.kv{margin:18px 0 0;display:grid;gap:0}
+.kv-r{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line);font:.78rem var(--mono)}
+.kv dt{color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:.7rem}.kv dd{margin:0;font-variant-numeric:tabular-nums}.chg{color:var(--neutral);font-weight:600;margin-left:6px}
+.panel.sub{margin-top:18px}.panel.sub h3{font:400 1.7rem/1.1 var(--disp);margin-bottom:6px}
+.tk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:14px}
+.tkcard{padding:18px;background:var(--bg2)}
+.tk-h,.tk-r{display:grid;grid-template-columns:4.4rem minmax(0,1fr) 4.2rem 3rem;gap:8px;align-items:center}
+.tk-h{font:.62rem/1.2 var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:0 6px 6px}.tk-h span:nth-child(n+3){text-align:right}
+.tk-r{padding:8px 6px;border-radius:8px;border-top:1px solid var(--line);font:.74rem var(--mono)}
+.tk-r.win{background:color-mix(in srgb,var(--helped) 14%,transparent)}.tk-r.loss{background:color-mix(in srgb,var(--hurt) 14%,transparent)}
+.tk-r .tv{white-space:nowrap;color:var(--muted);font-variant-numeric:tabular-nums}.tk-r .td{text-align:right;font-weight:600;white-space:nowrap}.tk-r .tc{text-align:right;color:var(--neutral)}.tk-r .tm{overflow-wrap:anywhere}
+.tk-r.win .td{font-size:.86rem}
+table.cpp{margin-top:6px}table.cpp th[scope=row]{font:400 1.1rem var(--disp);text-transform:none;color:var(--text)}
+.costt{margin-top:14px}.costt small{display:block;font:.64rem var(--mono);color:var(--muted)}
+.norec{font:italic .74rem var(--mono);color:var(--muted)}
+.cost{display:flex;flex-wrap:wrap;gap:4px 16px;font:.72rem var(--mono);color:var(--muted);border-top:1px dashed var(--line);padding-top:10px}.cost b{color:var(--text);font-weight:500}
+.method p{margin:0 0 10px;color:var(--muted);max-width:48rem}.method a{color:var(--accent)}.raw{margin:0;padding:0;list-style:none;font:.76rem/1.9 var(--mono)}.raw a{margin-right:8px;overflow-wrap:anywhere}
+@keyframes barin{from{transform:scaleX(0)}}
 @keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
@@ -382,7 +600,7 @@ footer a{color:var(--accent)}
 @keyframes rise{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
 @media (max-width:820px){.hero{grid-template-columns:1fr}.dial svg{max-width:300px}.compare{grid-template-columns:1fr}footer{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}}
 @media (max-width:820px){.swipe{display:block}}
-@media (max-width:520px){.bar span:last-child{display:none}.hero h1{font-size:clamp(2.5rem,13.5vw,3.6rem)}.fg>span{width:100%}.run{padding:18px}.mc b{font-size:1.7rem}.cloud{gap:6px 18px}}
+@media (max-width:520px){.tkcard,.mcard{padding:16px}.tk-h,.tk-r{grid-template-columns:3.4rem minmax(0,1fr) 3.9rem 2.7rem;gap:6px}.tk-r{padding:8px 4px;font-size:.68rem}.pb{grid-template-columns:5rem minmax(0,1fr) 2.4rem}.bar span:last-child{display:none}.hero h1{font-size:clamp(2.5rem,13.5vw,3.6rem)}.fg>span{width:100%}.run{padding:18px}.mc b{font-size:1.7rem}.cloud{gap:6px 18px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 `;
 
@@ -401,7 +619,7 @@ for(const m of document.querySelectorAll(".mk")){m.addEventListener("mouseenter"
 })();
 `;
 
-export function render(rows) {
+export function render(rows, evals = null) {
   const N = rows.length;
   const chrono = rows.map((r, i) => [r, i]).sort((a, b) => a[0].date.localeCompare(b[0].date) || a[1] - b[1]).map(([r]) => r);
   const sorted = [...chrono].reverse();
@@ -434,11 +652,13 @@ export function render(rows) {
 ${facts}
 <div class="compare">${split(tw, withSkill.length, "with")}${split(tn, noSkill.length, "without")}</div>
 
+${measured(evals)}
+
 <section class="ch"><div class="ch-h"><span class="no">CH 01</span><h2>Verdicts per skill</h2></div><p class="ch-d">Each bar is one skill. Length is runs, on one shared scale. A run that loaded several skills counts once for each. "(none)" is the runs that loaded no skill.</p><div class="panel">${legend()}${skillBars(bySkill)}${tableView(["Skill", "Helped", "Neutral", "Hurt", "Total"], bySkill.map(([k, t]) => [k, t.helped, t.neutral, t.hurt, total(t)]))}</div></section>
 
 <section class="ch"><div class="ch-h"><span class="no">CH 02</span><h2>The run log</h2></div><p class="ch-d">Every run is one mark, in log order, placed on the lane of its verdict. Shape repeats the verdict so colour is never the only cue. Select a mark to jump to its card.</p><div class="panel">${legend()}${river(chrono)}${tableView(["Week of", "Helped", "Neutral", "Hurt", "Total"], ws.map(([k, t]) => [k, t.helped, t.neutral, t.hurt, total(t)]))}</div></section>
 
-<section class="ch"><div class="ch-h"><span class="no">CH 03</span><h2>Who flew what</h2></div><p class="ch-d">Agents down, models across. Each glyph is one run. Cell shade follows the run count against the busiest cell.</p><div class="panel">${legend()}${matrix(rows)}</div></section>
+<section class="ch"><div class="ch-h"><span class="no">CH 03</span><h2>Who flew what</h2></div><p class="ch-d">Agents down, models across. Each glyph is one run. Cell shade follows the run count against the busiest cell.</p><div class="panel">${legend()}${matrix(rows)}</div>${fieldCost(rows)}</section>
 
 <section class="ch"><div class="ch-h"><span class="no">CH 04</span><h2>Recurring asks</h2></div><p class="ch-d">Phrases that appear in the "missing" note of at least 2 runs. Size follows the count. The count is runs, not mentions, out of ${asks.docs} runs with a "missing" note.</p><div class="panel">${cloud(asks)}</div></section>
 
@@ -449,6 +669,7 @@ ${facts}
 
 <footer><div><h2>Add a run</h2><pre>node scripts/log-feedback.mjs \\
   --agent worker --model sonnet-5.5 --harness claude \\
+  --tokens 48000 --tools 32 --ms 210000 \\
   --task "what you did" --skills shipify,reviewify \\
   --helped "..." --hindered "..." --missing "..." \\
   --verdict helped</pre></div><div><h2>Source</h2><p>Skills and this recorder live at <a href="https://github.com/trykA123/skillify">github.com/trykA123/skillify</a>. The page is rebuilt from feedback/field.jsonl on each push.</p><p class="gen">Generated ${esc(generated)}</p></div></footer>
@@ -460,6 +681,14 @@ if (import.meta.url === new URL(`file://${process.argv[1]}`).href) {
   const input = opt("--input", join(repo, "feedback", "field.jsonl"));
   const output = opt("--output", join(repo, "feedback", "index.html"));
   const rows = parseEntries(await readFile(input, "utf8").catch(() => ""));
-  await writeFile(output, render(rows));
+  const resultsDir = opt("--results", join(repo, "evals", "results"));
+  const pairedDir = opt("--paired", join(repo, "evals", "paired"));
+  const kinds = {};
+  for (const t of await readdir(pairedDir).catch(() => [])) {
+    const j = JSON.parse(await readFile(join(pairedDir, t, "task.json"), "utf8").catch(() => "null"));
+    if (j) kinds[t] = { skill: j.skill, kind: j.kind };
+  }
+  const evals = analyzeResults(await loadResults(resultsDir), kinds);
+  await writeFile(output, render(rows, evals));
   console.log(`wrote ${output} (${rows.length} entries)`);
 }
