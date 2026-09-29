@@ -117,7 +117,14 @@ node scripts/log-feedback.mjs --agent worker --model sonnet-5.5 --harness claude
 node scripts/log-feedback.mjs --summary   # verdict counts per skill
 ```
 
-Entries go to `feedback/field.jsonl`.
+Entries go to `feedback/field.jsonl`. Logging an entry also regenerates
+[`feedback/index.html`](feedback/index.html), a self-contained dashboard (verdicts per
+skill, over time, per agent and model, searchable entries, recurring asks). Commit both
+files. Every push to `main` that touches `feedback/` redeploys the page to
+https://tryka123.github.io/skillify/ through `.github/workflows/feedback.yml`.
+
+The repository needs Pages enabled with source "GitHub Actions" (Settings, Pages).
+Rebuild by hand with `node scripts/feedback-report.mjs`.
 
 ## Token cost
 

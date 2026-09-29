@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { appendFile, mkdir, readFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import process from "node:process";
 
@@ -40,3 +41,4 @@ if (!verdicts.has(entry.verdict) || !entry.agent || !entry.task) {
 await mkdir(dirname(log), { recursive: true });
 await appendFile(log, JSON.stringify(entry) + "\n");
 console.log(`logged to feedback/field.jsonl`);
+execFileSync(process.execPath, [join(repo, "scripts", "feedback-report.mjs")], { stdio: "inherit" });

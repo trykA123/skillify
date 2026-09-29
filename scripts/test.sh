@@ -56,4 +56,22 @@ if node "$REPO_DIR/scripts/render-agents.mjs" --harness codex --dest / --dry-run
 
 node "$REPO_DIR/scripts/run-evals.mjs" --adapter fixture >/dev/null || fail "eval runner"
 node "$REPO_DIR/skills/teachify/scripts/validate-lesson.mjs" "$REPO_DIR/skills/teachify/assets/lesson-template.html" >/dev/null
+mkdir -p "$ROOT/fb"
+cat > "$ROOT/fb/f.jsonl" <<'JSON'
+{"date":"2026-09-01","agent":"worker","model":"m1","harness":"claude","task":"a <b>","skills":["shipify","reviewify"],"helped":"x","hindered":"y","missing":"a retry budget note","verdict":"helped"}
+{"date":"2026-09-10","agent":"worker","model":"m2","harness":"codex","task":"b","skills":[],"helped":"x","hindered":"y","missing":"retry budget guidance","verdict":"hurt"}
+{"date":"2026-09-11","agent":"reviewer","model":"m1","harness":"claude","task":"c","skills":["shipify"],"helped":"x","hindered":"y","missing":"nothing","verdict":"neutral"}
+JSON
+node "$REPO_DIR/scripts/feedback-report.mjs" --input "$ROOT/fb/f.jsonl" --output "$ROOT/fb/index.html" >/dev/null
+H="$ROOT/fb/index.html"
+grep -q '<div class="stat"><b>3</b><span>entries</span>' "$H" || fail "report entry count"
+grep -q '67%' "$H" || fail "report skill share"
+grep -q '<b>1</b> hurt' "$H" || fail "report verdict split"
+grep -q '<div class="hlabel" title="(none)">' "$H" || fail "report (none) row"
+grep -q '<span>retry budget</span><b>2 of 2</b>' "$H" || fail "report recurring asks"
+grep -q 'a &lt;b&gt;' "$H" || fail "report escaping"
+! grep -qE 'https?://' "$H" || fail "report has external reference"
+echo '{"verdict":"bogus"}' > "$ROOT/fb/bad.jsonl"
+if node "$REPO_DIR/scripts/feedback-report.mjs" --input "$ROOT/fb/bad.jsonl" --output "$ROOT/fb/bad.html" >/dev/null 2>&1; then fail "report accepted a bad verdict"; fi
+
 echo "all tests passed"
