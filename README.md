@@ -105,6 +105,20 @@ three runs per arm (2026-09-28):
 
 The sample is small (six fixtures, n=3). Treat it as direction, not proof.
 
+### Field feedback
+
+Every agent ends its report with a `Skill feedback` block: which skills it used, what
+helped, what got in the way, what was missing, and a verdict (helped, neutral, or hurt).
+The caller logs each block, so real work adds to the evidence alongside the evals:
+
+```bash
+node scripts/log-feedback.mjs --agent worker --model sonnet-5.5 --harness claude \
+  --task "radio server" --skills shipify --helped "…" --hindered "…" --missing "…" --verdict helped
+node scripts/log-feedback.mjs --summary   # verdict counts per skill
+```
+
+Entries go to `feedback/field.jsonl`.
+
 ## Token cost
 
 Only the skill descriptions are always in context: about 2.6 KB for all ten. A skill

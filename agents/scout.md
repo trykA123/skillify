@@ -19,3 +19,7 @@ Return, compactly:
 
 Cite `path:line` for every claim. If told to write the result to a path, write it there
 and keep the reply short.
+
+End every report with a `Skill feedback` block, candidly: skills you actually used (or
+none), what helped, what got in the way, what was missing, and a verdict: helped,
+neutral, or hurt.

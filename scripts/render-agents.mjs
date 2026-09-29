@@ -81,7 +81,8 @@ function render(name, meta, body) {
       `developer_instructions = """\n${body.replaceAll('"""', '\\"\\"\\"')}\n"""\n`;
   }
   if (harness === "claude") {
-    return `---\nname: ${name}\ndescription: ${JSON.stringify(description)}\ntools: ${tools("claude", caps).join(", ")}\n---\n\n${body}\n`;
+    const skills = meta.skills ? `skills: ${meta.skills}\n` : "";
+    return `---\nname: ${name}\ndescription: ${JSON.stringify(description)}\ntools: ${tools("claude", caps).join(", ")}\n${skills}---\n\n${body}\n`;
   }
   if (harness === "copilot") {
     return `---\nname: ${JSON.stringify(name)}\ndescription: ${JSON.stringify(description)}\n` +
