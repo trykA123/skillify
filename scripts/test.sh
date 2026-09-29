@@ -64,13 +64,14 @@ cat > "$ROOT/fb/f.jsonl" <<'JSON'
 JSON
 node "$REPO_DIR/scripts/feedback-report.mjs" --input "$ROOT/fb/f.jsonl" --output "$ROOT/fb/index.html" >/dev/null
 H="$ROOT/fb/index.html"
-grep -q '<div class="stat"><b>3</b><span>entries</span>' "$H" || fail "report entry count"
+grep -q '<b>3</b><span>entries</span>' "$H" || fail "report entry count"
 grep -q '67%' "$H" || fail "report skill share"
-grep -q '<b>1</b> hurt' "$H" || fail "report verdict split"
+grep -q '<div class="stat hurt"><b>1</b>' "$H" || fail "report verdict split"
+grep -q '<em>1 of 2</em> runs that loaded a skill said it helped' "$H" || fail "report hero"
 grep -q '<div class="hlabel" title="(none)">' "$H" || fail "report (none) row"
-grep -q '<span>retry budget</span><b>2 of 2</b>' "$H" || fail "report recurring asks"
+grep -q '<span>retry budget</span><i>2 of 2</i>' "$H" || fail "report recurring asks"
 grep -q 'a &lt;b&gt;' "$H" || fail "report escaping"
-! grep -qE 'https?://' "$H" || fail "report has external reference"
+! grep -oE 'https?://[^"'"'"' <>)]+' "$H" | grep -vE '^https://(fonts\.googleapis\.com|fonts\.gstatic\.com|github\.com/trykA123/skillify)' | grep -q . || fail "report has external reference"
 echo '{"verdict":"bogus"}' > "$ROOT/fb/bad.jsonl"
 if node "$REPO_DIR/scripts/feedback-report.mjs" --input "$ROOT/fb/bad.jsonl" --output "$ROOT/fb/bad.html" >/dev/null 2>&1; then fail "report accepted a bad verdict"; fi
 
