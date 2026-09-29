@@ -3,3 +3,6 @@
 
 # Optional local tooling caches.
 node_modules/
+
+# Full-quality reel master (144 MB, over GitHub's file limit)
+docs/reel/skillify-reel-master.mp4

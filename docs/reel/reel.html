@@ -3,1024 +3,507 @@
 <head>
 <meta charset="utf-8">
 <title>Skillify reel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
 <style>
-html, body { margin: 0; background: #07080a; }
+html, body { margin: 0; background: #0a0d14; }
 canvas { display: block; width: 100vw; height: auto; max-width: 1920px; margin: 0 auto; }
 </style>
 </head>
 <body>
 <canvas id="c" width="1920" height="1080"></canvas>
 <script>
-const W = 1920, H = 1080, FPS = 60;
-const C = { ink: "#07080a", bone: "#efeae0", dim: "#6b6f76", mid: "#9a9ea5", faint: "#24272c", card: "#0f1115", line: "#1a1d22", acc: "#f2a33a", ok: "#57d08a" };
-const DISP = '"Inter Display", Inter, system-ui, sans-serif';
-const MONO = '"JetBrainsMono NF", "JetBrains Mono", ui-monospace, monospace';
+const W = 1920, H = 1080, FPS = 60, BAR = 10 / 3, DUR = 47 * BAR;
+const N = 9000;
+const SERIF = "'Instrument Serif', Georgia, serif", MONO = "'IBM Plex Mono', ui-monospace, monospace";
+const BG = [10, 13, 20], WHITE = [214, 221, 233], GOLD = [233, 181, 94];
 
 const cv = document.getElementById("c");
-const out = cv.getContext("2d");
-const buf = document.createElement("canvas");
-buf.width = W; buf.height = H;
-const g = buf.getContext("2d");
+const ctx = cv.getContext("2d");
 
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const lerp = (a, b, t) => a + (b - a) * t;
 const P = (t, a, b) => clamp((t - a) / (b - a));
-const E = {
-	outExpo: (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t)),
-	inExpo: (t) => (t <= 0 ? 0 : Math.pow(2, 10 * t - 10)),
-	inOutExpo: (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t < 0.5 ? Math.pow(2, 20 * t - 10) / 2 : (2 - Math.pow(2, -20 * t + 10)) / 2),
-	outCubic: (t) => 1 - Math.pow(1 - t, 3),
-	inCubic: (t) => t * t * t,
-	inOutCubic: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
-	outBack: (t) => { const s = 1.70158; return 1 + (s + 1) * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2); },
-	outBounce: (t) => {
-		const n = 7.5625, d = 2.75;
-		if (t < 1 / d) return n * t * t;
-		if (t < 2 / d) return n * (t -= 1.5 / d) * t + 0.75;
-		if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + 0.9375;
-		return n * (t -= 2.625 / d) * t + 0.984375;
-	},
-};
-const spring = (t, f = 2.2, z = 0.32) => (t <= 0 ? 0 : 1 - Math.exp(-z * f * 2 * Math.PI * t) * Math.cos(f * 2 * Math.PI * Math.sqrt(1 - z * z) * t));
-function rng(seed) {
-	return () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let x = Math.imul(seed ^ (seed >>> 15), 1 | seed); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
-}
+const smooth = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const outC = (t) => 1 - Math.pow(1 - t, 3);
+function rng(seed) { return () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let x = Math.imul(seed ^ (seed >>> 15), 1 | seed); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; }
 
-const font = (size, weight = 900, family = DISP) => `${weight} ${size}px ${family}`;
-function measure(str, size, weight = 900, family = DISP, spacing = 0) {
-	g.save(); g.font = font(size, weight, family); g.letterSpacing = `${spacing}px`; const w = g.measureText(str).width; g.restore(); return w;
+/* particles */
+const r0 = rng(7);
+const RA = new Float32Array(N), RB = new Float32Array(N), RC = new Float32Array(N), RD = new Float32Array(N), Z = new Float32Array(N), HX = new Float32Array(N), HY = new Float32Array(N), GX = new Float32Array(N), GY = new Float32Array(N);
+const GOLDP = new Uint8Array(N);
+for (let i = 0; i < N; i++) {
+	RA[i] = r0(); RB[i] = r0(); RC[i] = r0(); RD[i] = r0();
+	Z[i] = 0.55 + r0() * 0.9;
+	HX[i] = r0() * W; HY[i] = r0() * H;
+	const u1 = Math.max(1e-6, r0()), u2 = r0(), m = Math.sqrt(-2 * Math.log(u1));
+	GX[i] = m * Math.cos(6.2832 * u2); GY[i] = m * Math.sin(6.2832 * u2);
+	GOLDP[i] = i % 13 === 0 ? 1 : 0;
 }
-function fit(str, size, maxW, weight = 900, family = DISP, spacing = 0) {
-	const w = measure(str, size, weight, family, spacing);
-	return w > maxW ? Math.floor(size * maxW / w) : size;
+let fx = 0, fy = 0, fb = 1, fc = 0, fj = 1;
+const set = (x, y, b = 0.85, c = 0, j = 1) => { fx = x; fy = y; fb = b; fc = c; fj = j; };
+
+/* shape helpers */
+function noiseAt(i, t, b = 0.5) {
+	const a = RA[i] * 6.2832, bb = RB[i] * 6.2832, z = Z[i];
+	set(HX[i] + (110 * Math.sin(0.07 * t + a) + 46 * Math.sin(0.19 * t + bb * 1.3)) * z, HY[i] + (80 * Math.cos(0.06 * t + bb) + 40 * Math.sin(0.15 * t + a * 1.7)) * z, b * (0.55 + 0.45 * RC[i]), 0, 0);
 }
-function wrap(str, size, maxW, weight = 500, family = DISP) {
-	const words = str.split(" "), lines = [];
-	let cur = "";
-	for (const w of words) {
-		const next = cur ? `${cur} ${w}` : w;
-		if (measure(next, size, weight, family) > maxW && cur) { lines.push(cur); cur = w; } else cur = next;
-	}
-	if (cur) lines.push(cur);
-	return lines;
+function cluster(i, cx, cy, r, b = 0.9, c = 0) { set(cx + GX[i] * r, cy + GY[i] * r, b, c, 0.6); }
+function disc(i, cx, cy, r, b = 0.9, c = 0) { const a = RA[i] * 6.2832, rr = Math.sqrt(RB[i]) * r; set(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, b, c, 0.6); }
+function seg(i, x0, y0, x1, y1, s, th = 3, b = 0.9, c = 0) { const dx = x1 - x0, dy = y1 - y0, l = Math.hypot(dx, dy) || 1; set(x0 + dx * s - (dy / l) * GX[i] * th, y0 + dy * s + (dx / l) * GX[i] * th, b, c, 0.4); }
+function ellipse(i, cx, cy, rx, ry, s, th = 2, b = 1, c = 1) { const a = s * 6.2832; set(cx + Math.cos(a) * (rx + GX[i] * th), cy + Math.sin(a) * (ry + GY[i] * th), b, c, 0.4); }
+function poly(pts) {
+	const L = [0];
+	for (let k = 1; k < pts.length; k++) L.push(L[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));
+	const total = L[L.length - 1];
+	return (s) => {
+		const d = clamp(s) * total;
+		let k = 1; while (k < L.length - 1 && L[k] < d) k++;
+		const u = (d - L[k - 1]) / (L[k] - L[k - 1] || 1);
+		return [lerp(pts[k - 1][0], pts[k][0], u), lerp(pts[k - 1][1], pts[k][1], u)];
+	};
 }
-function text(str, x, y, { size = 40, weight = 900, family = DISP, color = C.bone, align = "left", alpha = 1, spacing = 0, base = "alphabetic" } = {}) {
-	if (alpha <= 0) return;
-	g.save();
-	g.globalAlpha *= alpha;
-	g.font = font(size, weight, family);
-	g.letterSpacing = `${spacing}px`;
-	g.textAlign = align;
-	g.textBaseline = base;
-	g.fillStyle = color;
-	g.fillText(str, x, y);
-	g.restore();
+const TEXTS = {};
+function sampleText(key, lines, font, cx, cy, lineH = 0, jitter = 0, seed = 1) {
+	const off = document.createElement("canvas"); off.width = W; off.height = H;
+	const o = off.getContext("2d"); o.fillStyle = "#fff"; o.font = font; o.textAlign = "center"; o.textBaseline = "middle";
+	lines.forEach((l, k) => o.fillText(l, cx, cy + (k - (lines.length - 1) / 2) * lineH));
+	const d = o.getImageData(0, 0, W, H).data, pts = [];
+	for (let y = 0; y < H; y += 2) for (let x = 0; x < W; x += 2) if (d[(y * W + x) * 4 + 3] > 140) pts.push(x, y);
+	const r = rng(seed), arr = new Float32Array(N * 2), n = pts.length / 2;
+	for (let i = 0; i < N; i++) { const k = Math.floor(r() * n); arr[i * 2] = pts[k * 2] + (r() - 0.5) * jitter; arr[i * 2 + 1] = pts[k * 2 + 1] + (r() - 0.5) * jitter; }
+	TEXTS[key] = arr;
 }
-const mono = (str, x, y, size = 22, color = C.bone, o = {}) => text(str, x, y, { size, weight: o.weight ?? 500, family: MONO, color, ...o });
-function glyphs(str, size, weight = 900, family = DISP, spacing = 0) {
-	g.save(); g.font = font(size, weight, family); g.letterSpacing = `${spacing}px`;
-	const xs = []; for (let i = 0; i < str.length; i++) xs.push(g.measureText(str.slice(0, i + 1)).width - g.measureText(str[i]).width);
-	const width = g.measureText(str).width; g.restore();
-	return { xs, width };
-}
-function perChar(str, cx, cy, size, fn, { weight = 900, family = DISP, spacing = 0, color = C.bone, align = "center", clip = false } = {}) {
-	const { xs, width } = glyphs(str, size, weight, family, spacing);
-	const left = align === "center" ? cx - width / 2 : align === "right" ? cx - width : cx;
-	for (let i = 0; i < str.length; i++) {
-		const m = fn(i, str[i]);
-		if (!m || m.alpha === 0) continue;
-		g.save();
-		if (clip) { g.beginPath(); g.rect(left - 60, cy - size * 1.05, width + 120, size * 1.38); g.clip(); }
-		g.globalAlpha *= m.alpha ?? 1;
-		g.translate(left + xs[i] + (m.dx ?? 0), cy + (m.dy ?? 0));
-		if (m.rot) g.rotate(m.rot);
-		if (m.sx !== undefined || m.sy !== undefined) g.scale(m.sx ?? 1, m.sy ?? 1);
-		g.font = font(size, weight, family); g.letterSpacing = `${spacing}px`; g.fillStyle = m.color ?? color;
-		g.fillText(str[i], 0, 0);
-		g.restore();
-	}
-	return { left, width };
-}
-function maskUp(str, x, y, size, t0, t, opts = {}) {
-	const stagger = opts.stagger ?? 0.03, dur = opts.dur ?? 0.7;
-	return perChar(str, x, y, size, (i) => {
-		const k = E.outExpo(P(t, t0 + i * stagger, t0 + i * stagger + dur));
-		return { dy: (1 - k) * size * 1.2, alpha: k > 0 ? 1 : 0 };
-	}, { ...opts, clip: true });
-}
-function circle(x, y, r, fill, alpha = 1) { if (r <= 0 || alpha <= 0) return; g.save(); g.globalAlpha *= alpha; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fillStyle = fill; g.fill(); g.restore(); }
-function ring(x, y, r, stroke, w = 2, alpha = 1, from = 0, to = Math.PI * 2) { if (r <= 0 || alpha <= 0) return; g.save(); g.globalAlpha *= alpha; g.beginPath(); g.arc(x, y, r, from, to); g.strokeStyle = stroke; g.lineWidth = w; g.stroke(); g.restore(); }
-function rrect(x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, Math.max(0, w), Math.max(0, h), Math.max(0, Math.min(r, Math.abs(h) / 2, Math.abs(w) / 2))); }
-function box(x, y, w, h, { r = 16, fill = C.card, stroke = C.faint, lw = 2, alpha = 1 } = {}) {
-	if (alpha <= 0) return; g.save(); g.globalAlpha *= alpha; rrect(x, y, w, h, r);
-	if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.strokeStyle = stroke; g.lineWidth = lw; g.stroke(); } g.restore();
-}
-function line(x1, y1, x2, y2, color, w = 2, alpha = 1, dash) { if (alpha <= 0) return; g.save(); g.globalAlpha *= alpha; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.strokeStyle = color; g.lineWidth = w; g.lineCap = "round"; if (dash) g.setLineDash(dash); g.stroke(); g.restore(); }
-function fill(color) { g.fillStyle = color; g.fillRect(-W, -H, W * 3, H * 3); }
-function chip(x, y, str, { size = 20, color = C.bone, stroke = C.faint, bg = null, alpha = 1, padX = 16, h = 40, align = "left" } = {}) {
-	const w = measure(str, size, 500, MONO) + padX * 2;
-	const left = align === "center" ? x - w / 2 : align === "right" ? x - w : x;
-	if (alpha > 0) { box(left, y - h / 2, w, h, { r: h / 2, fill: bg, stroke, lw: 1.5, alpha }); mono(str, left + padX, y + size * 0.36, size, color, { alpha }); }
-	return w;
-}
-function bezier(p0, p1, p2, p3, k) {
-	const u = 1 - k;
-	return { x: u * u * u * p0.x + 3 * u * u * k * p1.x + 3 * u * k * k * p2.x + k * k * k * p3.x, y: u * u * u * p0.y + 3 * u * u * k * p1.y + 3 * u * k * k * p2.y + k * k * k * p3.y };
-}
-function check(x, y, s, k, color, w = 6) {
-	if (k <= 0) return;
-	const pts = [[-0.5, 0], [-0.15, 0.35], [0.55, -0.4]].map(([a, b]) => [x + a * s, y + b * s]);
-	const l1 = Math.hypot(pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]), l2 = Math.hypot(pts[2][0] - pts[1][0], pts[2][1] - pts[1][1]);
-	const d = k * (l1 + l2);
-	g.save(); g.strokeStyle = color; g.lineWidth = w; g.lineCap = "round"; g.lineJoin = "round"; g.beginPath(); g.moveTo(...pts[0]);
-	if (d <= l1) g.lineTo(lerp(pts[0][0], pts[1][0], d / l1), lerp(pts[0][1], pts[1][1], d / l1));
-	else { g.lineTo(...pts[1]); g.lineTo(lerp(pts[1][0], pts[2][0], (d - l1) / l2), lerp(pts[1][1], pts[2][1], (d - l1) / l2)); }
-	g.stroke(); g.restore();
-}
-function cross(x, y, s, k, color, w = 5) {
-	if (k <= 0) return;
-	const a = clamp(k * 2), b = clamp(k * 2 - 1);
-	line(x - s, y - s, x - s + 2 * s * a, y - s + 2 * s * a, color, w);
-	if (b > 0) line(x + s, y - s, x + s - 2 * s * b, y - s + 2 * s * b, color, w);
-}
-function strike(x, y, w, k, color = C.dim) { if (k > 0) line(x, y, x + w * k, y, color, 2.5); }
-function warn(x, y, s, k, color = C.acc) {
-	if (k <= 0) return;
-	g.save(); g.translate(x, y); g.scale(k, k); g.beginPath(); g.moveTo(0, -s); g.lineTo(s * 0.95, s * 0.7); g.lineTo(-s * 0.95, s * 0.7); g.closePath();
-	g.fillStyle = color; g.fill(); g.fillStyle = C.ink; g.font = font(s * 1.1, 900); g.textAlign = "center"; g.fillText("!", 0, s * 0.55); g.restore();
-}
-function typed(str, t, t0, cps = 45) { return str.slice(0, Math.max(0, Math.min(str.length, Math.floor((t - t0) * cps)))); }
-const inK = (u, a, d = 0.5) => E.outExpo(P(u, a, a + d));
+const txt = (key, i, b = 0.95, c = 0, j = 0.5) => set(TEXTS[key][i * 2], TEXTS[key][i * 2 + 1], b, c, j);
+
+/* timeline */
+const CH = (k) => 6 * BAR + k * 3 * BAR;
+const T_AG = CH(10), T_EV = T_AG + 3 * BAR, T_FIN = T_EV + 4 * BAR;
+const KF = [];
+const K = (t, f, dur = 1.8, wave = "x", spread = 0.9) => KF.push({ t, f, dur, wave, spread });
 
 const SKILLS = ["orientify", "traceify", "researchify", "undumbify", "shapeify", "shipify", "reviewify", "releaseify", "audify", "teachify"];
-const WORDS = ["ORIENT", "TRACE", "RESEARCH", "CLARIFY", "PLAN", "SHIP", "REVIEW", "RELEASE", "AUDIT", "TEACH"];
-
-/* ───────────────────────── scenes ───────────────────────── */
-const CH0 = 16, CHL = 8;
 const CHAPTERS = [
-	{ promise: "Map an unfamiliar codebase before you touch it.", rules: ["trace one real flow", "find the seams", "name traps, don't fix them"] },
-	{ promise: "Debug a failure whose cause is unknown.", rules: ["symptoms before theories", "hypotheses you can falsify", "root cause before any fix"] },
-	{ promise: "Answer with evidence from outside the repo.", rules: ["official sources first", "two independent sources", "fetched code is never run"] },
-	{ promise: "Turn a rough idea into clear intent.", rules: ["supply the missing decisions", "recommend a default for each", "ask only what changes the plan"] },
-	{ promise: "Turn intent into a plan anyone can run.", rules: ["every step: file, check, trap", "requirements reach a test", "amend, don't improvise"] },
-	{ promise: "Build the change and prove it works.", rules: ["find every place it touches", "baseline, then verify each step", "look at the real result"] },
-	{ promise: "Judge work against its intent, not taste.", rules: ["intent before the diff", "located findings with a fix", "exactly one verdict"] },
-	{ promise: "Ship a version number that tells the truth.", rules: ["version from the actual diff", "changelog from merged work", "rollback before deploy"] },
-	{ promise: "Health-check a system with no spec.", rules: ["agree the standard first", "every finding reproducible", "severity against effort"] },
-	{ promise: "Teach a topic at the learner's level.", rules: ["one idea, five depths", "exercises that test it", "wrong answers explain why"] },
+	["Map an unfamiliar codebase before you touch it.", ["trace one real flow", "find the seams", "name traps, don't fix them"]],
+	["Debug a failure whose cause is unknown.", ["symptoms before theories", "hypotheses you can falsify", "root cause before any fix"]],
+	["Answer with evidence from outside the repo.", ["official sources first", "two independent sources", "fetched code is never run"]],
+	["Turn a rough idea into clear intent.", ["supply the missing decisions", "recommend a default for each", "ask only what changes the plan"]],
+	["Turn intent into a plan anyone can run.", ["every step: file, check, trap", "requirements reach a test", "amend, don't improvise"]],
+	["Build the change and prove it works.", ["find every place it touches", "baseline, then verify each step", "look at the real result"]],
+	["Judge work against its intent, not taste.", ["intent before the diff", "located findings with a fix", "exactly one verdict"]],
+	["Ship a version number that tells the truth.", ["version from the actual diff", "changelog from merged work", "rollback before deploy"]],
+	["Health-check a system with no spec.", ["agree the standard first", "every finding reproducible", "severity against effort"]],
+	["Teach a topic at the learner's level.", ["one idea, five depths", "exercises that test it", "wrong answers explain why"]],
 ];
 
-function stationChapter(k, u) {
-	const ch = CHAPTERS[k];
-	mono(`${String(k + 1).padStart(2, "0")} / 10`, 120, 250, 22, C.acc, { alpha: inK(u, 0.15, 0.5), weight: 600, spacing: 2 });
-	const nameSize = fit(SKILLS[k], 112, 620, 900, DISP, -3);
-	maskUp(SKILLS[k], 120, 370, nameSize, 0.2, u, { stagger: 0.028, dur: 0.7, align: "left", spacing: -3 });
-	const lines = wrap(ch.promise, 34, 600, 500);
-	lines.forEach((l, i) => text(l, 120, 450 + i * 46, { size: 34, weight: 500, color: C.mid, alpha: inK(u, 0.55 + i * 0.08, 0.6) }));
-	ch.rules.forEach((r, i) => {
-		const e = inK(u, 1.0 + i * 0.12, 0.6);
-		const y = 470 + lines.length * 46 + 70 + i * 50;
-		g.save(); g.globalAlpha *= e; g.translate((1 - e) * -20, 0);
-		g.fillStyle = C.acc; g.fillRect(120, y - 9, 18 * e, 3);
-		mono(r, 156, y, 23, C.bone);
-		g.restore();
-	});
-	STAGES[k](u, 820, 150);
-}
+function buildTimeline() {
+	sampleText("vague", ["make it", "better?"], `italic 300px ${SERIF}`, W / 2, 520, 250, 30, 3);
+	sampleText("invite", ["invite teammates?"], `italic 130px ${SERIF}`, 1290, 520, 0, 12, 4);
+	sampleText("fix", ["fix"], `italic 330px ${SERIF}`, 1640, 560, 0, 0, 6);
+	sampleText("v235", ["2.3.5"], `italic 420px ${SERIF}`, 1290, 540, 0, 0, 8);
+	sampleText("v300", ["3.0.0"], `italic 420px ${SERIF}`, 1290, 540, 0, 0, 9);
+	sampleText("word", ["Skillify"], `italic 400px ${SERIF}`, W / 2, 500, 0, 0, 10);
 
-function stageOrient(u, X, Y) {
-	const files = [
-		["main.ts", 90, 80], ["router.ts", 300, 60], ["auth.ts", 520, 110], ["config.ts", 760, 70],
-		["orders.ts", 170, 280], ["cart.ts", 420, 260], ["totals.ts", 640, 300], ["db.ts", 860, 260],
-		["invoice.ts", 120, 480], ["email.ts", 360, 500], ["cache.ts", 600, 480], ["queue.ts", 840, 450],
-		["legacy/pay.ts", 200, 660], ["report.ts", 470, 690], ["utils.ts", 720, 660],
-	];
-	const edges = [[0, 1], [1, 2], [1, 4], [1, 5], [2, 3], [4, 6], [5, 6], [6, 7], [4, 8], [8, 9], [6, 10], [10, 7], [9, 11], [8, 12], [12, 13], [13, 14], [10, 14], [3, 7]];
-	const flow = [0, 1, 4, 6, 10, 7];
-	const P0 = (i) => ({ x: X + files[i][1], y: Y + files[i][2] });
-	edges.forEach(([a, b], i) => { const e = inK(u, 0.9 + i * 0.03, 0.6); const p = P0(a), q = P0(b); line(p.x, p.y, lerp(p.x, q.x, e), lerp(p.y, q.y, e), C.faint, 1.5); });
-	const fk = P(u, 1.9, 4.2) * (flow.length - 1);
-	for (let s = 0; s < flow.length - 1; s++) {
-		const e = clamp(fk - s); if (e <= 0) continue;
-		const p = P0(flow[s]), q = P0(flow[s + 1]);
-		line(p.x, p.y, lerp(p.x, q.x, E.inOutCubic(e)), lerp(p.y, q.y, E.inOutCubic(e)), C.acc, 3);
-	}
-	if (fk > 0 && fk < flow.length - 1) { const s = Math.floor(fk), e = E.inOutCubic(fk - s); const p = P0(flow[s]), q = P0(flow[s + 1]); circle(lerp(p.x, q.x, e), lerp(p.y, q.y, e), 9, C.acc); ring(lerp(p.x, q.x, e), lerp(p.y, q.y, e), 18, C.acc, 1.5, 0.5); }
-	const seam = inK(u, 4.3, 0.7);
-	if (seam > 0) {
-		g.save(); g.globalAlpha = seam; g.setLineDash([6, 8]); g.strokeStyle = C.mid; g.lineWidth = 1.5;
-		rrect(X + 20, Y + 20, 580 * seam, 150, 22); g.stroke(); rrect(X + 60, Y + 220, 880 * seam, 330, 22); g.stroke(); g.restore();
-		mono("api", X + 36, Y + 196, 16, C.mid, { alpha: seam }); mono("domain", X + 76, Y + 576, 16, C.mid, { alpha: seam });
-	}
-	files.forEach(([name], i) => {
-		const e = spring(u - (0.5 + i * 0.04), 2.6, 0.4), p = P0(i);
-		const lit = flow.includes(i) && fk >= flow.indexOf(i) - 0.02;
-		circle(p.x, p.y, 8 * e, lit ? C.acc : C.bone);
-		mono(name, p.x + 16, p.y - 14, 16, lit ? C.bone : C.dim, { alpha: clamp(e) });
-	});
-	const traps = [[12, "half-migrated"], [10, "untested"]];
-	traps.forEach(([i, label], j) => { const e = E.outBack(P(u, 5.1 + j * 0.25, 5.45 + j * 0.25)); const p = P0(i); warn(p.x, p.y - 34, 14, e); mono(label, p.x + 16, p.y + 26, 15, C.acc, { alpha: clamp(e) }); });
-	const b = inK(u, 5.9, 0.7);
-	if (b > 0) {
-		box(X + 560, Y + 580 + (1 - b) * 30, 420, 150, { alpha: b, stroke: C.faint });
-		mono("Codebase Brief", X + 586, Y + 622 + (1 - b) * 30, 18, C.acc, { alpha: b, weight: 600 });
-		["flow: main → router → orders → totals", "seams: api | domain", "traps: 2 named, 0 fixed"].forEach((l, i) => mono(l, X + 586, Y + 658 + i * 26 + (1 - b) * 30, 15, C.mid, { alpha: inK(u, 6.1 + i * 0.1, 0.5) }));
-	}
-}
+	K(0, (i, t) => { noiseAt(i, t, 0.7); fb *= clamp((t - RA[i] * 2.6) / 1.4); });
+	K(BAR, (i, t) => { noiseAt(i, t, 0.7); if (GOLDP[i]) fc = 0.9; });
+	K(2 * BAR, (i, t) => txt("vague", i, 0.9, GOLDP[i] ? 0.9 : 0, 3), 2.8, "r", 1.4);
+	K(4 * BAR, (i, t) => {
+		const c = i % 10, h = 150 + ((c * 37) % 5) * 55;
+		set(330 + c * 140 + GX[i] * 12, 700 - RB[i] * h - (GOLDP[i] ? 0 : 0), 0.9, GOLDP[i] ? 1 : 0, 0.5);
+	}, 2.4, "x", 1.2);
 
-function stageTrace(u, X, Y) {
-	const pill = inK(u, 0.6, 0.6);
-	box(X, Y + 20, 980 * pill, 72, { r: 36, fill: null, stroke: C.faint, alpha: pill });
-	circle(X + 40, Y + 56, 7, C.acc, pill * (0.5 + 0.5 * Math.abs(Math.sin(u * 5))));
-	const sym = "POST /checkout → 500 · since the 09:14 deploy";
-	mono(typed(sym, u, 0.8, 50), X + 66, Y + 64, fit(sym, 24, 860, 500, MONO), C.bone);
-	const H3 = [
-		["H1", "env var drift on new host", "diff env", false],
-		["H2", "DB pool exhausted after ORM bump", "pool metrics", true],
-		["H3", "race in session refresh", "replay", false],
-	];
-	const cw = 310, gap = 25;
-	H3.forEach(([id, label, test, ok], i) => {
-		const e = inK(u, 1.6 + i * 0.12, 0.6);
-		const x = X + i * (cw + gap), y = Y + 150 + (1 - e) * 40;
-		const run = P(u, 2.7 + i * 0.7, 3.2 + i * 0.7);
-		const done = u > 3.2 + i * 0.7;
-		const verdict = done ? (ok ? 1 : -1) : 0;
-		const dimmed = verdict === -1 ? 0.45 : 1;
-		box(x, y, cw, 250, { alpha: e, stroke: verdict === 1 ? C.acc : C.faint, lw: verdict === 1 ? 2.5 : 2 });
-		g.save(); g.globalAlpha *= e * dimmed;
-		mono(id, x + 24, y + 44, 22, C.acc, { weight: 700 });
-		wrap(label, 26, cw - 48, 700).forEach((l, j) => text(l, x + 24, y + 92 + j * 34, { size: 26, weight: 700, color: C.bone }));
-		mono(`test: ${test}`, x + 24, y + 206, 17, C.dim);
-		g.fillStyle = C.faint; g.fillRect(x + 24, y + 222, cw - 48, 4);
-		g.fillStyle = verdict === 1 ? C.acc : C.mid; g.fillRect(x + 24, y + 222, (cw - 48) * run, 4);
-		g.restore();
-		if (verdict === -1) cross(x + cw - 40, y + 42, 12, E.outCubic(P(u, 3.2 + i * 0.7, 3.45 + i * 0.7)), C.dim, 4);
-		if (verdict === 1) check(x + cw - 40, y + 42, 34, E.outCubic(P(u, 3.2 + i * 0.7, 3.5 + i * 0.7)), C.acc, 5);
-	});
-	const rc = inK(u, 5.0, 0.6);
-	if (rc > 0) {
-		box(X, Y + 460, 980, 190, { alpha: rc, fill: "#14100f", stroke: C.acc, lw: 1.5 });
-		mono("ROOT CAUSE", X + 30, Y + 506, 17, C.acc, { alpha: rc, weight: 700, spacing: 2 });
-		const s = "The 500s come from pool exhaustion: ORM 5.0 halved the pool, so checkout runs out of connections under load.";
-		wrap(typed(s, u, 5.3, 60), 28, 920, 600).forEach((l, i) => text(l, X + 30, Y + 556 + i * 38, { size: 28, weight: 600, color: C.bone }));
+	// 1 orientify
+	{
+		const T = CH(0);
+		const nodes = [[90, 80], [300, 60], [520, 110], [760, 70], [170, 280], [420, 260], [640, 300], [860, 260], [120, 480], [360, 500], [600, 480], [840, 450], [200, 660], [470, 690], [720, 660]].map(([x, y]) => [860 + x, 170 + y]);
+		const edges = [[0, 1], [1, 2], [1, 4], [1, 5], [2, 3], [4, 6], [5, 6], [6, 7], [4, 8], [8, 9], [6, 10], [10, 7], [9, 11], [8, 12], [12, 13], [13, 14], [10, 14], [3, 7]];
+		const flow = poly([0, 1, 4, 6, 10, 7].map((k) => nodes[k]));
+		const base = (i, t) => {
+			if (GOLDP[i]) return cluster(i, ...nodes[0], 5, 1.3, 1);
+			if (i % 10 < 6) { const n = i % 15, trap = (n === 12 || n === 10) && t > T + 6.4; return cluster(i, ...nodes[n], trap ? lerp(8, 24, P(t, T + 6.4, T + 7.4)) : 8, trap ? 0.7 : 1.0); }
+			const e = edges[i % edges.length]; seg(i, ...nodes[e[0]], ...nodes[e[1]], RA[i], 1.2, 0.42);
+		};
+		K(T, base, 2.2, "x", 1.0);
+		K(T + 3.0, (i, t) => { if (!GOLDP[i]) return base(i, t); const prog = P(t, T + 3.0, T + 6.0); const p = flow(Math.min(RA[i], prog)); set(p[0] + GX[i] * 1.5, p[1] + GY[i] * 1.5, RA[i] > prog - 0.02 ? 1.5 : 1.1, 1, 0.3); }, 0.4);
+		OVER.push((t) => nodes.forEach(([x, y], k) => label(["main.ts", "router.ts", "auth.ts", "config.ts", "orders.ts", "cart.ts", "totals.ts", "db.ts", "invoice.ts", "email.ts", "cache.ts", "queue.ts", "legacy/pay.ts", "report.ts", "utils.ts"][k], x + 16, y - 14, P(t, T + 1.6 + k * 0.04, T + 2.4 + k * 0.04) * fadeOut(t, T), 14, [0, 10, 12].includes(k) ? "gold" : "dim")));
+		OVER.push((t) => { const a = P(t, T + 6.6, T + 7.4) * fadeOut(t, T); label("half-migrated", nodes[12][0] + 16, nodes[12][1] + 34, a, 14, "gold"); label("untested", nodes[10][0] + 16, nodes[10][1] + 34, a, 14, "gold"); });
 	}
-	const fx = E.outBack(P(u, 6.7, 7.0));
-	if (fx > 0) { g.save(); g.translate(X + 30, Y + 700); g.scale(fx, fx); chip(0, 0, "then fix · pool = 10 · regression test ✓", { size: 18, color: C.ok, stroke: "#1f4a33" }); g.restore(); }
-}
-
-function stageResearch(u, X, Y) {
-	const q = "Does SQLite in WAL mode allow concurrent writers?";
-	text(typed(q, u, 0.6, 70), X, Y + 50, { size: fit(q, 30, 980, 700), weight: 700, color: C.bone });
-	const tiers = ["official", "maintainers", "maintained", "popular, stale"];
-	const ty = (i) => Y + 150 + i * 120;
-	tiers.forEach((tn, i) => {
-		const e = inK(u, 1.0 + i * 0.08, 0.6);
-		line(X, ty(i) + 44, X + 980 * e, ty(i) + 44, C.line, 1.5);
-		mono(tn, X, ty(i) + 30, 18, i === 3 ? C.dim : C.mid, { alpha: e });
-	});
-	const cards = [[0, "sqlite.org/wal.html"], [1, "forum · D. R. Hipp"], [2, "2024 benchmark blog"], [3, "StackOverflow · 2013"]];
-	cards.forEach(([tier, label], i) => {
-		const t0 = 1.8 + i * 0.35;
-		const e = E.outBounce(P(u, t0, t0 + 0.6));
-		const x = X + 240, y = lerp(Y - 60, ty(tier) - 4, e);
-		const drop = tier === 3 && u > 4.0;
-		const a = P(u, t0, t0 + 0.05) * (drop ? 0.4 : 1);
-		box(x, y, 400, 50, { r: 10, alpha: a, stroke: tier < 2 ? C.mid : C.faint });
-		mono(label, x + 20, y + 32, 18, drop ? C.dim : C.bone, { alpha: a });
-		if (drop) { strike(x + 20, y + 26, measure(label, 18, 500, MONO), E.outCubic(P(u, 4.0, 4.3))); mono("dropped: outdated", x + 420, y + 32, 16, C.dim, { alpha: inK(u, 4.1, 0.4) }); }
-	});
-	const F = { x: X + 740, y: Y + 200 };
-	const fk = inK(u, 4.4, 0.8);
-	if (fk > 0) {
-		for (const i of [0, 1]) {
-			const s = { x: X + 640, y: ty(i) + 21 };
-			const k2 = E.inOutCubic(P(u, 4.4 + i * 0.15, 5.0 + i * 0.15));
-			const end = { x: F.x, y: F.y + 70 };
-			g.save(); g.strokeStyle = C.acc; g.lineWidth = 2; g.beginPath(); g.moveTo(s.x, s.y);
-			const m = bezier(s, { x: s.x + 60, y: s.y }, { x: end.x - 60, y: end.y }, end, k2); g.quadraticCurveTo(lerp(s.x, m.x, 0.5) + 20, s.y, m.x, m.y); g.stroke(); g.restore();
-		}
-		const a = inK(u, 5.0, 0.5);
-		box(F.x, F.y, 240, 160, { alpha: a, stroke: C.acc, fill: "#14100f" });
-		mono("FINDING", F.x + 20, F.y + 36, 15, C.acc, { alpha: a, weight: 700, spacing: 2 });
-		["one writer at a time;", "readers never block", "the writer"].forEach((l, i) => mono(l, F.x + 20, F.y + 72 + i * 26, 16, C.bone, { alpha: a }));
-		const bk = E.outBack(P(u, 5.6, 5.9));
-		if (bk > 0) { g.save(); g.translate(F.x + 120, F.y + 200); g.scale(bk, bk); chip(0, 0, "high · 2 sources", { size: 16, color: C.ink, bg: C.acc, stroke: C.acc, align: "center", h: 34 }); g.restore(); }
-	}
-	const lk = inK(u, 6.2, 0.5);
-	if (lk > 0) {
-		const x = X, y = Y + 660;
-		g.save(); g.globalAlpha = lk; g.strokeStyle = C.mid; g.lineWidth = 2.5; g.beginPath(); g.arc(x + 14, y - 8, 9, Math.PI, 0); g.stroke(); rrect(x, y - 6, 28, 22, 4); g.fillStyle = C.mid; g.fill(); g.restore();
-		mono("fetched code is read, never run", x + 44, y + 12, 18, C.mid, { alpha: lk });
-	}
-}
-
-function stageClarify(u, X, Y) {
-	const cx = X + 490, cy = Y + 360;
-	const collapse = E.inOutExpo(P(u, 5.9, 6.6));
-	const req = "Let users invite teammates.";
-	const pw = measure(req, 26, 600, MONO) + 60;
-	const pk = inK(u, 0.6, 0.6);
-	box(cx - pw / 2, cy - 34, pw, 68, { r: 34, fill: C.card, stroke: C.mid, alpha: pk * (1 - collapse) });
-	mono(req, cx, cy + 9, 26, C.bone, { align: "center", alpha: pk * (1 - collapse), weight: 600 });
-	const D = [
-		["expires in 7 days", -2.6, 330], ["owner invites · joins as member", -1.75, 360], ["seat billed on accept", -0.6, 350],
-		["revoke anytime", 0.35, 330], ["max 10 pending", 0.9, 380], ["email must match", 2.05, 330],
-	];
-	D.forEach(([label, a, r], i) => {
-		const e = E.outExpo(P(u, 1.4 + i * 0.18, 2.2 + i * 0.18));
-		const tx = cx + Math.cos(a) * r, ty = cy + Math.sin(a) * r * 0.62;
-		const x = lerp(cx, tx, e), y = lerp(cy, ty, e);
-		const w0 = measure(label, 19, 500, MONO) + 32;
-		const fx = lerp(x - w0 / 2, X + 40, collapse), fy = lerp(y, Y + 240 + i * 56, collapse);
-		line(cx, cy, x, y, C.faint, 1.5, e * (1 - collapse));
-		chip(fx, fy, label, { size: 19, color: C.bone, stroke: C.faint, bg: C.card, alpha: clamp(e * 2) });
-		mono("default", fx + w0 + 12, fy + 6, 13, C.acc, { alpha: inK(u, 2.6 + i * 0.1, 0.4) });
-	});
-	const qk = E.outBack(P(u, 4.2, 4.6));
-	if (qk > 0) {
-		const qlabel = "? should private workspaces be invite-only";
-		const qw = measure(qlabel, 19, 500, MONO) + 32;
-		const qx = lerp(cx - qw / 2, X + 40, collapse), qy = lerp(cy + 250, Y + 600, collapse);
-		g.save(); g.translate(qx + qw / 2, qy); g.scale(qk, qk);
-		chip(0, 0, qlabel, { size: 19, color: C.ink, bg: C.acc, stroke: C.acc, align: "center" });
-		g.restore();
-		mono("1 question, not 20", qx + qw / 2, qy + 52, 17, C.mid, { align: "center", alpha: inK(u, 4.6, 0.5) * (1 - collapse) });
-	}
-	const bk = inK(u, 6.3, 0.6);
-	if (bk > 0) {
-		mono("INTENT BRIEF", X + 40, Y + 170, 17, C.acc, { alpha: bk, weight: 700, spacing: 2 });
-		line(X + 40, Y + 190, X + 40 + 900 * bk, Y + 190, C.faint, 1.5);
-		box(X + 620, Y + 220, 340, 250, { alpha: bk, stroke: C.faint });
-		[["intent", "teams grow without support"], ["done when", "invitee lands in the right"], ["", "workspace, billed once"]].forEach(([k2, v], i) => {
-			if (k2) mono(k2, X + 648, Y + 266 + i * 70, 15, C.dim, { alpha: inK(u, 6.5 + i * 0.07, 0.4) });
-			mono(v, X + 648, Y + 294 + i * 70 - (k2 ? 0 : 42), 17, C.bone, { alpha: inK(u, 6.5 + i * 0.07, 0.4) });
-		});
-	}
-}
-
-function stageShape(u, X, Y) {
-	const cols = [["step", 24], ["where", 90], ["verify", 470], ["trap", 700]];
-	const hk = inK(u, 0.7, 0.6);
-	cols.forEach(([c, x]) => mono(c, X + x, Y + 40, 16, C.dim, { alpha: hk, spacing: 2 }));
-	line(X, Y + 60, X + 980 * hk, Y + 60, C.faint, 1.5);
-	const rows = [
-		["P1", "db/schema.ts → shareLinks", "bun test db", ""],
-		["P2", "api/share.ts → POST /share", "curl → 201", ""],
-		["P3", "routes/s/[token].tsx", "e2e: open link", "private songs leak via queue API"],
-		["P4", "jobs/expire.ts", "fake clock +31d", "server timezone"],
-	];
-	rows.forEach(([id, where, verify, trap], i) => {
-		const y = Y + 130 + i * 118;
-		const base = 1.2 + i * 0.5;
-		const e = inK(u, base, 0.5);
-		box(X, y - 44, 980, 96, { r: 14, alpha: e, stroke: trap && u > base + 1.2 ? "#3a1c16" : C.faint });
-		mono(id, X + 24, y + 10, 22, C.acc, { alpha: e, weight: 700 });
-		mono(where, X + 90, y + 10, 18, C.bone, { alpha: inK(u, base + 0.15, 0.4) });
-		mono(verify, X + 470, y + 10, 18, C.mid, { alpha: inK(u, base + 0.3, 0.4) });
-		if (trap) {
-			const tk = E.outBack(P(u, base + 0.6, base + 0.9));
-			warn(X + 712, y + 2, 11, tk);
-			const tl = wrap(trap, 17, 230, 500, MONO);
-			tl.forEach((l, j) => mono(l, X + 734, y + 8 + j * 22 - (tl.length - 1) * 11, 17, C.acc, { alpha: clamp(tk) }));
-		} else mono("—", X + 712, y + 10, 18, C.faint, { alpha: e });
-	});
-	const ak = inK(u, 4.1, 0.6);
-	if (ak > 0) {
-		box(X, Y + 610, 980, 70, { r: 35, fill: "#14100f", stroke: C.acc, lw: 1.5, alpha: ak });
-		mono("A1", X + 30, Y + 653, 20, C.acc, { alpha: ak, weight: 700 });
-		mono("expired link → 410 · revoked → 404 · proves R1, R2", X + 84, Y + 653, 20, C.bone, { alpha: ak });
-	}
-	const rk = inK(u, 5.4, 0.6);
-	if (rk > 0) {
-		box(X + 520, Y + 710 + (1 - rk) * 20, 460, 56, { r: 12, alpha: rk, stroke: C.faint });
-		mono("[REV] P3: queue.list() → queue.forRoom()", X + 540, Y + 745 + (1 - rk) * 20, 16, C.mid, { alpha: rk });
-	}
-}
-
-function stageShip(u, X, Y) {
-	const files = ["src/orders/orders.js", "src/orders/totals.js", "src/invoices/invoice.js", "src/email/receipt.js", "src/reports/revenue.js", "src/api/serialize.js", "src/refunds/refunds.js", "src/auth/session.js", "src/util/dates.js"];
-	const hits = { 0: "createOrder", 1: "orderTotals", 2: "recomputes total", 3: "renders invoice", 4: "sums lines" };
-	const sk = inK(u, 0.6, 0.5);
-	box(X, Y + 10, 540, 58, { r: 29, alpha: sk, stroke: C.faint });
-	mono(typed('rg "total|lines" src/', u, 0.8, 30), X + 28, Y + 47, 20, C.bone);
-	files.forEach((f, i) => {
-		const y = Y + 120 + i * 50;
-		const e = inK(u, 1.0 + i * 0.05, 0.5);
-		const hit = hits[i] !== undefined && u > 1.7 + i * 0.18;
-		mono(f, X, y, 18, hit ? C.bone : C.dim, { alpha: e * (hit || u < 1.6 ? 1 : 0.5) });
-		if (hit) { circle(X - 18, y - 6, 5, C.acc); mono(hits[i], X + 330, y, 15, C.acc, { alpha: inK(u, 1.8 + i * 0.18, 0.4) }); }
-	});
-	const sc = P(u, 1.5, 2.6);
-	if (sc > 0 && sc < 1) line(X - 30, Y + 100 + sc * 460, X + 540, Y + 100 + sc * 460, C.acc, 1.5, Math.sin(sc * Math.PI));
-	mono("5 places, not 1", X, Y + 610, 20, C.acc, { alpha: inK(u, 2.8, 0.5), weight: 600 });
-	const steps = [["baseline", "212 pass", 3.0], ["P1 totals", "✓", 3.5], ["P2 invoice", "✓", 3.9], ["P3 revenue", "✓", 4.3], ["P4 receipt", "✓", 4.7]];
-	steps.forEach(([a, b, t0], i) => {
-		const y = Y + 120 + i * 62;
-		const e = inK(u, t0, 0.4);
-		mono(a, X + 640, y, 19, C.bone, { alpha: e });
-		if (i === 0) mono(b, X + 800, y, 17, C.mid, { alpha: inK(u, t0 + 0.1, 0.4) });
-		check(X + 960, y - 6, 22, E.outCubic(P(u, t0 + 0.1, t0 + 0.35)), C.ok, 3.5);
-	});
-	const rk = inK(u, 5.3, 0.7);
-	if (rk > 0) {
-		const bx = X + 640, by = Y + 450 + (1 - rk) * 30;
-		box(bx, by, 340, 230, { r: 14, alpha: rk, fill: C.bone, stroke: null });
-		g.save(); g.globalAlpha *= rk; for (const [cx, col] of [[bx + 22, "#e0685a"], [bx + 40, "#e0b85a"], [bx + 58, "#6ac27f"]]) circle(cx, by + 20, 5, col); g.restore();
-		text("Invoice INV-ord_1", bx + 22, by + 64, { size: 20, weight: 800, color: C.ink, alpha: rk });
-		[["2 × Mug", "$24.00"], ["1 × Book", "$25.00"], ["Discount", "−$9.00"]].forEach(([a, b], i) => { mono(a, bx + 22, by + 100 + i * 28, 16, "#444", { alpha: rk }); mono(b, bx + 318, by + 100 + i * 28, 16, "#444", { alpha: rk, align: "right" }); });
-		line(bx + 22, by + 180, bx + 318, by + 180, "#bbb", 1, rk);
-		text("Total", bx + 22, by + 210, { size: 20, weight: 800, color: C.ink, alpha: rk });
-		text("$48.92", bx + 318, by + 210, { size: 20, weight: 800, color: C.acc, alpha: rk, align: "right" });
-		mono("looked at the real result", bx, by + 262, 16, C.mid, { alpha: inK(u, 5.8, 0.5) });
-	}
-}
-
-function stageReview(u, X, Y) {
-	const ik = inK(u, 0.6, 0.6);
-	box(X, Y, 980, 120, { alpha: ik, stroke: C.faint });
-	mono("INTENT · PR.md", X + 28, Y + 38, 15, C.acc, { alpha: ik, weight: 700, spacing: 2 });
-	const intent = "100 requests / min per API key · request 101 → 429 + Retry-After";
-	text(intent, X + 28, Y + 84, { size: fit(intent, 24, 920, 600), weight: 600, color: C.bone, alpha: inK(u, 0.8, 0.6) });
-	const code = [
-		["", "export function rateLimit({ limit = 100 }) {"],
-		["", "  const hits = new Map();"],
-		["", "  return (req, res, next) => {"],
-		["B1", "    const key = req.ip;"],
-		["", "    const entry = bump(hits, key);"],
-		["B2", "    if (entry.count > limit + 1) {"],
-		["B3", "      return res.status(429).json(err);"],
-		["", "    }"],
-		["", "    return next();"],
-	];
-	const cy0 = Y + 190;
-	box(X, cy0 - 30, 620, code.length * 44 + 40, { alpha: inK(u, 1.2, 0.6), fill: "#0b0d10", stroke: C.faint });
-	const scan = P(u, 1.8, 4.2);
-	code.forEach(([flag, l], i) => {
-		const y = cy0 + 14 + i * 44;
-		const e = inK(u, 1.3 + i * 0.05, 0.4);
-		mono(String(10 + i), X + 22, y, 15, C.faint, { alpha: e });
-		const hot = flag && scan * code.length > i + 0.5;
-		if (hot) { g.save(); g.globalAlpha = 0.18; g.fillStyle = C.acc; g.fillRect(X + 2, y - 26, 616, 38); g.restore(); }
-		mono(l, X + 64, y, 17, hot ? C.bone : C.mid, { alpha: e });
-	});
-	if (scan > 0 && scan < 1) line(X, cy0 - 10 + scan * code.length * 44, X + 620, cy0 - 10 + scan * code.length * 44, C.acc, 2, 0.8);
-	const F = [
-		["B1", 3, "keys on IP; behind the LB every client shares one bucket", "use req.client.key"],
-		["B2", 5, "off by one: request 101 still passes", "count > limit"],
-		["B3", 6, "429 has no Retry-After header", "set Retry-After"],
-	];
-	F.forEach(([id, li, msg, fx], i) => {
-		const t0 = 2.3 + i * 0.7;
-		const e = inK(u, t0, 0.5);
-		const y = cy0 - 30 + i * 140;
-		const ly = cy0 + 14 + li * 44 - 6;
-		const k2 = E.inOutCubic(P(u, t0 - 0.1, t0 + 0.3));
-		g.save(); g.strokeStyle = C.acc; g.lineWidth = 1.5; g.globalAlpha = 0.7 * k2; g.beginPath(); g.moveTo(X + 620, ly); g.bezierCurveTo(X + 640, ly, X + 640, y + 40, lerp(X + 620, X + 650, k2), y + 40); g.stroke(); g.restore();
-		box(X + 650, y, 330, 124, { r: 12, alpha: e, stroke: C.faint });
-		mono(`${id} · Blocking`, X + 670, y + 32, 15, C.acc, { alpha: e, weight: 700 });
-		wrap(msg, 16, 290, 500, MONO).forEach((l, j) => mono(l, X + 670, y + 60 + j * 21, 16, C.bone, { alpha: e }));
-		mono(`fix: ${fx}`, X + 670, y + 110, 14, C.mid, { alpha: e });
-	});
-	const st = E.outBack(P(u, 5.3, 5.55));
-	if (st > 0) {
-		g.save(); g.translate(X + 815, Y + 690); g.rotate(-0.06); g.scale(st, st);
-		g.strokeStyle = C.acc; g.lineWidth = 4; rrect(-150, -40, 300, 80, 12); g.stroke();
-		mono("VERDICT: FIX", 0, 10, 30, C.acc, { align: "center", weight: 800 });
-		g.restore();
-		mono("one verdict · no style nits", X + 815, Y + 770, 16, C.mid, { align: "center", alpha: inK(u, 5.7, 0.4) });
-	}
-}
-
-function stageRelease(u, X, Y) {
-	const commits = [
-		["a1f3", "feat: CSV export", "feat"], ["9c20", "fix: timezone in reports", "fix"],
-		["77be", "refactor!: rename retryCount → maxRetries", "breaking"], ["e41d", "chore: bump deps", "chore"], ["03aa", "fix: typo in CLI help", "fix"],
-	];
-	commits.forEach(([sha, msg, kind], i) => {
-		const y = Y + 50 + i * 64;
-		const e = inK(u, 0.6 + i * 0.1, 0.5);
-		mono(sha, X, y, 17, C.dim, { alpha: e });
-		mono(msg, X + 80, y, 18, kind === "breaking" && u > 2.2 ? C.bone : C.mid, { alpha: e });
-		const ck = E.outBack(P(u, 1.6 + i * 0.12, 1.9 + i * 0.12));
-		if (ck > 0) { g.save(); g.translate(X + 980, y - 6); g.scale(ck, ck); chip(0, 0, kind, { size: 14, h: 30, padX: 12, color: kind === "breaking" ? C.ink : C.mid, bg: kind === "breaking" ? C.acc : null, stroke: kind === "breaking" ? C.acc : C.faint, align: "right" }); g.restore(); }
-	});
-	const vy = Y + 470;
-	const rq = inK(u, 2.6, 0.5);
-	mono("asked for", X, vy - 100, 16, C.dim, { alpha: rq });
-	text("2.3.5", X, vy, { size: 86, weight: 800, color: C.mid, alpha: rq, spacing: -2 });
-	strike(X - 6, vy - 30, measure("2.3.5", 86, 800, DISP, -2) + 12, E.outCubic(P(u, 3.4, 3.7)), C.acc);
-	mono("patch would hide a breaking change", X, vy + 44, 16, C.acc, { alpha: inK(u, 3.6, 0.4) });
-	if (u > 3.9) {
-		mono("honest version", X + 470, vy - 100, 16, C.dim, { alpha: inK(u, 3.9, 0.4) });
-		const digits = ["3", "0", "0"], from = ["2", "3", "4"];
-		const dw = measure("0", 110, 900, DISP, -2);
-		g.save(); g.beginPath(); g.rect(X + 460, vy - 110, 520, 140); g.clip();
-		for (let d = 0; d < 3; d++) {
-			const k2 = E.outBack(P(u, 3.9 + d * 0.15, 4.5 + d * 0.15));
-			const x = X + 470 + d * (dw + 44);
-			text(from[d], x, vy - k2 * 130, { size: 110, weight: 900, color: C.bone, spacing: -2 });
-			text(digits[d], x, vy + 130 - k2 * 130, { size: 110, weight: 900, color: C.acc, spacing: -2 });
-			if (d < 2) text(".", x + dw + 8, vy, { size: 110, weight: 900, color: C.bone });
-		}
-		g.restore();
-	}
-	const rb = inK(u, 5.4, 0.7);
-	if (rb > 0) {
-		const oy = (1 - rb) * 30;
-		box(X, Y + 600 + oy, 980, 130, { alpha: rb, stroke: C.faint });
-		mono("ROLLBACK · written before deploy", X + 28, Y + 640 + oy, 15, C.acc, { alpha: rb, weight: 700, spacing: 1 });
-		[["previous", "v2.3.4"], ["revert", "./deploy.sh --rollback"], ["data", "none to reverse"], ["owner", "you"]].forEach(([k2, v], i) => {
-			const x = X + 28 + [0, 200, 520, 780][i];
-			mono(k2, x, Y + 682 + oy, 14, C.dim, { alpha: inK(u, 5.6 + i * 0.08, 0.4) });
-			mono(v, x, Y + 710 + oy, 16, C.bone, { alpha: inK(u, 5.6 + i * 0.08, 0.4) });
-		});
-	}
-}
-
-function stageAudit(u, X, Y) {
-	const gx = X + 120, gy = Y + 40, gw = 840, gh = 560;
-	const gk = E.inOutCubic(P(u, 0.6, 1.3));
-	line(gx, gy + gh, gx + gw * gk, gy + gh, C.mid, 2);
-	line(gx, gy + gh, gx, gy + gh - gh * gk, C.mid, 2);
-	line(gx + gw / 2, gy + gh, gx + gw / 2, gy + gh - gh * gk, C.faint, 1.5, 1, [4, 8]);
-	line(gx, gy + gh / 2, gx + gw * gk, gy + gh / 2, C.faint, 1.5, 1, [4, 8]);
-	mono("effort →", gx + gw, gy + gh + 36, 16, C.dim, { align: "right", alpha: gk });
-	g.save(); g.translate(gx - 30, gy + gh); g.rotate(-Math.PI / 2); mono("severity →", 0, 0, 16, C.dim, { alpha: gk }); g.restore();
-	const Q = [["DO NOW", gx + 24, gy + 40], ["PLAN IT", gx + gw / 2 + 24, gy + 40], ["SWEEP", gx + 24, gy + gh / 2 + 40], ["ACCEPT", gx + gw / 2 + 24, gy + gh / 2 + 40]];
-	Q.forEach(([q, x, y], i) => mono(q, x, y, 17, i === 0 ? C.acc : C.mid, { alpha: inK(u, 1.2 + i * 0.1, 0.5), weight: 700, spacing: 2 }));
-	const hl = inK(u, 4.8, 0.5);
-	if (hl > 0) box(gx + 4, gy + 4, gw / 2 - 8, gh / 2 - 8, { r: 10, fill: "rgba(242,163,58,0.07)", stroke: C.acc, lw: 1.5, alpha: hl });
-	const r = rng(3);
-	const pts = [];
-	for (let i = 0; i < 12; i++) {
-		const q = i < 3 ? 0 : i < 6 ? 1 : i < 10 ? 2 : 3;
-		const fixed = [[60, 90], [110, 160], [70, 230]][i];
-		pts.push({ x: fixed ? gx + fixed[0] : gx + (q % 2) * gw / 2 + 50 + r() * (gw / 2 - 250), y: fixed ? gy + fixed[1] : gy + Math.floor(q / 2) * gh / 2 + 90 + r() * (gh / 2 - 140), q, sx: X + 490 + (r() - 0.5) * 80 });
-	}
-	pts.forEach((p, i) => {
-		const t0 = 1.8 + i * 0.16;
-		const e = E.outExpo(P(u, t0, t0 + 0.7));
-		circle(lerp(p.sx, p.x, e), lerp(Y - 40, p.y, e), 9 * clamp(e * 3), p.q === 0 ? C.acc : C.bone, p.q === 3 ? 0.4 : 1);
-	});
-	[[0, "secrets committed in .env"], [1, "backup never restored"], [2, "admin port open"]].forEach(([i, l], j) => { const p = pts[i]; mono(l, p.x + 18, p.y + 6, 15, C.bone, { alpha: inK(u, 5.0 + j * 0.15, 0.4) }); });
-	const ck = inK(u, 5.8, 0.6);
-	if (ck > 0) {
-		box(X + 120, Y + 670, 840, 60, { r: 30, fill: "#0b0d10", stroke: C.faint, alpha: ck });
-		mono("$ git log --all -p -- .env | grep -c KEY    → 3", X + 150, Y + 708, 18, C.mid, { alpha: ck });
-		mono("every finding comes with its command", X + 120, Y + 770, 16, C.dim, { alpha: inK(u, 6.1, 0.4) });
-	}
-}
-
-function stageTeach(u, X, Y) {
-	const levels = ["Layman", "Beginner", "Practitioner", "Advanced", "Expert"];
-	const lk = inK(u, 0.6, 0.6);
-	const sel = u < 1.6 ? 0 : u < 2.0 ? 1 : 2;
-	const lw = 980 / 5;
-	line(X + lw / 2, Y + 60, X + lw / 2 + (980 - lw) * lk, Y + 60, C.faint, 2);
-	levels.forEach((l, i) => {
-		const x = X + i * lw + lw / 2;
-		circle(x, Y + 60, i === sel ? 10 : 6, i === sel ? C.acc : C.mid, lk);
-		mono(l, x, Y + 100, 16, i === sel ? C.bone : C.dim, { align: "center", alpha: lk });
-	});
-	const ck = inK(u, 1.2, 0.7);
-	box(X, Y + 150 + (1 - ck) * 30, 980, 560, { alpha: ck, stroke: C.faint });
-	g.save(); g.globalAlpha *= ck; g.translate(0, (1 - ck) * 30);
-	mono("LESSON · database indexes", X + 36, Y + 200, 15, C.acc, { weight: 700, spacing: 2 });
-	text("A query filters 10M rows by email.", X + 36, Y + 256, { size: 30, weight: 700, color: C.bone });
-	text("Without an index, what does the database do?", X + 36, Y + 298, { size: 30, weight: 700, color: C.bone });
-	const opts = ["Reads only the matching rows", "Reads every row, then filters", "Sorts the table first"];
-	const pickWrong = u > 2.6, pickRight = u > 4.3;
-	opts.forEach((o, i) => {
-		const y = Y + 360 + i * 76;
-		const state = pickRight && i === 1 ? "ok" : pickWrong && !pickRight && i === 0 ? "bad" : pickRight && i === 0 ? "was" : "";
-		const stroke = state === "ok" ? C.ok : state === "bad" ? C.acc : C.faint;
-		const a = inK(u, 1.6 + i * 0.1, 0.4);
-		box(X + 36, y, 560, 60, { r: 12, stroke, lw: state && state !== "was" ? 2.5 : 1.5, fill: state === "ok" ? "rgba(87,208,138,0.08)" : state === "bad" ? "rgba(242,163,58,0.08)" : null, alpha: a });
-		mono(`${"ABC"[i]}  ${o}`, X + 60, y + 38, 19, state === "was" ? C.dim : C.bone, { alpha: a });
-	});
-	const cur = u < 2.6 ? bezier({ x: X + 900, y: Y + 700 }, { x: X + 800, y: Y + 600 }, { x: X + 500, y: Y + 420 }, { x: X + 420, y: Y + 395 }, E.inOutCubic(P(u, 2.0, 2.6)))
-		: u < 4.3 ? bezier({ x: X + 420, y: Y + 395 }, { x: X + 470, y: Y + 420 }, { x: X + 450, y: Y + 460 }, { x: X + 430, y: Y + 470 }, E.inOutCubic(P(u, 3.7, 4.3))) : { x: X + 430, y: Y + 470 };
-	if (u > 1.9 && u < 6.5) {
-		g.save(); g.translate(cur.x, cur.y); g.fillStyle = C.bone; g.strokeStyle = C.ink; g.lineWidth = 2; g.beginPath(); g.moveTo(0, 0); g.lineTo(0, 26); g.lineTo(7, 20); g.lineTo(12, 31); g.lineTo(17, 29); g.lineTo(12, 18); g.lineTo(21, 18); g.closePath(); g.fill(); g.stroke(); g.restore();
-	}
-	const fb = pickRight ? "ok" : pickWrong ? "bad" : "";
-	if (fb) {
-		const k2 = E.outBack(P(u, fb === "ok" ? 4.3 : 2.6, (fb === "ok" ? 4.3 : 2.6) + 0.3));
-		g.save(); g.globalAlpha *= clamp(k2); g.translate(X + 630, Y + 360);
-		const col = fb === "ok" ? C.ok : C.acc;
-		text(fb === "ok" ? "✓ Correct" : "✕ Not yet", 0, 30, { size: 30, weight: 800, color: col });
-		const msg = fb === "ok" ? "A full scan reads every row. An index jumps straight to the matches." : "That is what an index gives you. Without one, it looks at every row.";
-		wrap(msg, 18, 310, 500, MONO).forEach((l, i) => mono(l, 0, 74 + i * 26, 18, C.mid));
-		g.restore();
-	}
-	g.restore();
-	const pk = inK(u, 4.6, 0.5);
-	if (pk > 0) {
-		mono("progress", X, Y + 770, 15, C.dim, { alpha: pk });
-		for (let i = 0; i < 4; i++) { g.save(); g.globalAlpha = pk; g.fillStyle = i < 2 ? C.ok : C.faint; g.fillRect(X + 100 + i * 70, Y + 762, 60, 6); g.restore(); }
-		mono("self-contained HTML · works offline", X + 980, Y + 770, 15, C.dim, { align: "right", alpha: pk });
-	}
-}
-const STAGES = [stageOrient, stageTrace, stageResearch, stageClarify, stageShape, stageShip, stageReview, stageRelease, stageAudit, stageTeach];
-
-const T_AG = 96;
-const AG = [
-	{ name: "scout", role: "finds the code", caps: [1, 1, 0, 0] },
-	{ name: "researcher", role: "outside facts", caps: [1, 0, 0, 1] },
-	{ name: "worker", role: "the one writer", caps: [1, 1, 1, 0] },
-	{ name: "reviewer", role: "independent check", caps: [1, 1, 0, 0] },
-];
-const CAPS = ["read", "shell", "edit", "web"];
-const agentBox = (i) => ({ x: 1040, y: 170 + i * 190, w: 760, h: 150 });
-const MAIN = { x: 520, y: 640 };
-const FLIGHTS = [
-	[1.8, 0, true, "find checkout code"], [1.85, 1, true, "rate-limit facts"], [3.4, 0, false, "5 lines"], [3.5, 1, false, "4 lines"],
-	[4.3, 2, true, "P1–P3"], [7.2, 2, false, "diff + checks"], [7.7, 3, true, "diff + intent"], [9.8, 3, false, "F1"],
-	[10.2, 2, true, "apply F1"], [11.2, 2, false, "✓"], [11.5, 3, true, "re-check"],
-];
-function stationAgents(u) {
-	const exit = 0;
-	g.save(); g.globalAlpha = 1 - exit;
-	maskUp("Four agents.", 120, 250, 96, 0.3, u, { stagger: 0.025, dur: 0.7, align: "left", spacing: -3 });
-	maskUp("One writer.", 120, 360, 96, 0.45, u, { stagger: 0.025, dur: 0.7, align: "left", spacing: -3, color: C.acc });
-	mono("about 1 KB each · access enforced by the tool", 120, 430, 20, C.mid, { alpha: inK(u, 1.0, 0.6) });
-	const mk = spring(u - 0.6, 2.2, 0.35);
-	ring(MAIN.x, MAIN.y, 90 * mk, C.bone, 2);
-	circle(MAIN.x, MAIN.y, 10 * mk, C.bone);
-	mono("main session", MAIN.x, MAIN.y + 140, 20, C.dim, { align: "center", alpha: clamp(mk) });
-	const busy = (i) => {
-		if (i === 2) return (u > 4.7 && u < 7.2) || (u > 10.6 && u < 11.2);
-		if (i === 3) return (u > 8.1 && u < 9.8) || u > 11.9;
-		return u > 2.2 && u < 3.4;
-	};
-	for (let i = 0; i < 4; i++) {
-		const b = agentBox(i);
-		const e = inK(u, 0.6 + i * 0.08, 0.7);
-		let sx = 0;
-		if (i === 3) { const d = P(u, 8.9, 9.25); if (d > 0 && d < 1) sx = Math.sin(d * Math.PI * 7) * 14 * (1 - d); }
-		g.save(); g.globalAlpha *= e; g.translate((1 - e) * 140 + sx, 0);
-		box(b.x, b.y, b.w, b.h, { r: 18, stroke: busy(i) ? C.acc : C.faint, lw: busy(i) ? 2.5 : 2 });
-		const L = b.x + 32, R = b.x + 470;
-		mono(AG[i].name, L, b.y + 52, 30, C.bone, { weight: 700 });
-		mono(AG[i].role, L, b.y + 82, 17, C.dim);
-		CAPS.forEach((c, j) => {
-			const on = AG[i].caps[j];
-			const hot = i === 2 && j === 2 && busy(2);
-			const denied = i === 3 && j === 2 && u > 8.9 && u < 9.9;
-			const x = L + j * 104, y = b.y + 118;
-			box(x, y - 15, 92, 30, { r: 15, fill: null, stroke: hot || denied ? C.acc : on ? C.dim : C.faint, lw: 1.5 });
-			mono(c, x + 46, y + 6, 15, hot ? C.acc : on ? C.bone : C.faint, { align: "center" });
-			if (!on) line(x + 22, y, x + 70, y, C.faint, 2);
-		});
-		const rows = (list) => list.forEach(([l, col, t0], j) => mono(l, R, b.y + 50 + j * 34, 16, col, { alpha: inK(u, t0, 0.4) }));
-		if (i === 0 && u > 2.3) rows([["checkout.ts:41", C.mid, 2.4], ["cart.ts:12", C.mid, 2.6], ["open first →", C.acc, 2.8]]);
-		if (i === 1 && u > 2.3) rows([["official docs", C.mid, 2.5], ["2 sources · high", C.acc, 2.75]]);
-		if (i === 3 && u > 8.2 && u < 11.9) rows([["tests pass", C.mid, 8.3], ["traced proxy path", C.mid, 8.5], ["F1: keyed by IP", C.acc, 9.3]]);
-		if (i === 2) {
-			const runs = u < 8 ? [[4.8, 0, "totals.js"], [5.4, 1, "invoice.js"], [6.0, 2, "revenue.js"]] : [[10.7, 0, "rateLimit.js"]];
-			runs.forEach(([t0, j, f]) => {
-				const k2 = E.outExpo(P(u, t0, t0 + 0.5));
-				if (k2 <= 0) return;
-				const y = b.y + 50 + j * 34;
-				mono(f, R, y, 16, C.mid, { alpha: k2 });
-				g.fillStyle = C.faint; g.fillRect(R + 130, y - 6, 110, 4);
-				g.fillStyle = C.acc; g.fillRect(R + 130, y - 6, 110 * k2, 4);
-				check(R + 262, y - 5, 16, E.outCubic(P(u, t0 + 0.45, t0 + 0.7)), C.ok, 3);
+	// 2 traceify
+	{
+		const T = CH(1), C = [[1000, 440], [1320, 440], [1640, 440]];
+		const path = poly([[1760, 170], [1560, 300], [1320, 440], [1160, 620], [1020, 800]]);
+		const hyp = (i, t, drop0, drop2) => {
+			if (GOLDP[i]) return disc(i, ...C[1], 60, 1.2, 1);
+			const k = i % 3;
+			if ((k === 0 && drop0) || (k === 2 && drop2)) { noiseAt(i, t, 0.16); return; }
+			disc(i, ...C[k], 92, 0.85);
+		};
+		K(T, (i, t) => hyp(i, t, false, false), 2.2, "x");
+		K(T + 3.6, (i, t) => hyp(i, t, true, false), 2.0, "rand", 0.8);
+		K(T + 4.8, (i, t) => hyp(i, t, true, true), 2.0, "rand", 0.8);
+		K(T + 6.2, (i, t) => {
+			const k = i % 3;
+			if (!GOLDP[i] && k !== 1) { noiseAt(i, t, 0.16); return; }
+			const s = (RA[i] + (t - T) * 0.09) % 1, p = path(s);
+			const root = s > 0.92;
+			set(p[0] + GX[i] * (1 - s) * 18, p[1] + GY[i] * (1 - s) * 18, root ? 1.4 : 0.9, GOLDP[i] || root ? 1 : 0.35, 0.3);
+		}, 1.6, "rand", 0.7);
+		OVER.push((t) => {
+			const f = fadeOut(t, T);
+			[["H1", "env var drift"], ["H2", "pool exhausted after ORM bump"], ["H3", "race in session refresh"]].forEach(([a, b], k) => {
+				const gone = (k === 0 && t > T + 3.6) || (k === 2 && t > T + 4.8);
+				const al = P(t, T + 1.8 + k * 0.12, T + 2.5 + k * 0.12) * (gone ? 1 - P(t, T + 3.6 + (k ? 1.2 : 0), T + 4.2 + (k ? 1.2 : 0)) : 1) * (t > T + 6.2 && k === 1 ? 1 - P(t, T + 6.2, T + 6.8) : 1) * f;
+				label(a, C[k][0], C[k][1] + 150, al, 16, k === 1 ? "gold" : "dim", "center");
+				label(b, C[k][0], C[k][1] + 174, al, 14, "dim", "center");
 			});
-		}
-		g.restore();
-	}
-	const lock = E.outBack(P(u, 8.9, 9.1)) * (1 - P(u, 9.8, 10.0));
-	if (lock > 0) {
-		const b = agentBox(3), x = b.x + b.w - 90, y = b.y + 60;
-		g.save(); g.translate(x, y); g.scale(lock, lock); g.strokeStyle = C.acc; g.fillStyle = C.acc; g.lineWidth = 5;
-		g.beginPath(); g.arc(0, -14, 15, Math.PI, 0); g.stroke(); rrect(-22, -12, 44, 36, 6); g.fill(); g.restore();
-		mono("no edit tool", x, y + 58, 15, C.acc, { align: "center", alpha: clamp(lock) });
-	}
-	const stamp = E.outBack(P(u, 12.3, 12.55));
-	if (stamp > 0) { const b = agentBox(3); g.save(); g.translate(b.x + b.w - 150, b.y + 70); g.rotate(-0.08); g.scale(stamp, stamp); g.strokeStyle = C.acc; g.lineWidth = 3; rrect(-96, -28, 192, 56, 10); g.stroke(); mono("APPROVE", 0, 10, 24, C.acc, { align: "center", weight: 800 }); g.restore(); }
-	for (const [t0, i, outbound, label] of FLIGHTS) {
-		const k = P(u, t0, t0 + 0.5);
-		if (k <= 0 || k >= 1) continue;
-		const b = agentBox(i);
-		const a = { x: MAIN.x + 94, y: MAIN.y }, z = { x: b.x - 10, y: b.y + b.h / 2 };
-		const from = outbound ? a : z, to = outbound ? z : a;
-		const c1 = { x: lerp(from.x, to.x, 0.5), y: from.y }, c2 = { x: lerp(from.x, to.x, 0.5), y: to.y };
-		for (let s = 12; s >= 0; s--) {
-			const p = bezier(from, c1, c2, to, E.inOutCubic(clamp(k - s * 0.016)));
-			circle(p.x, p.y, (outbound ? 9 : 7) * (1 - s / 14), outbound ? C.acc : C.bone, s ? 0.45 * (1 - s / 13) : 1);
-		}
-		const p = bezier(from, c1, c2, to, E.inOutCubic(k));
-		mono(label, p.x, p.y - 22, 14, outbound ? C.acc : C.bone, { align: "center", alpha: Math.sin(k * Math.PI) });
-	}
-	g.restore();
-}
-
-const T_EV = 110;
-const MODELS = [
-	{ name: "Claude Haiku", base: 0.78, skill: 0.95, cost: 0.09 },
-	{ name: "Claude Sonnet", base: 0.97, skill: 0.99, cost: 0.219 },
-	{ name: "DeepSeek V4.1 Flash", base: 0.95, skill: 1.0, cost: 0.01 },
-];
-function stationEvidence(u) {
-	const part2 = E.inOutExpo(P(u, 8.4, 9.0));
-	const merge = 0;
-	if (part2 < 1) {
-		g.save(); g.globalAlpha = 1 - part2; g.translate(0, -part2 * 50);
-		maskUp("Measured,", 120, 230, 96, 0.3, u, { stagger: 0.025, dur: 0.7, align: "left", spacing: -3 });
-		maskUp("not claimed.", 120, 335, 96, 0.45, u, { stagger: 0.025, dur: 0.7, align: "left", spacing: -3, color: C.mid });
-		const steps = [["same task", "a real repo"], ["run it twice", "without / with skill"], ["score it", "hidden tests · rubric"]];
-		steps.forEach(([a, b], i) => {
-			const x = 1000 + i * 280, e = inK(u, 1.0 + i * 0.2, 0.6);
-			box(x, 160, 240, 110, { alpha: e, stroke: C.faint });
-			mono(a, x + 22, 206, 20, C.bone, { alpha: e, weight: 700 });
-			mono(b, x + 22, 240, 15, C.mid, { alpha: e });
-			if (i < 2) line(x + 246, 215, x + 246 + 28 * inK(u, 1.2 + i * 0.2, 0.4), 215, C.acc, 2);
+			label("root cause", 1040, 850, P(t, T + 7.0, T + 7.8) * f, 30, "goldSerif", "left");
+			label("ORM 5.0 halved the pool; checkout runs out under load", 1040, 884, P(t, T + 7.4, T + 8.2) * f, 14, "dim", "left");
 		});
-		const X0 = 720, X1 = 1620, lo = 0.7, hi = 1.0;
-		const sx = (v) => X0 + (X1 - X0) * (v - lo) / (hi - lo);
-		const ak = E.inOutCubic(P(u, 2.2, 3.0));
-		line(X0, 880, lerp(X0, X1, ak), 880, C.faint, 2);
-		[0.7, 0.8, 0.9, 1.0].forEach((v, i) => {
-			const e = inK(u, 2.4 + i * 0.1, 0.4);
-			line(sx(v), 872, sx(v), 888, C.mid, 2, e);
-			mono(v.toFixed(2), sx(v), 922, 18, C.dim, { align: "center", alpha: e });
-			line(sx(v), 460, sx(v), 860, C.line, 1, e);
+	}
+	// 3 researchify
+	{
+		const T = CH(2), ty = [300, 440, 580, 720];
+		const tierOf = (i) => (i % 10 < 4 ? 0 : i % 10 < 7 ? 1 : i % 10 < 9 ? 2 : 3);
+		const strata = (i, t, fall, find) => {
+			const k = tierOf(i);
+			if (find && GOLDP[i] && k < 2) return cluster(i, 1690, 200, 11, 1.4, 1);
+			if (k === 3 && fall) { set(900 + RA[i] * 880, lerp(ty[3], 1000, P(t, T + 4.2, T + 6)) + GY[i] * 30, 0.12, 0, 1); return; }
+			set(900 + RA[i] * 880, ty[k] + GY[i] * 5, k === 3 ? 0.45 : 0.9 - k * 0.12, GOLDP[i] ? 0.6 : 0, 0.5);
+		};
+		K(T, (i, t) => strata(i, t, false, false), 2.4, "y", 1.2);
+		K(T + 4.2, (i, t) => strata(i, t, true, false), 0.3);
+		K(T + 5.6, (i, t) => strata(i, t, true, true), 1.8, "rand", 0.6);
+		OVER.push((t) => {
+			const f = fadeOut(t, T);
+			["official", "maintainers", "maintained", "popular, stale"].forEach((n, k) => label(n, 880, ty[k] + 5, P(t, T + 1.8 + k * 0.1, T + 2.5 + k * 0.1) * f * (k === 3 ? 1 - 0.6 * P(t, T + 4.2, T + 5) : 1), 14, k === 3 ? "dim" : "mid", "right"));
+			label("finding · high · two independent sources", 1660, 250, P(t, T + 6.6, T + 7.4) * f, 14, "gold", "right");
+			label("fetched code is read, never run", 900, 880, P(t, T + 7.0, T + 7.8) * f, 14, "dim");
 		});
-		mono("score · 6 tasks · 3 runs per arm", X0, 968, 16, C.dim, { alpha: inK(u, 2.8, 0.5) });
-		const lg = inK(u, 2.6, 0.5);
-		circle(128, 442, 7, C.mid, lg); mono("without skills", 146, 448, 17, C.mid, { alpha: lg });
-		circle(338, 442, 8, C.acc, lg); mono("with skills", 356, 448, 17, C.acc, { alpha: lg });
-		MODELS.forEach((m, i) => {
-			const y = 540 + i * 120;
-			const e = inK(u, 2.8 + i * 0.25, 0.6);
-			text(m.name, 120, y + 12, { size: fit(m.name, 36, 540, 800, DISP, -1), weight: 800, color: C.bone, alpha: e, spacing: -1 });
-			const bk = spring(u - (3.3 + i * 0.25), 2.4, 0.4);
-			const gk = E.inOutCubic(P(u, 4.4 + i * 0.3, 5.4 + i * 0.3));
-			line(sx(m.base), y, lerp(sx(m.base), sx(m.skill), gk), y, C.acc, 4, gk > 0 ? 1 : 0);
-			circle(sx(m.base), y, 11 * clamp(bk, 0, 1.3), C.mid);
-			circle(lerp(sx(m.base), sx(m.skill), gk), y, 13 * clamp(gk * 4), C.acc);
-			const close = sx(m.skill) - sx(m.base) < 70;
-			mono(m.base.toFixed(2), sx(m.base) - (close ? 18 : 0), y - 26, 17, C.mid, { align: close ? "right" : "center", alpha: clamp(bk) });
-			mono(lerp(m.base, m.skill, gk).toFixed(2), lerp(sx(m.base), sx(m.skill), gk) + (close ? 18 : 0), y - 26, 18, C.acc, { align: close ? "left" : "center", alpha: clamp(gk * 3), weight: 700 });
-			chip(sx(m.skill) + (close ? 90 : 34), y, `+${(m.skill - m.base).toFixed(2)}`, { size: 16, h: 30, padX: 12, color: C.ink, bg: C.acc, stroke: C.acc, alpha: inK(u, 5.6 + i * 0.2, 0.5) });
+	}
+	// 4 undumbify
+	{
+		const T = CH(3), cx = 1290, cy = 520;
+		const hex = [...Array(6)].map((_, k) => [cx + Math.cos(k / 6 * 6.2832 - 1.57) * 330, cy + Math.sin(k / 6 * 6.2832 - 1.57) * 250]);
+		const names = ["expires in 7 days", "owner invites · member role", "seat billed on accept", "revoke anytime", "max 10 pending", "email must match"];
+		K(T, (i, t) => txt("invite", i, 0.8, 0, 2), 1.9, "r", 0.7);
+		K(T + 2.8, (i, t) => (GOLDP[i] ? cluster(i, cx, cy, 10, 1.4, 1) : cluster(i, ...hex[i % 6], 20, 0.95)), 2.2, "r", 1.0);
+		K(T + 6.0, (i, t) => (GOLDP[i] ? seg(i, 960, 300, 960, 760, RA[i], 1.5, 1.2, 1) : seg(i, 1000, 300 + (i % 6) * 92, 1000 + 260 + ((i % 6) * 53) % 240, 300 + (i % 6) * 92, RA[i], 2.5, 0.9)), 2.0, "y", 1.0);
+		OVER.push((t) => {
+			const f = fadeOut(t, T), a = P(t, T + 4.0, T + 4.8) * (1 - P(t, T + 5.8, T + 6.3));
+			hex.forEach(([x, y], k) => label(names[k], x, y + 46, a * f, 14, "mid", "center"));
+			label("? should private workspaces be invite-only", cx, cy + 40, a * f, 14, "gold", "center");
+			names.forEach((n, k) => label(n, 1000, 300 + k * 92 - 16, P(t, T + 7.0 + k * 0.08, T + 7.6 + k * 0.08) * f, 14, "mid"));
+			label("intent brief", 960, 270, P(t, T + 7.0, T + 7.6) * f, 26, "goldSerif");
 		});
-		mono("Haiku with skills ≈ Sonnet without", 120, 900, 20, C.acc, { alpha: inK(u, 6.6, 0.6), weight: 600 });
-		g.restore();
 	}
-	if (u < 8.4) return;
-	const lx0 = 300, lx1 = 1620, lmin = Math.log10(0.005), lmax = Math.log10(0.5);
-	const lxs = (c) => lx0 + (lx1 - lx0) * (Math.log10(c) - lmin) / (lmax - lmin);
-	g.save(); g.globalAlpha = 1 - merge;
-	maskUp("About 1/20 the cost.", 120, 230, 96, 8.9, u, { stagger: 0.018, dur: 0.7, align: "left", spacing: -3, color: C.acc });
-	maskUp("Same score.", 120, 335, 96, 9.1, u, { stagger: 0.025, dur: 0.7, align: "left", spacing: -3 });
-	const ak2 = E.inOutCubic(P(u, 9.4, 10.2));
-	line(lx0, 800, lerp(lx0, lx1, ak2), 800, C.faint, 2);
-	[0.005, 0.01, 0.05, 0.1, 0.5].forEach((c, i) => {
-		const e = inK(u, 9.6 + i * 0.08, 0.4);
-		line(lxs(c), 792, lxs(c), 808, C.mid, 2, e);
-		mono(`$${c}`, lxs(c), 842, 17, C.dim, { align: "center", alpha: e });
-	});
-	mono("cost per task · log scale", lx0, 890, 16, C.dim, { alpha: inK(u, 10.0, 0.5) });
-	[2, 0, 1].forEach((mi, j) => {
-		const m = MODELS[mi];
-		const e = spring(u - (10.3 + j * 0.3), 2.2, 0.35);
-		const x = lxs(m.cost), y = 660;
-		const col = mi === 2 ? C.acc : C.bone;
-		line(x, y + 28, x, 792, col, 1.5, clamp(e) * 0.5, [3, 6]);
-		if (mi === 2) circle(x, y, 20 * clamp(e, 0, 1.2), C.acc); else ring(x, y, 20 * clamp(e, 0, 1.2), col, 2.5);
-		mono(m.name, x, y - 76, 19, col, { align: "center", alpha: clamp(e), weight: 700 });
-		mono(`$${m.cost.toFixed(2)} · score ${m.skill.toFixed(2)}`, x, y - 46, 16, C.mid, { align: "center", alpha: clamp(e) });
-	});
-	const bk = E.inOutCubic(P(u, 12.0, 12.8));
-	if (bk > 0) {
-		const a = lxs(0.01), b = lxs(0.219), y = 520;
-		g.save(); g.strokeStyle = C.acc; g.lineWidth = 2; g.beginPath(); g.moveTo(a, y + 24); g.lineTo(a, y); g.lineTo(lerp(a, b, bk), y); if (bk > 0.99) g.lineTo(b, y + 24); g.stroke(); g.restore();
-		mono("≈ 22× cheaper than Sonnet", (a + b) / 2, y - 18, 20, C.acc, { align: "center", alpha: inK(u, 12.6, 0.4), weight: 700 });
+	// 5 shapeify
+	{
+		const T = CH(4), rows = [300, 430, 560, 690], cols = [[900, 1200], [1240, 1470], [1510, 1740]];
+		const tri = poly([[1625, 545], [1648, 585], [1602, 585], [1625, 545]]);
+		const form = (i, t, acc) => {
+			if (GOLDP[i]) { const p = tri(RA[i]); return set(p[0], p[1], 1.4, 1, 0.3); }
+			if (acc && i % 7 === 0) return seg(i, 900, 820, 1740, 820, RA[i], 2, 0.9, 0.55);
+			if (i % 23 === 0) { const r = i % 3; return seg(i, 870, rows[r] + 6, 870, rows[r + 1] - 6, RA[i], 1, 0.5); }
+			const r = i % 4, c = Math.floor(i / 4) % 3;
+			if (r === 2 && c === 2) return seg(i, cols[2][0], rows[r], cols[2][0] + 60, rows[r], RA[i], 2, 0.3);
+			seg(i, cols[c][0], rows[r], cols[c][1], rows[r], RA[i], 4, c ? 0.62 : 0.95);
+		};
+		K(T, (i, t) => form(i, t, false), 2.2, "y");
+		K(T + 4.6, (i, t) => form(i, t, true), 1.6, "x", 0.6);
+		OVER.push((t) => {
+			const f = fadeOut(t, T);
+			["where", "verify", "trap"].forEach((h, k) => label(h, cols[k][0], 250, P(t, T + 1.8, T + 2.4) * f, 13, "dim"));
+			["P1  db/schema.ts", "P2  api/share.ts", "P3  routes/s/[token]", "P4  jobs/expire.ts"].forEach((n, k) => label(n, cols[0][0], rows[k] - 16, P(t, T + 2.0 + k * 0.1, T + 2.7 + k * 0.1) * f, 14, "mid"));
+			label("private songs leak via queue API", 1740, 612, P(t, T + 3.0, T + 3.8) * f, 13, "gold", "right");
+			label("A1  expired → 410 · revoked → 404", 900, 850, P(t, T + 5.4, T + 6.2) * f, 14, "mid");
+		});
 	}
-	g.restore();
-	if (merge > 0) circle(lerp(lxs(0.01), W / 2, merge), lerp(660, H / 2, merge), lerp(20, 12, merge), C.acc);
+	// 6 shipify
+	{
+		const T = CH(5), ys = [...Array(9)].map((_, k) => 250 + k * 64), lens = [300, 280, 360, 300, 330, 240, 280, 220, 250];
+		const hits = [0, 1, 2, 3, 4];
+		const check = (k) => poly([[1560, ys[k] - 2], [1578, ys[k] + 14], [1612, ys[k] - 20]]);
+		const lines = (i, t, scan, checks) => {
+			if (GOLDP[i]) {
+				if (checks) { const k = i % 5, p = check(k)(RA[i]); return set(p[0], p[1], 1.4, 1, 0.3); }
+				const y = scan ? lerp(220, 840, smooth(P(t, T + 2.2, T + 4.8))) : 220;
+				return seg(i, 830, y, 1420, y, RA[i], 1, scan ? 1.2 : 0.5, 1);
+			}
+			const k = i % 9, hit = hits.includes(k) && scan && t > T + 2.2 + (ys[k] - 220) / 620 * 2.6;
+			seg(i, 880, ys[k], 880 + lens[k], ys[k], RA[i], 2, hit ? 1.1 : 0.55, hit ? 0.85 : 0);
+		};
+		K(T, (i, t) => lines(i, t, false, false), 2.2, "y");
+		K(T + 2.2, (i, t) => lines(i, t, true, false), 0.6);
+		K(T + 5.2, (i, t) => lines(i, t, true, true), 1.8, "y", 0.6);
+		OVER.push((t) => {
+			const f = fadeOut(t, T);
+			["orders.js", "totals.js", "invoice.js", "receipt.js", "revenue.js", "serialize.js", "refunds.js", "session.js", "dates.js"].forEach((n, k) => label(n, 870, ys[k] - 14, P(t, T + 1.8 + k * 0.05, T + 2.4 + k * 0.05) * f, 13, "dim", "right"));
+			label("every place it touches: 5, not 1", 880, 870, P(t, T + 4.8, T + 5.6) * f, 14, "gold");
+			label("verified, then looked at", 1640, 890, P(t, T + 6.6, T + 7.4) * f, 22, "goldSerif", "right");
+		});
+	}
+	// 7 reviewify
+	{
+		const T = CH(6), ys = [...Array(9)].map((_, k) => 240 + k * 64), ind = [0, 1, 1, 2, 2, 2, 3, 2, 1], lens = [420, 260, 330, 230, 340, 360, 380, 40, 200];
+		const flagged = [3, 5, 6], hitT = [T + 2.8, T + 3.5, T + 4.2];
+		const code = (i, t, verdict) => {
+			if (GOLDP[i]) {
+				if (verdict) return txt("fix", i, 1.2, 1, 0.4);
+				const r = i % 3, k = flagged[r];
+				if (t < hitT[r]) return set(840, ys[k], 0, 1, 0);
+				const x0 = 880 + ind[k] * 36, cx = x0 + lens[k] / 2;
+				return ellipse(i, cx, ys[k], lens[k] / 2 + 40, 26, RA[i], 1.5, 1.2, 1);
+			}
+			const k = i % 9, x0 = 880 + ind[k] * 36, on = flagged.includes(k) && t > hitT[flagged.indexOf(k)];
+			seg(i, x0, ys[k], x0 + lens[k], ys[k], RA[i], 2, on ? 1.0 : 0.6, on ? 0.7 : 0);
+		};
+		K(T, (i, t) => code(i, t, false), 2.2, "y");
+		K(T + 2.8, (i, t) => code(i, t, false), 0.8, "rand", 0.3);
+		K(T + 5.4, (i, t) => code(i, t, true), 1.5, "rand", 0.4);
+		OVER.push((t) => {
+			const f = fadeOut(t, T);
+			label("intent · 100 req/min per key · request 101 → 429 + Retry-After", 880, 200, P(t, T + 1.6, T + 2.3) * f, 14, "mid");
+			[["keyed on IP", 3], ["off by one", 5], ["no Retry-After", 6]].forEach(([n, k], r) => label(n, 1450, ys[k] + 5, P(t, hitT[r] + 0.3, hitT[r] + 0.9) * f, 14, "gold"));
+			label("one verdict", 1640, 760, P(t, T + 6.6, T + 7.3) * f, 16, "mid", "center");
+		});
+	}
+	// 8 releaseify
+	{
+		const T = CH(7);
+		K(T, (i, t) => txt("v235", i, 0.8, 0, 0.6), 2.4, "x");
+		K(T + 3.2, (i, t) => (GOLDP[i] ? seg(i, 980, 520, 1600, 470, RA[i], 2, 1.4, 1) : txt("v235", i, 0.55, 0, 0.6)), 1.4, "x", 0.5);
+		K(T + 5.2, (i, t) => (GOLDP[i] ? seg(i, 1000, 690, 1580, 690, RA[i], 1.5, 1.3, 1) : txt("v300", i, 0.95, 0, 0.5)), 2.2, "x", 0.8);
+		OVER.push((t) => {
+			const f = fadeOut(t, T);
+			label("asked for a patch", 1290, 250, P(t, T + 1.6, T + 2.3) * f * (1 - P(t, T + 5, T + 5.5)), 16, "mid", "center");
+			label("refactor!: rename retryCount → maxRetries (old key removed)", 1290, 820, P(t, T + 3.2, T + 3.9) * f * (1 - P(t, T + 5, T + 5.5)), 14, "gold", "center");
+			label("the honest version", 1290, 250, P(t, T + 5.8, T + 6.5) * f, 16, "gold", "center");
+			label("rollback written before deploy · v2.3.4 · ./deploy.sh --rollback", 1290, 760, P(t, T + 6.6, T + 7.3) * f, 14, "mid", "center");
+		});
+	}
+	// 9 audify
+	{
+		const T = CH(8), X0 = 900, X1 = 1740, Y0 = 200, Y1 = 840, mx = (X0 + X1) / 2, my = (Y0 + Y1) / 2;
+		const qc = [[(X0 + mx) / 2, (Y0 + my) / 2], [(mx + X1) / 2, (Y0 + my) / 2], [(X0 + mx) / 2, (my + Y1) / 2], [(mx + X1) / 2, (my + Y1) / 2]];
+		const field = (i, t, sorted) => {
+			if (i % 12 === 0) return RA[i] < 0.5 ? seg(i, X0, Y0, X0, Y1, RB[i], 1, 0.7) : seg(i, X0, Y1, X1, Y1, RB[i], 1, 0.7);
+			if (i % 12 === 1 && sorted) return RA[i] < 0.5 ? seg(i, mx, Y0, mx, Y1, RB[i], 0.5, 0.3) : seg(i, X0, my, X1, my, RB[i], 0.5, 0.3);
+			if (!sorted) return set(X0 + 20 + RA[i] * (X1 - X0 - 40), Y0 + 20 + RB[i] * (Y1 - Y0 - 40), 0.55, GOLDP[i] ? 0.7 : 0, 1);
+			const q = GOLDP[i] ? 0 : i % 9 < 3 ? 1 : i % 9 < 6 ? 2 : 3;
+			cluster(i, ...qc[q], q === 3 ? 60 : 44, q === 3 ? 0.35 : 0.9, q === 0 ? 1 : 0);
+		};
+		K(T, (i, t) => field(i, t, false), 2.2, "rand", 1.0);
+		K(T + 2.8, (i, t) => field(i, t, true), 2.4, "rand", 0.9);
+		OVER.push((t) => {
+			const f = fadeOut(t, T), a = P(t, T + 4.2, T + 5.0) * f;
+			label("DO NOW", X0 + 20, Y0 + 30, a, 14, "gold"); label("PLAN IT", mx + 20, Y0 + 30, a, 14, "mid"); label("SWEEP", X0 + 20, my + 30, a, 14, "mid"); label("ACCEPT", mx + 20, my + 30, a, 14, "dim");
+			label("severity ↑   effort →", X1, Y1 + 34, P(t, T + 1.8, T + 2.4) * f, 13, "dim", "right");
+			label("$ git log --all -p -- .env | grep -c KEY   → 3", X0, Y1 + 72, P(t, T + 6.2, T + 7.0) * f, 13, "mid");
+		});
+	}
+	// 10 teachify
+	{
+		const T = CH(9), st = [...Array(5)].map((_, s) => ({ x: 880 + s * 176, w: 150, top: 800 - (s + 1) * 100 }));
+		const climb = poly([[st[0].x + 10, st[0].top - 14], ...st.slice(0, 3).flatMap((s) => [[s.x + 10, s.top - 14], [s.x + s.w - 10, s.top - 14]])]);
+		const checkP = poly([[st[2].x + 40, st[2].top - 90], [st[2].x + 66, st[2].top - 62], [st[2].x + 116, st[2].top - 124]]);
+		const stairs = (i, t, phase) => {
+			if (GOLDP[i]) {
+				if (phase === 0) return cluster(i, st[0].x + 20, st[0].top - 18, 6, 0.9, 1);
+				if (phase === 1) { const prog = P(t, T + 2.6, T + 5.4); const p = climb(Math.min(RA[i], prog)); return set(p[0] + GX[i] * 2, p[1] + GY[i] * 2, 1.3, 1, 0.3); }
+				const p = checkP(RA[i]); return set(p[0], p[1], 1.4, 1, 0.3);
+			}
+			const s = i % 5, S = st[s];
+			set(S.x + RA[i] * S.w, S.top + RB[i] * (820 - S.top), s === 2 ? 0.75 : 0.5, 0, 0.6);
+		};
+		K(T, (i, t) => stairs(i, t, 0), 2.4, "x");
+		K(T + 2.6, (i, t) => stairs(i, t, 1), 0.4);
+		K(T + 5.6, (i, t) => stairs(i, t, 2), 1.3, "rand", 0.35);
+		OVER.push((t) => {
+			const f = fadeOut(t, T);
+			["Layman", "Beginner", "Practitioner", "Advanced", "Expert"].forEach((n, s) => label(n, st[s].x + st[s].w / 2, 852, P(t, T + 1.8 + s * 0.08, T + 2.5 + s * 0.08) * f, 14, s === 2 ? "gold" : "dim", "center"));
+			label("✕ not yet: an index is what reads only the matches", 880, 240, P(t, T + 4.2, T + 4.8) * (1 - P(t, T + 5.6, T + 6.0)) * f, 14, "mid");
+			label("✓ correct: without one, it reads every row", 880, 240, P(t, T + 6.4, T + 7.0) * f, 14, "gold");
+		});
+	}
+	// agents
+	{
+		const T = T_AG, M = [860, 560], A = [[1600, 250], [1600, 430], [1600, 610], [1600, 790]];
+		const route = (from, to, k) => { const c1 = [lerp(from[0], to[0], 0.5), from[1]], c2 = [lerp(from[0], to[0], 0.5), to[1]]; const u = 1 - k; return [u * u * u * from[0] + 3 * u * u * k * c1[0] + 3 * u * k * k * c2[0] + k * k * k * to[0], u * u * u * from[1] + 3 * u * u * k * c1[1] + 3 * u * k * k * c2[1] + k * k * k * to[1]]; };
+		const trips = [[2.0, 3.4, -1, 0], [2.0, 3.4, -1, 1], [3.8, 5.0, 0, -1], [3.8, 5.0, 1, -1], [5.3, 6.6, -1, 2], [6.9, 8.1, 2, 3], [8.4, 9.5, 3, -1]];
+		K(T, (i, t) => {
+			const courier = i % 11 === 0;
+			if (courier) {
+				const tr = trips[(i / 11 | 0) % trips.length];
+				const k = P(t, T + tr[0] + RA[i] * 0.4, T + tr[1] + RA[i] * 0.4);
+				if (k > 0 && k < 1) { const p = route(tr[2] < 0 ? M : A[tr[2]], tr[3] < 0 ? M : A[tr[3]], smooth(k)); return set(p[0] + GX[i] * 3, p[1] + GY[i] * 3, 1.3, tr[2] === 2 || tr[3] === 2 ? 1 : 0.2, 0.2); }
+			}
+			if (i % 5 === 0) { const a = i % 4; return ellipse(i, ...A[a], 36, 36, RA[i] + (t - T) * 0.05, 3, a === 2 ? 1.1 : 0.85, a === 2 ? 1 : 0); }
+			if (i % 3 === 0) return ellipse(i, ...M, 110, 110, RA[i] - (t - T) * 0.03, 6, 0.8, 0);
+			noiseAt(i, t, 0.14);
+		}, 2.4, "r", 1.0);
+		OVER.push((t) => {
+			const f = fadeOut(t, T, 3 * BAR);
+			label("main session", M[0], M[1] + 160, P(t, T + 1.6, T + 2.3) * f, 14, "mid", "center");
+			[["scout", "read · shell"], ["researcher", "read · web"], ["worker", "the one writer"], ["reviewer", "no edit tool"]].forEach(([a, b], k) => { const al = P(t, T + 1.8 + k * 0.1, T + 2.5 + k * 0.1) * f; label(a, A[k][0] + 60, A[k][1] + 2, al, 22, k === 2 ? "goldSerif" : "serif"); label(b, A[k][0] + 60, A[k][1] + 24, al, 13, "dim"); });
+		});
+	}
+	// evidence
+	{
+		const T = T_EV, X0 = 900, X1 = 1680, sx = (v) => X0 + (X1 - X0) * (v - 0.7) / 0.3, rows = [380, 520, 660];
+		const M = [[0.78, 0.95], [0.97, 0.99], [0.95, 1.0]];
+		const lx = (c) => X0 + (X1 - X0) * (Math.log10(c) - Math.log10(0.005)) / (Math.log10(0.5) - Math.log10(0.005));
+		const costs = [0.09, 0.219, 0.01];
+		const chart = (i, t, phase) => {
+			if (i % 10 === 0) { const tick = i % 40 === 0; return tick ? seg(i, lerp(X0, X1, (i / 40 | 0) % 4 / 3), 792, lerp(X0, X1, (i / 40 | 0) % 4 / 3), 808, RA[i], 0.5, 0.8) : seg(i, X0, 800, X1, 800, RA[i], 0.6, 0.6); }
+			const r = i % 3;
+			if (phase < 2) {
+				if (GOLDP[i]) { if (phase === 0) return cluster(i, sx(M[r][0]), rows[r], 4, 0, 1); const k = smooth(P(t, T + 2.8 + r * 0.35, T + 4.6 + r * 0.35)); return RB[i] < 0.6 ? seg(i, sx(M[r][0]), rows[r], lerp(sx(M[r][0]), sx(M[r][1]), k * RA[i]), rows[r], 1, 1.2, 1.2, 1) : cluster(i, lerp(sx(M[r][0]), sx(M[r][1]), k), rows[r], 7, 1.4, 1); }
+				if (i % 4 === 1) return cluster(i, sx(M[r][0]), rows[r], 7, 0.95, 0);
+				return noiseAt(i, t, 0.12);
+			}
+			if (GOLDP[i]) return cluster(i, lx(costs[2]), 640, 6, 1.4, 1);
+			if (i % 4 === 1 && r < 2) return disc(i, lx(costs[r]), 640, 180 * Math.sqrt(costs[r] / 0.219) * 0.4, 0.75, 0);
+			noiseAt(i, t, 0.12);
+		};
+		K(T, (i, t) => chart(i, t, 0), 2.4, "x");
+		K(T + 2.8, (i, t) => chart(i, t, 1), 0.4);
+		K(T + 7.4, (i, t) => chart(i, t, 2), 2.2, "x", 0.8);
+		OVER.push((t) => {
+			const a1 = P(t, T + 1.8, T + 2.5) * (1 - P(t, T + 7.0, T + 7.6)), a2 = P(t, T + 8.8, T + 9.6) * fadeOut(t, T, 4 * BAR);
+			["Claude Haiku", "Claude Sonnet", "DeepSeek V4.1 Flash"].forEach((n, r) => {
+				label(n, X0 - 30, rows[r] + 5, a1, 16, "mid", "right");
+				label(M[r][0].toFixed(2), sx(M[r][0]), rows[r] - 22, a1, 13, "dim", "center");
+				label(M[r][1].toFixed(2), sx(M[r][1]), rows[r] + 34, P(t, T + 4.6 + r * 0.35, T + 5.2 + r * 0.35) * a1, 14, "gold", "center");
+			});
+			[0.7, 0.8, 0.9, 1.0].forEach((v, k) => label(v.toFixed(2), lerp(X0, X1, k / 3), 834, a1, 12, "dim", "center"));
+			label("score · without skills → with skills · 6 tasks · 3 runs", X0, 880, a1, 13, "dim");
+			[0.005, 0.01, 0.05, 0.1, 0.5].forEach((c) => label(`$${c}`, lx(c), 834, a2, 12, "dim", "center"));
+			["Haiku  $0.09", "Sonnet  $0.22", "DeepSeek  $0.01 · score 1.00"].forEach((n, k) => label(n, lx(costs[k]), k === 2 ? 600 : 470 - k * 60, a2, 14, k === 2 ? "gold" : "mid", "center"));
+			label("cost per task · log scale", X0, 880, a2, 13, "dim");
+		});
+	}
+	// finale
+	{
+		const T = T_FIN;
+		K(T, (i, t) => txt("word", i, 1.0, GOLDP[i] ? 0.9 : 0, 0.6), 3.0, "r", 1.4);
+		K(T + 8.6, (i, t) => noiseAt(i, t, 0.2), 3.2, "r", 1.2);
+	}
 }
 
-
-/* ───────────────────────── intro station ───────────────────────── */
-const PROMPT_Y = 430;
-function introLayout() {
-	const phrase = "make it better", size = 60;
-	const { xs, width } = glyphs(phrase, size, 500, MONO);
-	const left = W / 2 - width / 2;
-	return { phrase, size, xs, width, left, ulx0: left + xs[8], ulx1: left + width, uly: PROMPT_Y + 24 };
+/* overlay text */
+const OVER = [];
+const COLORS = { dim: "rgba(214,221,233,0.52)", mid: "rgba(214,221,233,0.72)", bright: "rgba(236,240,247,0.95)", gold: "rgba(233,181,94,0.95)" };
+function label(s, x, y, a, size = 14, style = "mid", align = "left") {
+	if (a <= 0.001) return;
+	ctx.save(); ctx.globalAlpha = a; ctx.textAlign = align;
+	if (style === "goldSerif" || style === "serif") { ctx.font = `italic ${size}px ${SERIF}`; ctx.fillStyle = style === "goldSerif" ? COLORS.gold : COLORS.bright; }
+	else { ctx.font = `${size >= 16 ? 500 : 400} ${size}px ${MONO}`; ctx.fillStyle = COLORS[style]; }
+	ctx.fillText(s, x, y); ctx.restore();
 }
-function stationIntro(u) {
-	const L = introLayout();
-	const breath = 1 + 0.12 * Math.sin(Math.max(0, u - 0.6) * Math.PI * 1.25) * (1 - P(u, 1.8, 2.3));
-	const morph = E.inOutCubic(P(u, 2.1, 2.6));
-	if (morph < 1) {
-		const r = 10 * E.outCubic(P(u, 0.3, 1.3)) * breath;
-		const w = lerp(r * 2, 5, morph), h = lerp(r * 2, 70, morph), x = lerp(W / 2, L.left, morph), y = lerp(H / 2, PROMPT_Y - 20, morph);
-		g.save(); g.fillStyle = C.acc; rrect(x - w / 2, y - h / 2, w, h, lerp(r, 2, morph)); g.fill(); g.restore();
-		return;
+const fadeOut = (t, T, len = 3 * BAR) => 1 - P(t, T + len - 1.3, T + len - 0.5);
+function chapterCaption(t) {
+	for (let k = 0; k < 10; k++) {
+		const T = CH(k), a = P(t, T + 0.6, T + 1.5) * fadeOut(t, T);
+		if (a <= 0) continue;
+		const up = (1 - outC(P(t, T + 0.6, T + 1.6))) * 18;
+		label(`${String(k + 1).padStart(2, "0")} / 10`, 120, 396 + up, a, 14, "gold");
+		label(SKILLS[k], 116, 486 + up, a, 96, "serif");
+		const words = CHAPTERS[k][0].split(" "); let l1 = "", l2 = "";
+		for (const w of words) { if ((l1 + " " + w).length < 32 && !l2) l1 = (l1 + " " + w).trim(); else l2 = (l2 + " " + w).trim(); }
+		label(l1, 120, 540 + up, a, 17, "mid"); if (l2) label(l2, 120, 566 + up, a, 17, "mid");
+		CHAPTERS[k][1].forEach((r, j) => label("·  " + r, 120, 628 + j * 30 + up, a * P(t, T + 1.2 + j * 0.15, T + 1.9 + j * 0.15), 14, "dim"));
 	}
-	const n = Math.min(L.phrase.length, Math.max(0, Math.floor((u - 2.7) / 0.09) + 1));
-	perChar(L.phrase, L.left, PROMPT_Y, L.size, (i) => (i >= n ? { alpha: 0 } : { alpha: E.outCubic(P(u, 2.7 + i * 0.09, 2.95 + i * 0.09)), dy: (1 - E.outCubic(P(u, 2.7 + i * 0.09, 3.0 + i * 0.09))) * 10 }), { weight: 500, family: MONO, align: "left", color: C.bone });
-	const cx = L.left + (n >= L.phrase.length ? L.width : L.xs[n]) + 6;
-	const caret = u < 4.2 ? 1 : 1 - E.outCubic(P(u, 4.2, 4.8));
-	g.save(); g.globalAlpha = caret * (0.55 + 0.45 * Math.cos(u * Math.PI * 1.6) ** 2); g.fillStyle = C.acc; g.fillRect(cx, PROMPT_Y - 55, 5, 70); g.restore();
-	const ul = E.inOutCubic(P(u, 4.3, 5.1));
-	if (ul > 0) { g.fillStyle = C.acc; g.fillRect(L.ulx0, L.uly - 3, (L.ulx1 - L.ulx0) * ul, 5); }
-	maskUp("Skillify", W / 2, 690, 170, 5.3, u, { stagger: 0.05, dur: 1.1, align: "center", spacing: -4 });
-	mono("ten skills · four agents · any AI coding assistant", W / 2, 770, 24, C.mid, { align: "center", alpha: E.outCubic(P(u, 6.6, 7.6)), spacing: 1 });
+}
+function introCaption(t) {
+	label("a rough idea, half formed", W / 2, 860, P(t, 3 * BAR, 3 * BAR + 1) * (1 - P(t, 4 * BAR - 0.8, 4 * BAR)), 28, "serif", "center");
+	const a = P(t, 4 * BAR + 1.2, 4 * BAR + 2.2) * (1 - P(t, 6 * BAR - 1.2, 6 * BAR - 0.4));
+	label("Skillify", W / 2, 260, a, 92, "serif", "center");
+	label("ten skills for AI coding agents · one method each", W / 2, 306, a, 16, "mid", "center");
+	["orient", "trace", "research", "clarify", "plan", "ship", "review", "release", "audit", "teach"].forEach((c, k) => label(c, 330 + k * 140, 740, P(t, 4 * BAR + 1.6 + k * 0.06, 4 * BAR + 2.3 + k * 0.06) * (1 - P(t, 6 * BAR - 1.2, 6 * BAR - 0.4)), 13, "mid", "center"));
+}
+function sectionCaptions(t) {
+	const a = P(t, T_AG + 0.6, T_AG + 1.5) * fadeOut(t, T_AG, 3 * BAR);
+	label("agents", 120, 396, a, 14, "gold"); label("Four agents.", 116, 486, a, 84, "serif"); label("One writer.", 116, 566, a, 84, "goldSerif");
+	label("each about 1 KB · access enforced by the tool", 120, 620, a, 14, "dim");
+	const b = P(t, T_EV + 0.6, T_EV + 1.5) * fadeOut(t, T_EV, 4 * BAR);
+	label("evidence", 120, 300, b, 14, "gold"); label("Measured,", 116, 390, b, 84, "serif"); label("not claimed.", 116, 470, b, 84, "serif");
+	label("same task, run twice, scored", 120, 526, b * (1 - P(t, T_EV + 7.4, T_EV + 8)), 14, "dim");
+	label("≈ 1/20 the cost. same score.", 120, 540, P(t, T_EV + 8.6, T_EV + 9.4) * fadeOut(t, T_EV, 4 * BAR), 30, "goldSerif");
+	const f = P(t, T_FIN + 2.4, T_FIN + 3.4) * (1 - P(t, T_FIN + 8.2, T_FIN + 9.4));
+	label("Say what you want. The right method loads.", W / 2, 790, f, 38, "serif", "center");
+	label("10 skills · 4 agents · 2.6 KB always loaded · any assistant", W / 2, 840, P(t, T_FIN + 3.2, T_FIN + 4.2) * (1 - P(t, T_FIN + 8.2, T_FIN + 9.4)), 15, "dim", "center");
+	label("github.com/trykA123/skillify", W / 2, 1000, P(t, T_FIN + 3.8, T_FIN + 4.8) * (1 - P(t, T_FIN + 8.6, T_FIN + 9.8)), 16, "gold", "center");
 }
 
-/* ───────────────────────── world ───────────────────────── */
-const GLIDE = 1.6, BASE_Y = 1010, LEAD = 0.6;
-const STATIONS = [{ kind: "intro", dur: 12 }];
-for (let k = 0; k < 10; k++) STATIONS.push({ kind: "chapter", k, dur: 9.6 });
-STATIONS.push({ kind: "agents", dur: 14.4 }, { kind: "evidence", dur: 16.8 });
-let acc = 0;
-STATIONS.forEach((st, j) => { st.start = acc; acc += st.dur; st.ox = j * 2300; st.oy = Math.round(Math.sin(j * 0.85) * 620); });
-const T_OUT = acc, DUR = acc + 12;
-const LABELS = ["", ...SKILLS.map((s, i) => `${String(i + 1).padStart(2, "0")}  ${s}`), "agents", "evidence"];
-const centerOf = (j) => ({ x: STATIONS[j].ox + W / 2, y: STATIONS[j].oy + H / 2 });
-const bounds = STATIONS.reduce((b, st) => ({ x0: Math.min(b.x0, st.ox), x1: Math.max(b.x1, st.ox + W), y0: Math.min(b.y0, st.oy), y1: Math.max(b.y1, st.oy + H) }), { x0: 1e9, x1: -1e9, y0: 1e9, y1: -1e9 });
-const FIT = Math.min(W / (bounds.x1 - bounds.x0 + 600), H / (bounds.y1 - bounds.y0 + 900));
+/* renderer */
+const acc = new Float32Array(W * H * 3);
+const img = ctx.createImageData(W, H);
+const vig = new Float32Array(W * H);
+for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const dx = (x - W / 2) / (W * 0.62), dy = (y - H / 2) / (H * 0.62); vig[y * W + x] = 1 - 0.28 * Math.min(1, dx * dx + dy * dy); }
+const grain = new Float32Array(512 * 512); { const r = rng(99); for (let i = 0; i < grain.length; i++) grain[i] = (r() - 0.5) * 5; }
 
-function stationAt(t) { for (let j = STATIONS.length - 1; j >= 0; j--) if (t >= STATIONS[j].start) return j; return 0; }
-function camera(t) {
-	if (t >= T_OUT) {
-		const k = E.inOutCubic(P(t, T_OUT, T_OUT + 5));
-		const c = centerOf(STATIONS.length - 1);
-		const wx = (bounds.x0 + bounds.x1) / 2, wy = (bounds.y0 + bounds.y1) / 2 + 160;
-		return { x: lerp(c.x, wx, k), y: lerp(c.y, wy, k), z: Math.exp(lerp(0, Math.log(FIT), k)) };
-	}
-	const j = stationAt(t), st = STATIONS[j], hold = st.start + st.dur - GLIDE;
-	const c = centerOf(j);
-	if (t < hold || j === STATIONS.length - 1) return { x: c.x, y: c.y, z: 1 };
-	const k = E.inOutCubic(P(t, hold, st.start + st.dur)), n = centerOf(j + 1);
-	return { x: lerp(c.x, n.x, k), y: lerp(c.y, n.y, k), z: 1 - 0.2 * Math.sin(Math.PI * k) };
+function frameKey(t) { let k = 0; while (k < KF.length - 1 && t >= KF[k + 1].t) k++; return k; }
+function splat(x, y, r, g, b) {
+	const x0 = Math.floor(x), y0 = Math.floor(y);
+	if (x0 < 0 || y0 < 0 || x0 >= W - 1 || y0 >= H - 1) return;
+	const fx1 = x - x0, fy1 = y - y0;
+	const w00 = (1 - fx1) * (1 - fy1), w10 = fx1 * (1 - fy1), w01 = (1 - fx1) * fy1, w11 = fx1 * fy1;
+	let p = (y0 * W + x0) * 3;
+	acc[p] += r * w00; acc[p + 1] += g * w00; acc[p + 2] += b * w00;
+	acc[p + 3] += r * w10; acc[p + 4] += g * w10; acc[p + 5] += b * w10;
+	p += W * 3;
+	acc[p] += r * w01; acc[p + 1] += g * w01; acc[p + 2] += b * w01;
+	acc[p + 3] += r * w11; acc[p + 4] += g * w11; acc[p + 5] += b * w11;
 }
-
-const L0 = introLayout();
-const WAY = [{ x: L0.ulx1, y: L0.uly }, { x: L0.ulx1 + 420, y: L0.uly + 40 }, { x: 1760, y: BASE_Y }];
-STATIONS.forEach((st, j) => { if (j) WAY.push({ x: st.ox + 80, y: st.oy + BASE_Y }, { x: st.ox + 1840, y: st.oy + BASE_Y }); });
-const PATH = [], CUM = [0], WAYLEN = [0];
-{
-	const pts = [WAY[0], ...WAY, WAY[WAY.length - 1]];
-	for (let i = 1; i < pts.length - 2; i++) {
-		const [p0, p1, p2, p3] = [pts[i - 1], pts[i], pts[i + 1], pts[i + 2]];
-		const steps = 40;
-		for (let s = 0; s < steps; s++) {
-			const t = s / steps, t2 = t * t, t3 = t2 * t;
-			const f = (a, b, c, d) => 0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3);
-			PATH.push({ x: f(p0.x, p1.x, p2.x, p3.x), y: f(p0.y, p1.y, p2.y, p3.y) });
+function particlesAt(t, weight, camS, camX, camY) {
+	const k = frameKey(t), cur = KF[k], prev = KF[Math.max(0, k - 1)];
+	for (let i = 0; i < N; i++) {
+		cur.f(i, t); const bx = fx, by = fy, bb = fb, bc = fc, bj = fj;
+		let x = bx, y = by, b = bb, c = bc, j = bj;
+		if (k > 0) {
+			let d;
+			if (cur.wave === "x") d = bx / W; else if (cur.wave === "y") d = by / H; else if (cur.wave === "r") d = Math.hypot(bx - W / 2, by - H / 2) / 1100; else d = RD[i];
+			const e = smooth(clamp((t - cur.t - (d * cur.spread + RC[i] * 0.35)) / cur.dur));
+			if (e < 1) {
+				prev.f(i, t);
+				x = lerp(fx, bx, e); y = lerp(fy, by, e); b = lerp(fb, bb, e); c = lerp(fc, bc, e); j = lerp(fj, bj, e);
+				const mid = Math.sin(e * Math.PI) * Math.min(1, Math.hypot(bx - fx, by - fy) / 220);
+				x += mid * GX[i] * 40 * Z[i]; y += mid * GY[i] * 40 * Z[i];
+			}
 		}
+		const z = Z[i];
+		x += j * 2.2 * Math.sin(t * 0.9 + RA[i] * 40); y += j * 2.2 * Math.cos(t * 0.8 + RB[i] * 40);
+		x = (x - W / 2) * camS * (1 + (z - 1) * 0.03) + W / 2 + camX * z; y = (y - H / 2) * camS * (1 + (z - 1) * 0.03) + H / 2 + camY * z;
+		const lum = b * weight * (0.5 + 0.5 * z) * 1.9;
+		if (lum <= 0.002) continue;
+		const cr = lerp(WHITE[0], GOLD[0], c), cg = lerp(WHITE[1], GOLD[1], c), cb = lerp(WHITE[2], GOLD[2], c);
+		splat(x, y, cr * lum, cg * lum, cb * lum);
+		if (z > 1.25) { const s = lum * 0.22; splat(x + 1, y, cr * s, cg * s, cb * s); splat(x - 1, y, cr * s, cg * s, cb * s); splat(x, y + 1, cr * s, cg * s, cb * s); splat(x, y - 1, cr * s, cg * s, cb * s); }
 	}
-	PATH.push(WAY[WAY.length - 1]);
-	for (let i = 1; i < PATH.length; i++) CUM.push(CUM[i - 1] + Math.hypot(PATH[i].x - PATH[i - 1].x, PATH[i].y - PATH[i - 1].y));
-	for (let w = 1; w < WAY.length; w++) WAYLEN.push(CUM[w * 40]);
 }
-const MILES = [[0, 0], [7.6, 0]];
-{
-	const intro = STATIONS[0];
-	MILES.push([intro.start + intro.dur - GLIDE, WAYLEN[2]]);
-	STATIONS.forEach((st, j) => {
-		if (!j) return;
-		const a = WAYLEN[2 * j + 1], b = WAYLEN[2 * j + 2];
-		MILES.push([st.start, a + 60], [st.start + st.dur - GLIDE, b]);
-	});
-	MILES.push([T_OUT + 5, CUM[CUM.length - 1]]);
-}
-function headAt(t) {
-	for (let i = 1; i < MILES.length; i++) {
-		const [t0, s0] = MILES[i - 1], [t1, s1] = MILES[i];
-		if (t <= t1) { const k = t1 > t0 ? P(t, t0, t1) : 1; return lerp(s0, s1, s1 - s0 > 400 && t1 - t0 <= GLIDE + 0.01 ? E.inOutCubic(k) : k); }
-	}
-	return CUM[CUM.length - 1];
-}
-function pointAt(s) {
-	let lo = 0, hi = CUM.length - 1;
-	while (hi - lo > 1) { const m = (lo + hi) >> 1; if (CUM[m] < s) lo = m; else hi = m; }
-	const k = CUM[hi] > CUM[lo] ? (s - CUM[lo]) / (CUM[hi] - CUM[lo]) : 0;
-	return { x: lerp(PATH[lo].x, PATH[hi].x, k), y: lerp(PATH[lo].y, PATH[hi].y, k), i: lo };
-}
-function drawThread(t, z) {
-	const s = headAt(t);
-	if (s <= 0) return;
-	const head = pointAt(s);
-	g.save();
-	g.lineCap = "round"; g.lineJoin = "round";
-	g.strokeStyle = C.acc; g.lineWidth = 2.5 / z;
-	g.globalAlpha = 0.9;
-	g.beginPath(); g.moveTo(PATH[0].x, PATH[0].y);
-	for (let i = 1; i <= head.i; i++) g.lineTo(PATH[i].x, PATH[i].y);
-	g.lineTo(head.x, head.y); g.stroke();
-	g.restore();
-	const glow = g.createRadialGradient(head.x, head.y, 0, head.x, head.y, 42 / z);
-	glow.addColorStop(0, "rgba(242,163,58,0.45)"); glow.addColorStop(1, "rgba(242,163,58,0)");
-	g.fillStyle = glow; g.beginPath(); g.arc(head.x, head.y, 42 / z, 0, Math.PI * 2); g.fill();
-	circle(head.x, head.y, 5.5 / z, C.bone);
-	STATIONS.forEach((st, j) => {
-		if (!j) return;
-		const m = { x: st.ox + 80, y: st.oy + BASE_Y };
-		const reached = s >= WAYLEN[2 * j + 1];
-		ring(m.x, m.y, 9 / z, reached ? C.acc : C.faint, 2 / z);
-		if (reached) circle(m.x, m.y, 4 / z, C.acc);
-	});
-}
-
-function drawStation(j, t, alpha) {
-	const st = STATIONS[j];
-	const u = clamp(t - st.start + (j ? LEAD : 0), 0, st.dur + LEAD);
-	if (t < st.start - GLIDE - 0.2) return;
-	g.save(); g.translate(st.ox, st.oy); g.globalAlpha = alpha;
-	if (st.kind === "intro") stationIntro(u);
-	else if (st.kind === "chapter") stationChapter(st.k, u);
-	else if (st.kind === "agents") stationAgents(u);
-	else stationEvidence(u);
-	if (j) mono(LABELS[j], 110, BASE_Y + 46, 17, C.dim, { alpha: 0.9 });
-	g.restore();
-}
-
-function draw(t) {
-	g.setTransform(1, 0, 0, 1, 0, 0);
-	g.globalAlpha = 1;
-	g.filter = "none";
-	fill(C.ink);
-	const cam = camera(t);
-	g.save();
-	g.translate(W / 2, H / 2); g.scale(cam.z, cam.z); g.translate(-cam.x, -cam.y);
-	const vw = W / cam.z / 2 + 200, vh = H / cam.z / 2 + 200;
-	const outK = P(t, T_OUT, T_OUT + 3);
-	STATIONS.forEach((st, j) => {
-		const c = centerOf(j);
-		if (Math.abs(c.x - cam.x) > vw + W / 2 || Math.abs(c.y - cam.y) > vh + H / 2) return;
-		const d = Math.hypot(c.x - cam.x, c.y - cam.y);
-		const focus = clamp(1 - d / 2300);
-		drawStation(j, t, lerp(0.28, 1, focus) * lerp(1, 0.5, outK));
-	});
-	drawThread(t, cam.z);
-	g.restore();
-	finale(t);
-}
-
-function finale(t) {
-	const u = t - T_OUT;
-	if (u < 3.5) return;
-	const k = E.inOutCubic(P(u, 3.5, 5.0));
-	const grad = g.createRadialGradient(W / 2, H / 2 + 20, 60, W / 2, H / 2 + 20, 760);
-	grad.addColorStop(0, `rgba(7,8,10,${0.88 * k})`); grad.addColorStop(1, "rgba(7,8,10,0)");
-	g.fillStyle = grad; g.fillRect(0, 0, W, H);
-	const fadeAll = 1 - E.inOutCubic(P(u, 10.2, 11.8));
-	g.save(); g.globalAlpha = fadeAll;
-	maskUp("Skillify", W / 2, H / 2 + 20, 190, T_OUT + 4.2, t, { stagger: 0.05, dur: 1.1, align: "center", spacing: -5 });
-	const tag = "Say what you want. The right method loads.";
-	let x = W / 2 - measure(tag, 38, 500) / 2;
-	tag.split(" ").forEach((w, i) => {
-		const e = E.outCubic(P(u, 5.4 + i * 0.08, 6.2 + i * 0.08));
-		text(w, x, H / 2 + 120 + (1 - e) * 16, { size: 38, weight: 500, color: i >= 4 ? C.bone : C.mid, alpha: e });
-		x += measure(w + " ", 38, 500);
-	});
-	mono("10 skills · 4 agents · 2.6 KB always loaded · any assistant", W / 2, H / 2 + 186, 21, C.dim, { align: "center", alpha: E.outCubic(P(u, 6.6, 7.4)), spacing: 1 });
-	mono("github.com/trykA123/skillify", W / 2, H - 100, 24, C.acc, { align: "center", alpha: E.outCubic(P(u, 7.2, 8.0)), weight: 600 });
-	g.restore();
-	g.fillStyle = `rgba(0,0,0,${E.inOutCubic(P(u, 10.6, 12))})`; g.fillRect(0, 0, W, H);
-}
-const grain = document.createElement("canvas");
-grain.width = grain.height = 256;
-{
-	const gx = grain.getContext("2d"), img = gx.createImageData(256, 256), r = rng(99);
-	for (let i = 0; i < img.data.length; i += 4) { const v = r() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
-	gx.putImageData(img, 0, 0);
-}
-const vignette = out.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 1.05);
-vignette.addColorStop(0, "rgba(0,0,0,0)");
-vignette.addColorStop(1, "rgba(0,0,0,0.24)");
-
-function render(t, samples = 6) {
-	if (t > T_OUT + 0.5) samples = Math.min(samples, 3);
-	out.setTransform(1, 0, 0, 1, 0, 0);
+function render(t, samples = 4) {
+	acc.fill(0);
 	const shutter = 0.5 / FPS;
-	for (let s = 0; s < samples; s++) {
-		draw(Math.max(0, t - (shutter * s) / Math.max(1, samples - 1)));
-		out.globalAlpha = 1 / (s + 1);
-		out.drawImage(buf, 0, 0);
+	const camS = 1 + 0.018 * Math.sin(t * 0.05), camX = 10 * Math.sin(t * 0.031), camY = 6 * Math.cos(t * 0.027);
+	for (let s = 0; s < samples; s++) particlesAt(Math.max(0, t - shutter * s / Math.max(1, samples - 1)), 1 / samples, camS, camX, camY);
+	const d = img.data, go = (Math.floor(t * FPS) * 7919) % (512 * 512);
+	const fadeEnd = 1 - P(t, DUR - 1.4, DUR);
+	for (let p = 0, q = 0, n = W * H; p < n; p++, q += 3) {
+		const v = vig[p], g = grain[(p + go) % 262144];
+		const r = acc[q], gg = acc[q + 1], b = acc[q + 2];
+		d[p * 4] = (BG[0] * v + 255 * (1 - Math.exp(-r / 255 * 1.6)) + g) * fadeEnd;
+		d[p * 4 + 1] = (BG[1] * v + 255 * (1 - Math.exp(-gg / 255 * 1.6)) + g) * fadeEnd;
+		d[p * 4 + 2] = (BG[2] * v + 255 * (1 - Math.exp(-b / 255 * 1.6)) + g) * fadeEnd;
+		d[p * 4 + 3] = 255;
 	}
-	out.globalAlpha = 1;
-	out.fillStyle = vignette; out.fillRect(0, 0, W, H);
-	const r = rng(Math.floor(t * FPS) + 1);
-	out.save(); out.globalAlpha = 0.045; out.globalCompositeOperation = "overlay";
-	out.translate(-r() * 256, -r() * 256);
-	out.fillStyle = out.createPattern(grain, "repeat"); out.fillRect(0, 0, W + 256, H + 256);
-	out.restore();
+	ctx.putImageData(img, 0, 0);
+	ctx.save(); ctx.globalAlpha = fadeEnd;
+	introCaption(t); chapterCaption(t); OVER.forEach((f) => f(t)); sectionCaptions(t);
+	ctx.restore();
 }
 
 window.render = render;
 window.DURATION = DUR;
-window.ready = Promise.all([
-	document.fonts.load(font(100, 900, DISP)), document.fonts.load(font(100, 800, DISP)), document.fonts.load(font(100, 700, DISP)), document.fonts.load(font(100, 600, DISP)), document.fonts.load(font(100, 500, DISP)),
-	document.fonts.load(font(40, 500, MONO)), document.fonts.load(font(40, 600, MONO)), document.fonts.load(font(40, 700, MONO)), document.fonts.load(font(40, 800, MONO)),
-]);
+window.ready = Promise.all([document.fonts.load(`italic 100px ${SERIF}`), document.fonts.load(`400 14px ${MONO}`), document.fonts.load(`500 16px ${MONO}`)]).then(() => { buildTimeline(); });
 if (!location.search.includes("record")) {
 	window.ready.then(() => {
 		const q = new URLSearchParams(location.search), from = Number(q.get("t") ?? 0);
