@@ -7,7 +7,7 @@
   --line2: rgba(255, 255, 255, 0.14);
   --text: #eef0f8;
   --muted: #8f95ad;
-  --faint: #5b6078;
+  --faint: #80859f;
   --lime: #c8ff4d;
   --cyan: #5ee6ff;
   --coral: #ff6b57;
@@ -38,13 +38,13 @@
   --line2: rgba(11, 13, 24, 0.16);
   --text: #0b0d18;
   --muted: #5a607a;
-  --faint: #9aa0b8;
-  --lime: #4e8a00;
-  --cyan: #0089ad;
-  --coral: #d6453a;
-  --amber: #b77600;
+  --faint: #626b8c;
+  --lime: #417400;
+  --cyan: #00718e;
+  --coral: #bf3328;
+  --amber: #925e00;
   --violet: #5b4ce0;
-  --pink: #c2379f;
+  --pink: #af328f;
   --on-lime: #ffffff;
   --shadow: 0 24px 60px -24px rgba(20, 24, 60, 0.28);
   --glow-lime: none;
@@ -289,7 +289,8 @@ main { overflow-y: auto; min-width: 0; }
 
 .tip-t { border-bottom: 1px dotted var(--faint); cursor: help; }
 .tip-t:focus-visible { outline: 2px solid var(--lime); border-radius: 3px; }
-.tip { position: relative; z-index: 60; max-width: 340px; background: color-mix(in srgb, var(--bg) 94%, var(--lime)); border: 1px solid var(--line2); color: var(--text); font-size: 12.5px; line-height: 1.5; padding: 10px 12px; border-radius: 11px; box-shadow: var(--shadow); transform-origin: var(--transform-origin); transition: opacity 0.14s, transform 0.14s; }
+.tip-pos { z-index: 80; }
+.tip { position: relative; max-width: 340px; background: color-mix(in srgb, var(--bg) 94%, var(--lime)); border: 1px solid var(--line2); color: var(--text); font-size: 12.5px; line-height: 1.5; padding: 10px 12px; border-radius: 11px; box-shadow: var(--shadow); transform-origin: var(--transform-origin); transition: opacity 0.14s, transform 0.14s; }
 .tip b { color: var(--lime); }
 .tip[data-starting-style], .tip[data-ending-style] { opacity: 0; transform: scale(0.96); }
 

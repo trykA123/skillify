@@ -78,7 +78,7 @@ export function Tip({ content, children }: { content: ReactNode; children: React
     <Tooltip.Root>
       <Tooltip.Trigger render={<span className="tip-t" tabIndex={0} />}>{children}</Tooltip.Trigger>
       <Tooltip.Portal>
-        <Tooltip.Positioner sideOffset={8}>
+        <Tooltip.Positioner className="tip-pos" sideOffset={8}>
           <Tooltip.Popup className="tip">{content}</Tooltip.Popup>
         </Tooltip.Positioner>
       </Tooltip.Portal>
