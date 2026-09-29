@@ -118,26 +118,35 @@ const usd = (v) => `$${v >= 1 ? v.toFixed(2) : v.toFixed(3)}`;
 const arrow = (d, eps = 0.005) => (d > eps ? "\u25B2" : d < -eps ? "\u25BC" : "=");
 const dir = (d, eps = 0.005) => (d > eps ? "up" : d < -eps ? "down" : "flat");
 const sgn2 = (d) => (Math.abs(d) < 0.005 ? "0.00" : `${d > 0 ? "+" : "\u2212"}${Math.abs(d).toFixed(2)}`);
+const pts = (d) => (Math.abs(d) < 0.005 ? "no change" : `${d > 0 ? "+" : "\u2212"}${Math.round(Math.abs(d) * 100)} pts`);
 
 function bars(base, skill, cls = "") {
   const row = (lab, v, kind) => `<div class="pb ${kind}"><span class="pl">${lab}</span><span class="trk"><span class="fill" style="--w:${Math.max(0, Math.min(1, v)).toFixed(4)}"></span></span><span class="pv">${v.toFixed(2)}</span></div>`;
   return `<div class="pbs ${cls}">${row("no skills", base, "b")}${row("with skills", skill, skill < base - 0.005 ? "s down" : "s")}</div>`;
 }
 
-function modelCard(m) {
+function modelCard(m, kinds = {}) {
   const d = m.skill.score - m.base.score;
   const kv = (l, a, b, f) => `<div class="kv-r"><dt>${l}</dt><dd>${f(a)} \u2192 ${f(b)} <span class="chg">${signed(change(a, b))}</span></dd></div>`;
-  return `<article class="mcard" data-model="${esc(m.model)}"><h3>${esc(modelName(m.model))}</h3><p class="mn">${m.base.n} runs no skills / ${m.skill.n} runs with skills</p><div class="score2" aria-label="Mean score ${m.base.score.toFixed(2)} without skills, ${m.skill.score.toFixed(2)} with skills"><span>${m.base.score.toFixed(2)}</span><i>\u2192</i><b class="${dir(d)}">${m.skill.score.toFixed(2)}</b><em class="${dir(d)}">${arrow(d)} ${sgn2(d)}</em></div>${bars(m.base.score, m.skill.score)}<dl class="kv">${kv("Cost per run", m.base.cost, m.skill.cost, usd)}${kv("Turns", m.base.turns, m.skill.turns, (v) => v.toFixed(1))}${kv("Time", m.base.seconds, m.skill.seconds, (v) => `${Math.round(v)} s`)}</dl>${m.estimate ? `<p class="mn est">Cost here is Claude Code's estimate at Anthropic prices, not the provider's bill. DeepSeek actually billed about $0.01 per run (account balance before and after).</p>` : ""}</article>`;
+  const label = (t) => `${esc(t.task)}${kinds[t.task]?.skill ? ` <small>${esc(kinds[t.task].skill)}</small>` : ""}`;
+  const up = m.tasks.filter((t) => t.skill.score - t.base.score >= 0.05).sort((a, b) => (b.skill.score - b.base.score) - (a.skill.score - a.base.score));
+  const down = m.tasks.filter((t) => t.skill.score - t.base.score <= -0.05);
+  const flat = m.tasks.filter((t) => Math.abs(t.skill.score - t.base.score) < 0.05);
+  const li = (t) => `<li>${label(t)} <b class="${dir(t.skill.score - t.base.score)}">${pts(t.skill.score - t.base.score)}</b> <span>${t.base.score.toFixed(2)} \u2192 ${t.skill.score.toFixed(2)}</span></li>`;
+  const allTop = flat.length && flat.every((t) => t.base.score >= 0.995);
+  const costLine = m.estimate ? "" : `<p class="wc-cost">Each run cost ${signed(change(m.base.cost, m.skill.cost))} (${usd(m.base.cost)} \u2192 ${usd(m.skill.cost)}), took ${(m.skill.turns - m.base.turns).toFixed(1)} more turns and ${Math.round(m.skill.seconds - m.base.seconds)} s longer.</p>`;
+  const what = `<div class="wc"><p class="wc-sum">Scored <b>${m.skill.score.toFixed(2)}</b> of 1.00 with skills vs <b>${m.base.score.toFixed(2)}</b> without: <b class="${dir(d)}">${pts(d)}</b>.</p>${up.length ? `<h4>Improved</h4><ul>${up.map(li).join("")}</ul>` : ""}${down.length ? `<h4>Got worse</h4><ul>${down.map(li).join("")}</ul>` : ""}${flat.length ? `<h4>No change</h4><p class="wc-flat">${flat.map(label).join(", ")}${allTop ? " \u2014 already 1.00 without skills" : ""}</p>` : ""}${costLine}</div>`;
+  return `<article class="mcard" data-model="${esc(m.model)}"><h3>${esc(modelName(m.model))}</h3><p class="mn">${m.base.n} runs no skills / ${m.skill.n} runs with skills</p><div class="score2" aria-label="Mean score ${m.base.score.toFixed(2)} without skills, ${m.skill.score.toFixed(2)} with skills"><span>${m.base.score.toFixed(2)}</span><i>\u2192</i><b class="${dir(d)}">${m.skill.score.toFixed(2)}</b><em class="${dir(d)}">${arrow(d)} ${pts(d)}</em></div>${bars(m.base.score, m.skill.score)}<dl class="kv">${kv("Cost per run", m.base.cost, m.skill.cost, usd)}${kv("Turns", m.base.turns, m.skill.turns, (v) => v.toFixed(1))}${kv("Time", m.base.seconds, m.skill.seconds, (v) => `${Math.round(v)} s`)}</dl>${what}${m.estimate ? `<p class="mn est">Cost here is Claude Code's estimate at Anthropic prices, not the provider's bill. DeepSeek actually billed about $0.01 per run (account balance before and after).</p>` : ""}</article>`;
 }
 
 function taskCard(t) {
   const rows = t.per.map((c) => {
     const d = c.skill.score - c.base.score;
     const cls = d >= 0.25 ? " win" : d <= -0.25 ? " loss" : "";
-    return `<div class="tk-r${cls}" data-model="${esc(c.model)}" data-delta="${d.toFixed(2)}"><span class="tm">${esc(modelName(c.model, true))}</span><div class="tb"><span class="tv">${c.base.score.toFixed(2)} \u2192 ${c.skill.score.toFixed(2)}</span>${bars(c.base.score, c.skill.score, "mini")}</div><span class="td ${dir(d)}">${arrow(d)} ${sgn2(d)}</span><span class="tc">${signed(change(c.base.cost, c.skill.cost))}</span></div>`;
+    return `<div class="tk-r${cls}" data-model="${esc(c.model)}" data-delta="${d.toFixed(2)}"><span class="tm">${esc(modelName(c.model, true))}</span><div class="tb"><span class="tv">${c.base.score.toFixed(2)} \u2192 ${c.skill.score.toFixed(2)}</span>${bars(c.base.score, c.skill.score, "mini")}</div><span class="td ${dir(d)}">${arrow(d)} ${pts(d)}</span><span class="tc">${signed(change(c.base.cost, c.skill.cost))}</span></div>`;
   }).join("");
   const grader = t.kind === "rubric" ? "rubric graded by Codex" : t.kind === "tests" ? "hidden tests" : "";
-  return `<article class="tkcard" data-task="${esc(t.task)}"><h3>${esc(t.task)}</h3><p class="mn">${[t.skill && `skill: ${esc(t.skill)}`, grader].filter(Boolean).join(" / ") || "&nbsp;"}</p><div class="tk-h"><span></span><span>score</span><span>\u0394 score</span><span>\u0394 cost</span></div>${rows}</article>`;
+  return `<article class="tkcard" data-task="${esc(t.task)}"><h3>${esc(t.task)}</h3><p class="mn">${[t.skill && `skill: ${esc(t.skill)}`, grader].filter(Boolean).join(" / ") || "&nbsp;"}</p><div class="tk-h"><span></span><span>score</span><span>score change</span><span>cost change</span></div>${rows}</article>`;
 }
 
 function costPoint(models) {
@@ -170,9 +179,9 @@ function measured(ev) {
     const t = [...m.tasks].sort((a, b) => a.skill.score - a.base.score - (b.skill.score - b.base.score))[0];
     return `${modelName(m.model, true)} scored lower with skills (${m.base.score.toFixed(2)} \u2192 ${m.skill.score.toFixed(2)}), mostly on ${t.task} (${t.base.score.toFixed(2)} \u2192 ${t.skill.score.toFixed(2)}).`;
   });
-  return `<section class="ch" id="measured"><div class="ch-h"><span class="no">PAIRED EVALS</span><h2>Measured, not claimed</h2></div><p class="ch-d">Does it help, and what does it cost? The same tasks ran twice per model, once without skills and once with them. Every number below is computed from the raw result files.</p>
+  return `<section class="ch" id="measured"><div class="ch-h"><span class="no">PAIRED EVALS</span><h2>Measured, not claimed</h2></div><p class="ch-d">Does it help, and what does it cost? The same tasks ran twice per model, once without skills and once with them. Every number below is computed from the raw result files.</p><p class="ch-d how"><b>How to read it.</b> A score runs from 0 to 1: the share of hidden tests passed, or the rubric credit an independent grader (Codex) gave. \u201cpts\u201d are score points out of 100, so <b>+18 pts</b> means the mean score rose by 0.18, for example 0.78 \u2192 0.95 (the 0.01 difference is rounding). Cost change is the percent change in dollars per run.</p>
 <p class="ev-head">${esc(h.pre)}${h.em ? `<em>${esc(h.em)}</em>` : ""}</p>${worse.map((w) => `<p class="ev-warn">${esc(w)}</p>`).join("")}
-<div class="ev-grid">${ev.models.map(modelCard).join("")}</div>
+<div class="ev-grid">${ev.models.map((m) => modelCard(m, ev.kinds)).join("")}</div>
 <div class="panel sub"><h3>Per task</h3><p class="ch-d">Small bars: grey is without skills, colour is with skills. Rows tinted green gained 0.25 or more; red lost 0.25 or more. Tasks are sorted by their biggest gain.</p><div class="tk-grid">${ev.tasks.map(taskCard).join("")}</div></div>
 <div class="panel sub"><h3>Cost per score point</h3><p class="ch-d">Mean cost per run divided by mean score. Lower is cheaper for the same quality. It answers whether the extra spend buys anything.</p>${costPoint(ev.models)}</div>
 <div class="panel sub method"><h3>Method</h3>${methodNote(ev)}</div></section>`;
@@ -562,7 +571,7 @@ footer a{color:var(--accent)}
 .ev-warn{font:.8rem/1.5 var(--mono);color:var(--hurt);margin:-8px 0 20px}
 .ev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px}
 .mcard,.tkcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;min-width:0}
-.mcard h3{font:400 2rem/1.1 var(--disp)}.tkcard h3{font:400 1.5rem/1.15 var(--disp);overflow-wrap:anywhere}
+.mcard h3{font:400 2rem/1.1 var(--disp)}.wc{margin-top:16px;border-top:1px dashed var(--line);padding-top:14px;font-size:.86rem}.wc h4{font:600 .66rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}.wc ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}.wc li{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}.wc li small,.wc-flat small{font:.66rem var(--mono);color:var(--muted)}.wc li span{font:.7rem var(--mono);color:var(--muted)}.wc-sum{margin:0}.wc-flat{margin:0;color:var(--muted)}.wc-cost{margin:12px 0 0;color:var(--muted)}.wc .up{color:var(--helped)}.wc .down{color:var(--hurt)}.how{border-left:2px solid var(--line);padding-left:12px}.tkcard h3{font:400 1.5rem/1.15 var(--disp);overflow-wrap:anywhere}
 .mn{font:.72rem/1.4 var(--mono);color:var(--muted);margin:6px 0 14px;letter-spacing:.04em}
 .score2{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;font:400 clamp(2.4rem,5vw,3.4rem)/1 var(--disp);font-variant-numeric:tabular-nums}
 .score2 span{color:var(--muted)}.score2 i{font-style:normal;color:var(--muted);font-size:.6em}
