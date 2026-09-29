@@ -144,6 +144,23 @@ main { overflow-y: auto; min-width: 0; }
 .slope .s2 line, .slope .s2 circle { stroke: #e0a84a; fill: #e0a84a; }
 .slope .sl circle { stroke: var(--panel); }
 
+.dumbbell { margin: 0; display: grid; gap: 8px; }
+.dumbbell svg { width: 100%; height: auto; }
+.dumbbell .grid { stroke: var(--line); }
+.dumbbell .axis { fill: var(--faint); font: 10.5px var(--mono); }
+.db-l { fill: var(--text); font: 500 12.5px var(--font); }
+.db-v { fill: var(--muted); font: 11px var(--mono); }
+.db-v.strong { fill: var(--text); font-weight: 500; }
+.db-link { stroke-width: 3; stroke-linecap: round; }
+.db-link.up { stroke: color-mix(in srgb, var(--up) 45%, transparent); }
+.db-link.down { stroke: color-mix(in srgb, var(--down) 45%, transparent); }
+.db-base { fill: var(--panel); stroke: var(--muted); stroke-width: 2; }
+.db-skill.up { fill: var(--up); }
+.db-skill.down { fill: var(--down); }
+.db-key { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); }
+.db-key i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+.k-base { border: 2px solid var(--muted); }
+.k-skill { background: var(--up); }
 .big-score { display: flex; align-items: baseline; gap: 10px; font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
 .big-score .arrow { color: var(--faint); font-size: 20px; }
 .hl.up { color: var(--up); }

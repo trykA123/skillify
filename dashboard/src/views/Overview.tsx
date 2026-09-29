@@ -1,5 +1,5 @@
 import { categoryStats, data, dir, modelName, pctChange, pts, signedPct } from "../lib";
-import { Card, Delta, PairBars, Score, SlopeChart, Stat, Tip } from "../ui";
+import { Card, Delta, Dumbbell, PairBars, Score, Stat, Tip } from "../ui";
 
 export function Overview({ go }: { go: (h: string) => void }) {
   const e = data.entries;
@@ -33,7 +33,7 @@ export function Overview({ go }: { go: (h: string) => void }) {
 
       <div className="grid2">
         <Card title="Score without → with skills" sub="Mean over all tasks. Hover a number for how it's computed.">
-          <SlopeChart rows={data.models.map((m) => ({ label: modelName(m.model).replace("Claude ", "").replace(" Flash", ""), base: m.base.score, skill: m.skill.score }))} />
+          <Dumbbell rows={data.models.map((m) => ({ label: modelName(m.model).replace("Claude ", ""), base: m.base.score, skill: m.skill.score }))} />
         </Card>
         <Card title="What skills changed, per model">
           <table className="tbl">

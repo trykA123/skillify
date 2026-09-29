@@ -97,6 +97,54 @@ export function Stat({ label, value, hint }: { label: string; value: ReactNode; 
   );
 }
 
+export function Dumbbell({ rows }: { rows: { label: string; base: number; skill: number }[] }) {
+  const lo = Math.max(0, Math.floor((Math.min(...rows.flatMap((r) => [r.base, r.skill])) - 0.04) * 20) / 20);
+  const W = 460, rowH = 44, pad = { l: 92, r: 56, t: 10, b: 34 };
+  const H = pad.t + rows.length * rowH + pad.b;
+  const x = (v: number) => pad.l + ((v - lo) / (1 - lo)) * (W - pad.l - pad.r);
+  const ticks: number[] = [];
+  for (let t = lo; t <= 1.0001; t += lo <= 0.5 ? 0.1 : 0.05) ticks.push(Math.round(t * 100) / 100);
+  return (
+    <figure className="dumbbell">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Mean score without and with skills per model">
+        {ticks.map((t) => (
+          <g key={t}>
+            <line x1={x(t)} x2={x(t)} y1={pad.t} y2={H - pad.b + 4} className="grid" />
+            <text x={x(t)} y={H - pad.b + 18} className="axis" textAnchor="middle">
+              {t.toFixed(2)}
+            </text>
+          </g>
+        ))}
+        {rows.map((r, i) => {
+          const cy = pad.t + i * rowH + rowH / 2;
+          const up = r.skill >= r.base;
+          return (
+            <g key={r.label} className="db-row">
+              <text x={0} y={cy + 4} className="db-l">
+                {r.label}
+              </text>
+              <line x1={x(r.base)} x2={x(r.skill)} y1={cy} y2={cy} className={`db-link ${up ? "up" : "down"}`} />
+              <circle cx={x(r.base)} cy={cy} r={5.5} className="db-base" />
+              <circle cx={x(r.skill)} cy={cy} r={6.5} className={`db-skill ${up ? "up" : "down"}`} />
+              <text x={x(r.base) - 10} y={cy - 10} className="db-v" textAnchor="middle">
+                {s2(r.base)}
+              </text>
+              <text x={x(r.skill) + 10} y={cy - 10} className="db-v strong" textAnchor="middle">
+                {s2(r.skill)}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+      <figcaption className="db-key">
+        <span><i className="k-base" /> without skills</span>
+        <span><i className="k-skill" /> with skills</span>
+        {lo > 0 ? <span className="muted">axis starts at {lo.toFixed(2)}, not 0</span> : null}
+      </figcaption>
+    </figure>
+  );
+}
+
 export function SlopeChart({ rows }: { rows: { label: string; base: number; skill: number }[] }) {
   const W = 420, H = 220, pad = { l: 44, r: 118, t: 16, b: 28 };
   const y = (v: number) => pad.t + (1 - v) * (H - pad.t - pad.b);
