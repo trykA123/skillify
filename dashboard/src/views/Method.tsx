@@ -1,9 +1,13 @@
 import { REPO, data, modelName } from "../lib";
 import { Card } from "../ui";
+import { MethodDiagram } from "../art";
 
 export function Method() {
   return (
     <div className="view prose">
+      <Card title="The pipeline" sub="One task, two sides, the same grader.">
+        <MethodDiagram />
+      </Card>
       <Card title="How a paired run works">
         <ol>
           <li>Each task is a small real repo with a short git history and a prompt, like a ticket. It's copied into a fresh throwaway folder for every run.</li>
@@ -21,6 +25,8 @@ export function Method() {
         <p>
           <b>Reviewing and clarifying tasks</b> have a rubric: planted bugs to find, or decisions a good engineer would raise. A separate model (Codex) grades the answer against it, with written penalties (for example −0.15 per wrong finding, or 0 if a buggy PR is approved). The grader returns what it credited and penalised; the Tasks view shows it per run.
         </p>
+        <div className="formula">tests:  score = hidden_passed / hidden_total  × (repo tests pass ? 1 : 0.5)</div>
+        <div className="formula">rubric: score = credited / items  − penalties   (0 if a buggy PR is approved)</div>
         <p>
           A model's score is the mean over all its runs on one side, on a 0–1 scale where 1.00 is perfect. <b>pts</b> are points out of 100: 0.78 → 0.95 is +17 or +18 pts depending on rounding.
         </p>

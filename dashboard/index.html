@@ -3,17 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Skillify field recorder</title>
+    <title>Skillify Signal</title>
+    <meta name="theme-color" content="#06070d" />
     <meta name="description" content="Do skills help AI agents, and what do they cost? Paired evals and field feedback for the Skillify skill suite." />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 rx=%274%27 fill=%27%237c86ff%27/%3E%3C/svg%3E" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect x=%271%27 y=%271%27 width=%2730%27 height=%2730%27 rx=%279%27 fill=%27%230a0c16%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%278.5%27 fill=%27none%27 stroke=%27%232a2e44%27 stroke-width=%272.5%27/%3E%3Cpath d=%27M8.6 11.8A8.5 8.5 0 1 1 24 20.2%27 fill=%27none%27 stroke=%27%23c8ff4d%27 stroke-width=%273.4%27 stroke-linecap=%27round%27/%3E%3Ccircle cx=%2724%27 cy=%2720.2%27 r=%272.1%27 fill=%27%23c8ff4d%27/%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./src/styles.css" />
     <script>
       try {
         var t = localStorage.getItem("skillify-theme");
         document.documentElement.dataset.theme = t === "light" || t === "dark" ? t : matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.style.background = document.documentElement.dataset.theme === "light" ? "#f4f5fa" : "#06070d";
       } catch (e) {}
     </script>
   </head>

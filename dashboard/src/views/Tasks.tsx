@@ -77,6 +77,48 @@ function RunList({ task, model, arm }: { task: string; model: string; arm: "base
   );
 }
 
+function CreditMatrix({ task }: { task: string }) {
+  const t = taskById(task)!;
+  const ids = t.rubricItems.map((x) => x.match(/^([A-Z]\d+):/)?.[1]).filter(Boolean) as string[];
+  if (!ids.length || ids.length !== t.rubricItems.length) return null;
+  const rows = data.models.flatMap((m) =>
+    (["base", "skill"] as const).flatMap((arm) =>
+      data.runs
+        .filter((r) => r.task === task && r.model === m.model && r.arm === arm)
+        .map((r, i) => ({ key: `${m.model}-${arm}-${i}`, label: `${modelName(m.model).replace("Claude ", "")} · ${arm === "base" ? "without" : "with"} #${i + 1}`, arm, hits: ids.map((id) => r.credited.some((c) => c.trim().startsWith(id))), score: r.score, first: i === 0 && arm === "base" })),
+    ),
+  );
+  return (
+    <Card title="Credit matrix" sub="Each row is one run; each column is a planted issue. Lit means the grader credited the run with finding it. Cyan = without skills, lime = with the skill.">
+      <div className="cm" style={{ ["--n" as string]: ids.length }}>
+        <div className="cm-row">
+          <span className="cm-h">run</span>
+          {ids.map((id) => (
+            <span key={id} className="cm-h">
+              {id}
+            </span>
+          ))}
+          <span className="cm-h">score</span>
+        </div>
+        {rows.map((r) => (
+          <div key={r.key} style={{ display: "contents" }}>
+            {r.first ? <div className="cm-sep" /> : null}
+            <div className="cm-row">
+              <span className="cm-label">{r.label}</span>
+              {r.hits.map((h, k) => (
+                <span key={k} className={`cm-cell${h ? " hit" : ""}${h && r.arm === "base" ? " base" : ""}`}>
+                  {h ? "✓" : "·"}
+                </span>
+              ))}
+              <span className="cm-score">{r.score.toFixed(2)}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 export function TaskDetail({ id }: { id: string }) {
   const t = taskById(id);
   const [open, setOpen] = useState<string | null>(null);
@@ -132,6 +174,7 @@ export function TaskDetail({ id }: { id: string }) {
           ) : null}
         </Card>
       </div>
+      <CreditMatrix task={t.task} />
       <h3 className="section">Results</h3>
       {data.models.map((m) => {
         const c = m.tasks.find((x) => x.task === t.task);

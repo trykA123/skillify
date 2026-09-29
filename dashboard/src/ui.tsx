@@ -1,6 +1,77 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Tooltip } from "@base-ui/react/tooltip";
 import { dir, pts, s2, scoreMeaning } from "./lib";
+
+const reduced = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+export function useCountUp(target: number, ms = 1100) {
+  const [v, setV] = useState(() => (reduced() ? target : 0));
+  useEffect(() => {
+    if (reduced()) return setV(target);
+    let raf = 0;
+    const t0 = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / ms);
+      setV(target * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, ms]);
+  return v;
+}
+
+export function CountUp({ value, format = (x: number) => String(Math.round(x)) }: { value: number; format?: (x: number) => string }) {
+  return <>{format(useCountUp(value))}</>;
+}
+
+export function useSpotlight() {
+  useEffect(() => {
+    const on = (e: PointerEvent) => {
+      const el = (e.target as HTMLElement | null)?.closest?.(".card") as HTMLElement | null;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+      el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    };
+    addEventListener("pointermove", on, { passive: true });
+    return () => removeEventListener("pointermove", on);
+  }, []);
+}
+
+export function Ring({ base, skill, label }: { base: number; skill: number; label: string }) {
+  const R = 66, C = 2 * Math.PI * R, R2 = 52, C2 = 2 * Math.PI * R2;
+  const [on, setOn] = useState(reduced());
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setOn(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  const d = skill - base;
+  const shown = useCountUp(Math.round(d * 100));
+  return (
+    <div className="ring">
+      <svg viewBox="0 0 160 160" role="img" aria-label={`${label}: ${s2(base)} without skills, ${s2(skill)} with skills, ${pts(d)}`}>
+        <g transform="rotate(-90 80 80)">
+          <circle className="track" cx="80" cy="80" r={R} />
+          <circle className="track thin" cx="80" cy="80" r={R2} />
+          <circle className="arc-skill" cx="80" cy="80" r={R} strokeDasharray={C} strokeDashoffset={on ? C * (1 - skill) : C} />
+          <circle className="arc-base" cx="80" cy="80" r={R2} strokeDasharray={C2} strokeDashoffset={on ? C2 * (1 - base) : C2} />
+        </g>
+        <text className="ring-v" x="80" y="86" textAnchor="middle">
+          {d >= 0 ? "+" : "−"}
+          {Math.abs(Math.round(shown))}
+        </text>
+        <text className="ring-s" x="80" y="103" textAnchor="middle">
+          PTS
+        </text>
+      </svg>
+      <div className="ring-n">{label}</div>
+      <div className="ring-sub">
+        <i>{s2(base)}</i> → <b>{s2(skill)}</b>
+      </div>
+    </div>
+  );
+}
 
 export function Tip({ content, children }: { content: ReactNode; children: ReactNode }) {
   return (
@@ -121,6 +192,12 @@ export function Dumbbell({ rows }: { rows: { label: string; base: number; skill:
   return (
     <figure className="dumbbell" ref={ref}>
       <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Mean score without and with skills per model">
+        <defs>
+          <linearGradient id="dbgrad" x1="0" x2="1">
+            <stop offset="0" stopColor="var(--cyan)" stopOpacity="0.6" />
+            <stop offset="1" stopColor="var(--lime)" />
+          </linearGradient>
+        </defs>
         {ticks.map((t) => (
           <g key={t}>
             <line x1={x(t)} x2={x(t)} y1={pad.t} y2={H - pad.b + 4} className="grid" />
