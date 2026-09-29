@@ -21,7 +21,9 @@ bisecting. Get a reliable trigger first.
 ## 2. Rank two to four hypotheses
 
 Usual suspects: a recent change, a moved dependency, persisted state that disagrees with
-the code, environment drift, a race.
+the code, environment drift, a race, and a condition (level, role, flag, fallback) that
+hides a value which is actually present. When it works in one place but not another,
+list every consumer of the value first.
 
 ```markdown
 H1: <cause> (high|med|low) — because <evidence> — falsified by <observation> — test: <command>
