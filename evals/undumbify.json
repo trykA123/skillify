@@ -7,6 +7,11 @@
       "prompt": "I want users to be able to share playlists. Not sure how it should work yet."
     },
     {
+      "id": "unsettled-invoice-permissions",
+      "route": "undumbify",
+      "prompt": "We need a way for teams to manage shared invoices. I haven't decided who can see, approve or edit them."
+    },
+    {
       "id": "clear-plan",
       "route": [
         "shapeify",

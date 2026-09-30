@@ -1,6 +1,6 @@
 ---
 name: shapeify
-description: Turn settled intent into an executable plan. Every step names its file and symbol, its verification, and the likely wrong move, so another agent can execute it without the conversation. Use when the goal is clear but the approach is not, or before handing work to someone else.
+description: Turn settled intent into an executable plan. Every step names its file, symbol, verification and likely wrong move. Use when product decisions are settled but implementation steps are unclear, or before handing work to someone else. For unsettled product decisions, use undumbify first.
 ---
 
 # Shapeify

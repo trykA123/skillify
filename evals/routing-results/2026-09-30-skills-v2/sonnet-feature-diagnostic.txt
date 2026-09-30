@@ -1,0 +1,5 @@
+**Skill to load first: `undumbify`.**
+
+**Catalog wording that drove it:** "Use when direction is vague" and "Supplies the decisions an experienced engineer would raise, recommends defaults." The request has two loosely defined goals. "Faster" has no target, no baseline and no named slow path. "Filters by date" leaves open which field, which range types and which UI. Those gaps are decisions, and `undumbify` is the skill that supplies them.
+
+**Is orientation needed first?** Not as the first step, judging from the wording alone. `orientify` says "Use when entering a new repo or returning after a long gap." Nothing in the request says the repo is unfamiliar. The working directory is also `/tmp`, not a git repo, so there may be no codebase to map yet. Sort out intent first. If the decisions depend on how search works today, orient after that. Use `traceify` only if a specific slowness turns out to have an unknown cause.

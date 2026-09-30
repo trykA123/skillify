@@ -5,15 +5,20 @@ description: Use for any request to implement, build, or change code, execute a 
 
 # Shipify
 
-A plan or clear request in, verified working change out. No plan is fine: for small
-work, write the three-line version (outcome, steps with a verify command, done-when)
-before editing.
+## Weight
+
+For a one-file change with an obvious check: read the target and `git status`, change
+it, run that check, report the result. Heavy work still needs the safeguards in Finish.
+
+For two or more files, or an unclear check, follow the full procedure below. Start with
+a plan or three lines: outcome, steps with a verify command, and done-when.
 
 ## Load the matching reference
 
 - Refactor or dead-code removal: [references/refactor.md](references/refactor.md)
 - Dependency, framework, or schema migration: [references/migration.md](references/migration.md)
 - Writing or fixing tests: [references/tests.md](references/tests.md)
+- Parallel workers or test servers: [references/parallel.md](references/parallel.md)
 - Releasing: use the `releaseify` skill
 
 ## Find every place the change touches

@@ -1,0 +1,184 @@
+{
+  "recordedAt": "2026-09-30T07:40:00.822Z",
+  "baseRevision": "4402a1f58b427f17d2ccbe3050337ae3f308a3db",
+  "workingTreeInputs": true,
+  "runnerSha256": "aa9023e7a2a09feb8ad74645cce7a1dbaa72462528a5aa9c6a3cb178a0595fa8",
+  "adapter": "claude",
+  "modelAliases": [
+    "sonnet",
+    "haiku"
+  ],
+  "resolvedModels": null,
+  "authentication": "claude.ai local subscription; API and alternate-provider environment variables unset",
+  "baselineCatalog": {
+    "audify": "Audit the health of a repo, config, or running system that has no spec. Sets the standard first, backs each finding with a reproducible measurement, grades severity against effort, and writes one HTML report. Use for \"audit this\" or \"what shape is this in\".",
+    "orientify": "Map an unfamiliar codebase before planning or changing it: trace one real flow end to end, find the seams, name traps without fixing them. Read-only. Use when entering a new repo or returning after a long gap.",
+    "promptify": "Write the prompt a given model follows well, such as a subagent brief, a system prompt, or a prompt to sharpen. Sets model, effort, outcome and stop rules, and applies the vendor's guidance.",
+    "releaseify": "Cut a release honestly. Picks the version from what actually changed, writes the changelog from merged work, and writes the rollback plan before deploying. Use when asked to release, bump a version, tag, write a changelog, or prepare a deploy.",
+    "researchify": "Answer a question with current external evidence: official sources first, two independent sources for other claims, confidence labels, and fetched code never run. Use when a decision depends on facts outside the repo.",
+    "reviewify": "Judge work against its intent, not taste. Reads the goal before the diff, goes deep on a few lenses, reports only located findings with a concrete fix, and issues one verdict. Also stress-tests a plan or decision before execution. Use to review a diff, PR, implementation, or plan.",
+    "shapeify": "Turn settled intent into an executable plan. Every step names its file and symbol, its verification, and the likely wrong move, so another agent can execute it without the conversation. Use when the goal is clear but the approach is not, or before handing work to someone else.",
+    "shipify": "Use for any request to implement, build, or change code, execute a plan, refactor, upgrade or migrate, or add tests. Finds every place a change touches, sets a baseline, verifies each step, classifies deviations, and checks the real result before calling it done.",
+    "teachify": "Teach a topic with a self-contained interactive HTML lesson (explanations, graded exercises) pitched at the learner's level. Use when asked to teach or help practice something; not for quick factual answers.",
+    "traceify": "Debug a failure whose cause is unknown. Capture symptoms, rank falsifiable hypotheses, run the cheapest discriminating test, and state the root cause before any fix. Use for errors, regressions, flaky or intermittent failures, and \"it worked yesterday\".",
+    "undumbify": "Turn a rough idea into clear, complete intent. Supplies the decisions an experienced engineer would raise, recommends defaults, and asks only questions whose answers change the outcome. Use when direction is vague, to pressure-test a plan, or before planning a feature."
+  },
+  "evaluatedCatalog": {
+    "audify": "Audit the health of a repo, config, or running system that has no spec. Sets the standard first, backs each finding with a reproducible measurement, grades severity against effort, and writes one HTML report. Use for \"audit this\" or \"what shape is this in\".",
+    "orientify": "Map an unfamiliar codebase: trace one real flow end to end, find the seams, name traps without fixing them. Read-only. Use when entering a new repo or returning after a long gap. Not for feature requests.",
+    "promptify": "Write the prompt a given model follows well, such as a subagent brief, a system prompt, or a prompt to sharpen. Sets model, effort, outcome and stop rules, and applies the vendor's guidance.",
+    "releaseify": "Cut a release honestly. Picks the version from what actually changed, writes the changelog from merged work, and writes the rollback plan before deploying. Use when asked to release, bump a version, tag, write a changelog, or prepare a deploy.",
+    "researchify": "Answer a question with current external evidence: official sources first, two independent sources for other claims, confidence labels, and fetched code never run. Use when a decision depends on facts outside the repo.",
+    "reviewify": "Judge work against its intent, not taste. Reads the goal before the diff, goes deep on a few lenses, reports only located findings with a concrete fix, and issues one verdict. Also stress-tests a plan or decision before execution. Use to review a diff, PR, implementation, or plan.",
+    "shapeify": "Turn settled intent into an executable plan. Every step names its file and symbol, its verification, and the likely wrong move, so another agent can execute it without the conversation. Use when the goal is clear but the approach is not, or before handing work to someone else.",
+    "shipify": "Use for any request to implement, build, or change code, execute a plan, refactor, upgrade or migrate, or add tests. Finds every place a change touches, sets a baseline, verifies each step, classifies deviations, and checks the real result before calling it done.",
+    "teachify": "Teach a topic with a self-contained interactive HTML lesson (explanations, graded exercises) pitched at the learner's level. Use when asked to teach or help practice something; not for quick factual answers.",
+    "traceify": "Debug a failure whose cause is unknown. Capture symptoms, rank falsifiable hypotheses, run the cheapest discriminating test, and state the root cause before any fix. Use for errors, regressions, flaky or intermittent failures, and \"it worked yesterday\".",
+    "undumbify": "Turn a rough idea into clear, complete intent. Supplies the decisions an experienced engineer would raise, recommends defaults, and asks only questions whose answers change the outcome. Use when direction is vague, to pressure-test a plan, or before planning a feature."
+  },
+  "routeCases": [
+    {
+      "suite": "audify",
+      "id": "health-check",
+      "route": "audify",
+      "prompt": "Audit our docker-compose homelab setup and tell me what's risky."
+    },
+    {
+      "suite": "orientify",
+      "id": "new-repo",
+      "route": "orientify",
+      "prompt": "I just cloned this repo and need to add a feature next week. Help me understand how it's put together first."
+    },
+    {
+      "suite": "orientify",
+      "id": "not-a-bug",
+      "route": "traceify",
+      "prompt": "The login endpoint started returning 500 after this morning's deploy. No idea why."
+    },
+    {
+      "suite": "orientify",
+      "id": "feature-export-not-orientation",
+      "route": [
+        "shipify",
+        "shapeify"
+      ],
+      "prompt": "Add a CSV export button to the orders page. Include order ID, customer, total and creation date."
+    },
+    {
+      "suite": "promptify",
+      "id": "brief-a-subagent",
+      "route": "promptify",
+      "prompt": "Write the prompt I should give a Sonnet subagent to add rate limiting to our /api/login route. We already agreed on 5 attempts per 15 minutes per IP."
+    },
+    {
+      "suite": "promptify",
+      "id": "sharpen-my-prompt",
+      "route": "promptify",
+      "prompt": "Can you improve this prompt before I send it to the model: 'make the dashboard look better and fix whatever is broken, think step by step'"
+    },
+    {
+      "suite": "releaseify",
+      "id": "release-route",
+      "route": "releaseify",
+      "prompt": "Cut the 2.4.0 release: bump the version, write the changelog, tag it."
+    },
+    {
+      "suite": "releaseify",
+      "id": "not-a-release",
+      "route": [
+        "shipify"
+      ],
+      "prompt": "Bump lodash to the latest version and fix whatever breaks."
+    },
+    {
+      "suite": "researchify",
+      "id": "external-decision",
+      "route": "researchify",
+      "prompt": "Should we pick Drizzle or Prisma for a new Bun project in 2026? I need current facts, not vibes."
+    },
+    {
+      "suite": "researchify",
+      "id": "local-question",
+      "route": [
+        "orientify",
+        "none"
+      ],
+      "prompt": "Where in this repo is the retry logic for the job queue?"
+    },
+    {
+      "suite": "reviewify",
+      "id": "review-pr",
+      "route": "reviewify",
+      "prompt": "Review this PR against the ticket before I merge it."
+    },
+    {
+      "suite": "reviewify",
+      "id": "audit-not-review",
+      "route": "audify",
+      "prompt": "What shape is our infrastructure repo in overall? There's no spec, I just want an honest health check."
+    },
+    {
+      "suite": "shapeify",
+      "id": "plan-it",
+      "route": "shapeify",
+      "prompt": "We agreed to move session storage from memory to Redis with a 24h TTL. Write the step-by-step plan another engineer can execute."
+    },
+    {
+      "suite": "shipify",
+      "id": "implement",
+      "route": "shipify",
+      "prompt": "Implement the plan in plans/2026-09-20-archive.md."
+    },
+    {
+      "suite": "shipify",
+      "id": "refactor-route",
+      "route": "shipify",
+      "prompt": "Split the 900-line utils.ts into smaller modules without changing behavior."
+    },
+    {
+      "suite": "teachify",
+      "id": "teach-me",
+      "route": "teachify",
+      "prompt": "Teach me how database indexes work, with some exercises so I can check I get it."
+    },
+    {
+      "suite": "teachify",
+      "id": "quick-fact",
+      "route": "none",
+      "prompt": "What's the default port for Postgres?"
+    },
+    {
+      "suite": "traceify",
+      "id": "flaky",
+      "route": "traceify",
+      "prompt": "Our CI test for checkout fails maybe one run in ten. It passes locally every time."
+    },
+    {
+      "suite": "traceify",
+      "id": "feature-not-bug",
+      "route": [
+        "undumbify",
+        "shapeify",
+        "shipify",
+        "none"
+      ],
+      "prompt": "I want to make the search faster and add filters by date."
+    },
+    {
+      "suite": "undumbify",
+      "id": "vague-idea",
+      "route": "undumbify",
+      "prompt": "I want users to be able to share playlists. Not sure how it should work yet."
+    },
+    {
+      "suite": "undumbify",
+      "id": "clear-plan",
+      "route": [
+        "shapeify",
+        "shipify"
+      ],
+      "prompt": "Add a created_at column to the users table, backfill it from the audit log, and show it on the profile page. The approach is settled; just plan the steps."
+    }
+  ],
+  "note": "JSONL revision is the base commit; these snapshots identify the uncommitted catalog and cases actually evaluated. Baseline feature and CSV-export diagnostics used baselineCatalog. Full route and after runs used evaluatedCatalog."
+}

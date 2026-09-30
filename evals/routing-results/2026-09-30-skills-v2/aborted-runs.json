@@ -1,0 +1,28 @@
+{
+  "recordedAt": "2026-09-30T07:49:12.436Z",
+  "inputSnapshot": "inputs-amended.json",
+  "adapter": "claude",
+  "plannedRoutes": 22,
+  "repetitions": 3,
+  "runs": [
+    {
+      "modelAlias": "sonnet",
+      "requestedOutput": "sonnet-routes-amended-r3.jsonl",
+      "resultFileProduced": false,
+      "observedPassingCalls": 46,
+      "observedRoutingFailures": 0,
+      "lastPassingCall": "teachify/teach-me repetition1",
+      "failure": "claude exited 1 with empty stderr; run-evals.mjs rejected at line92 and exited before writing results"
+    },
+    {
+      "modelAlias": "haiku",
+      "requestedOutput": "haiku-routes-amended-r3.jsonl",
+      "resultFileProduced": false,
+      "observedPassingCalls": 29,
+      "observedRoutingFailures": 0,
+      "lastPassingCall": "researchify/local-question repetition2",
+      "failure": "claude exited 1 with empty stderr; run-evals.mjs rejected at line92 and exited before writing results"
+    }
+  ],
+  "note": "Incomplete runs. Counts and last passing cases come from captured tool console output; neither count is a completed routing result."
+}
