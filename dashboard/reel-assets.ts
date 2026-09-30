@@ -15,6 +15,7 @@ export const REEL_ASSETS = [
   "fonts/Rubik-OFL.txt",
   "fonts/JetBrainsMono.ttf",
   "fonts/JetBrainsMono-OFL.txt",
+  "fonts/NerdFonts-LICENSE.txt",
 ] as const;
 
 export async function copyReelAssets(source: string, destination: string) {

@@ -16,6 +16,7 @@ test("publish only complete runtime assets and exclude source tooling and privat
     expect(await copyReelAssets(source, destination)).toBe(true);
     expect(await readFile(join(destination, "player.html"), "utf8")).toBe("fixture:player.html");
     expect(await readFile(join(destination, "fonts", "Rubik.ttf"), "utf8")).toBe("fixture:fonts/Rubik.ttf");
+    expect(await readFile(join(destination, "fonts", "NerdFonts-LICENSE.txt"), "utf8")).toBe("fixture:fonts/NerdFonts-LICENSE.txt");
     const names = await readdir(destination);
     for (const name of ["render.mjs", "verify.mjs", "private-note.txt"]) expect(names.includes(name)).toBe(false);
   } finally {
