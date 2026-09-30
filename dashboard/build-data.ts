@@ -7,10 +7,24 @@ const repo = join(import.meta.dir, "..");
 const read = (p: string) => readFile(join(repo, p), "utf8");
 
 const entries = parseEntries(await read("feedback/field.jsonl").catch(() => ""));
-const skills = [...new Set([
-  ...(await readdir(join(repo, "skills"), { withFileTypes: true })).filter((d) => d.isDirectory()).map((d) => d.name),
-  ...entries.flatMap((e: any) => e.skills),
-])].sort();
+const skills = (await readdir(join(repo, "skills"), { withFileTypes: true })).filter((d) => d.isDirectory()).map((d) => d.name).sort();
+const agents = await Promise.all((await readdir(join(repo, "agents"))).filter((name) => name.endsWith(".md")).sort().map(async (file) => {
+  const source = await read(`agents/${file}`);
+  const header = source.match(/^---\n([\s\S]*?)\n---\n/);
+  if (!header) throw new Error(`${file}: missing frontmatter`);
+  const meta = Object.fromEntries(header[1].split("\n").flatMap((line) => {
+    const part = line.match(/^([a-zA-Z0-9_-]+):\s*(.*)$/);
+    return part ? [[part[1], part[2]]] : [];
+  }));
+  if (meta.name !== file.slice(0, -3) || !meta.description || !meta.capabilities) throw new Error(`${file}: invalid agent metadata`);
+  return {
+    name: meta.name,
+    description: meta.description,
+    capabilities: meta.capabilities.split(",").map((c) => c.trim()).filter(Boolean),
+    skills: (meta.skills ?? "").split(",").map((s) => s.trim()).filter(Boolean),
+    evidence: fieldEvidence(entries.filter((e: any) => e.agent === meta.name)),
+  };
+}));
 const fieldBySkill = Object.fromEntries([...skills, "(none)"].map((name) => [
   name,
   fieldEvidence(entries.filter((e: any) => name === "(none)" ? !e.skills.length : e.skills.includes(name))),
@@ -83,10 +97,11 @@ const data = {
   headline,
   runs,
   skills,
+  agents,
   fieldBySkill,
   fieldUsage: usageSummary(entries),
   entries: entries.map((e: any) => ({ ...e, catchNote: catchNote(e) })),
-  asks: recurringAsks(entries),
+  asks: recurringAsks(entries.filter((e: any) => e.skills.some((s: string) => skills.includes(s)))),
 };
 
 await writeFile(join(import.meta.dir, "src", "data.json"), JSON.stringify(data));

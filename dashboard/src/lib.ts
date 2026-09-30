@@ -60,6 +60,13 @@ export type FieldEvidence = {
   medianTokens: number | null;
   tokensRecorded: number;
 };
+export type Agent = {
+  name: string;
+  description: string;
+  capabilities: string[];
+  skills: string[];
+  evidence: FieldEvidence;
+};
 
 export const data = raw as unknown as {
   generated: string;
@@ -73,6 +80,7 @@ export const data = raw as unknown as {
   runs: Run[];
   entries: Entry[];
   skills: string[];
+  agents: Agent[];
   fieldBySkill: Record<string, FieldEvidence>;
   fieldUsage: Record<"tokens" | "tools" | "ms", { median: number | null; recorded: number }>;
   asks: { docs: number; asks: [string, number][] };

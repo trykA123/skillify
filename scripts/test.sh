@@ -121,7 +121,11 @@ if command -v bun >/dev/null 2>&1 && [ -d "$REPO_DIR/dashboard/node_modules" ]; 
     if (bad.length) { console.error("tasks missing scoring or category:", bad.map((t) => t.task).join(", ")); process.exit(1); }
     if (!d.runs.length || !d.models.length || !d.headline?.pre) { console.error("empty export"); process.exit(1); }
     if (!d.skills.includes("teachify") || d.entries.some((e) => typeof e.catchNote !== "string") || !d.fieldUsage || d.skills.some((s) => !d.fieldBySkill[s])) { console.error("field evidence export incomplete"); process.exit(1); }
-  ' "$REPO_DIR/dashboard/src/data.json" || fail "dashboard data complete"
+    const fs = await import("node:fs");
+    const ownSkills = fs.readdirSync(`${process.argv[2]}/skills`, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort();
+    const ownAgents = fs.readdirSync(`${process.argv[2]}/agents`).filter((e) => e.endsWith(".md")).map((e) => e.slice(0, -3)).sort();
+    if (JSON.stringify(d.skills) !== JSON.stringify(ownSkills) || JSON.stringify(d.agents?.map((a) => a.name)) !== JSON.stringify(ownAgents) || d.agents.some((a) => !a.description || !a.capabilities.length)) { console.error("catalog must contain only Skillify skills and agents"); process.exit(1); }
+  ' "$REPO_DIR/dashboard/src/data.json" "$REPO_DIR" || fail "dashboard data complete"
 fi
 
 echo "all tests passed"
