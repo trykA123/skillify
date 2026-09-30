@@ -12,6 +12,11 @@
       "prompt": "The login endpoint started returning 500 after this morning's deploy. No idea why."
     },
     {
+      "id": "feature-export-not-orientation",
+      "route": ["shipify", "shapeify"],
+      "prompt": "Add a CSV export button to the orders page. Include order ID, customer, total and creation date."
+    },
+    {
       "id": "traces-a-flow",
       "prompt": "Orient me in this Express + Postgres API (about 60 source files) before I add rate limiting.",
       "behaviors": [

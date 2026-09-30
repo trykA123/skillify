@@ -1,0 +1,5 @@
+**undumbify**
+
+The catalog says "Use when direction is vague" and "before planning a feature" — both fit here. You have a goal (enable sharing) but not the product shape: whether sharing is link-based, user-to-user, scoped to a team, whether the recipient can edit, whether the sharer can revoke, etc.
+
+No, product decisions are not settled. The request sets the goal but leaves the mechanism, permissions, and ownership model open. Undumbify will pressure-test these questions and write the shape before any implementation starts.

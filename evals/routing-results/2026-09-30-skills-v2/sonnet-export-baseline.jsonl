@@ -1,0 +1,1 @@
+{"suite":"orientify","case":"feature-export-not-orientation","repetition":1,"adapter":"claude","model":"sonnet","revision":"4402a1f","passed":true,"answer":"shipify","expected":["shipify","shapeify"]}

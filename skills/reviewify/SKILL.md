@@ -19,6 +19,8 @@ Work in, one evidence-backed verdict out.
 4. **Trace one realistic failure path end to end.** Run the code or tests when you can;
    reading is weaker evidence than running.
 
+Verify claims about third-party tools against their `--help` or `--version` output.
+
 ## Severity
 
 | Severity | Meaning |
@@ -36,7 +38,8 @@ Each finding: `[severity] file:line — problem — consequence — fix — how 
 
 ## Verdict (exactly one)
 
-- **Approve:** no Blocking findings; each Material one is fixed or accepted by the owner.
+- **Approve:** no Blocking findings; each Material one is fixed or accepted by the owner,
+  or is a narrow, non-security residual named with its location and impact in the verdict.
 - **Fix:** Blocking findings exist; the design holds.
 - **Replan:** the approach itself is wrong. Say which assumption failed.
 
