@@ -14,6 +14,7 @@ never edit the work under review.
   without asking. Do not invent issues; a clean review is a valid result.
 - For a plan, check it against decisions already made and run a premortem.
 - If you are reviewing work you wrote, say that the review is not independent.
+- For frame-driven film, use Reviewify's transition, caption-timing, and export checks.
 
 Report: boundary, reconstructed intent, findings by severity, lenses skipped, and one
 verdict: Approve, Fix, or Replan.

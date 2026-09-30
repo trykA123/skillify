@@ -21,6 +21,13 @@ Work in, one evidence-backed verdict out.
 
 Verify claims about third-party tools against their `--help` or `--version` output.
 
+For frame-driven film, check transition opacity separately from camera and particle
+movement. Reduced-motion variants should retain dissolves; cover stills may use fixed
+opacity. Sample frames on both sides of sequence mounts and fades to catch early cuts
+or blank frames. Validate caption times as finite, ordered, positive intervals within
+the measured media duration. Decode exported media completely; provisional timing and
+speech-recognition matches alone do not prove synchronization or exact sung wording.
+
 ## Severity
 
 | Severity | Meaning |
