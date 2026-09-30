@@ -7,7 +7,7 @@ import process from "node:process";
 
 const repo = join(dirname(new URL(import.meta.url).pathname), "..");
 const log = join(repo, "feedback", "field.jsonl");
-const fields = ["agent", "model", "harness", "task", "skills", "helped", "hindered", "missing", "verdict", "tokens", "tools", "ms"];
+const fields = ["agent", "model", "harness", "task", "skills", "helped", "hindered", "missing", "verdict", "catch", "tokens", "tools", "ms"];
 const counts = ["tokens", "tools", "ms"];
 const verdicts = new Set(["helped", "neutral", "hurt"]);
 
@@ -33,6 +33,13 @@ for (let i = 0; i < args.length; i += 2) {
     process.exit(64);
   }
   entry[key] = args[i + 1] ?? "";
+  if (key === "catch") {
+    entry[key] = entry[key].trim();
+    if (!entry[key]) {
+      console.error("--catch must be a concrete catch or none");
+      process.exit(64);
+    }
+  }
   if (counts.includes(key)) {
     if (!/^\d+$/.test(entry[key])) {
       console.error(`--${key} must be a non-negative integer`);

@@ -1,8 +1,27 @@
-import { REPO, data, modelName } from "../lib";
-import { Card, Chip, Delta, Verdict } from "../ui";
+import { REPO, data, kfmt, modelName, type FieldEvidence } from "../lib";
+import { Card, Chip, Delta, Tip, Verdict } from "../ui";
+
+function Evidence({ e }: { e: FieldEvidence }) {
+  return (
+    <dl className="field-evidence">
+      <div>
+        <dt><Tip content="Concrete catches on helped entries ÷ all helped entries. Missing catches stay unknown. A shared catch counts for every skill loaded; this does not establish causation.">Catch rate</Tip></dt>
+        <dd>{e.catchRecorded ? `${Math.round(100 * e.catchRate!)}%` : "Not recorded"}
+          <small>{e.catchCount}/{e.helped} helped · catch recorded on {e.catchRecorded}/{e.helped}</small>
+        </dd>
+      </div>
+      <div>
+        <dt>Tokens / helped run</dt>
+        <dd>{e.medianTokens === null ? "Not recorded" : kfmt(e.medianTokens)}
+          <small>Median · usage recorded on {e.tokensRecorded}/{e.helped}</small>
+        </dd>
+      </div>
+    </dl>
+  );
+}
 
 export function Skills() {
-  const names = [...new Set([...data.entries.flatMap((e) => e.skills), ...data.tasks.map((t) => t.skill)])].sort();
+  const names = data.skills;
   const none = data.entries.filter((e) => !e.skills.length);
   return (
     <div className="view">
@@ -19,6 +38,7 @@ export function Skills() {
                 <Verdict v="helped" /> {count("helped")} <Verdict v="neutral" /> {count("neutral")} <Verdict v="hurt" /> {count("hurt")}
                 <span className="muted small">field runs</span>
               </div>
+              <Evidence e={data.fieldBySkill[s]} />
               {tasks.length ? (
                 <>
                   <h4>Measured</h4>
@@ -37,7 +57,7 @@ export function Skills() {
                   ))}
                 </>
               ) : (
-                <p className="small muted">No paired eval yet.</p>
+                <p className="small muted">{s === "teachify" ? "Unmeasured: interactive teaching needs a human learner. Lesson text alone cannot establish teaching quality." : "No paired eval yet."}</p>
               )}
               {missing.length ? (
                 <>
@@ -56,6 +76,7 @@ export function Skills() {
           <div className="row-s">
             <Verdict v="helped" /> {none.filter((e) => e.verdict === "helped").length} <Verdict v="neutral" /> {none.filter((e) => e.verdict === "neutral").length} <Verdict v="hurt" /> {none.filter((e) => e.verdict === "hurt").length}
           </div>
+          <Evidence e={data.fieldBySkill["(none)"]} />
         </Card>
       </div>
       <Card title="Recurring asks across all runs" sub={`Phrases that show up in the "missing" notes of at least two runs (of ${data.asks.docs}).`}>

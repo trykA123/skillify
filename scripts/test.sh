@@ -55,6 +55,9 @@ grep -q '  edit: deny' "$ROOT/oc/reviewer.md" || fail "opencode reviewer permiss
 if node "$REPO_DIR/scripts/render-agents.mjs" --harness codex --dest / --dry-run >/dev/null 2>&1; then fail "unsafe destination accepted"; fi
 
 node "$REPO_DIR/scripts/run-evals.mjs" --adapter fixture >/dev/null || fail "eval runner"
+node --test "$REPO_DIR/scripts/test-field-evidence.mjs" >/dev/null || fail "field evidence"
+node --test "$REPO_DIR/scripts/test-readme-evidence.mjs" >/dev/null || fail "README evidence generator"
+node "$REPO_DIR/scripts/readme-evidence.mjs" --check >/dev/null || fail "README evidence freshness"
 node "$REPO_DIR/skills/teachify/scripts/validate-lesson.mjs" "$REPO_DIR/skills/teachify/assets/lesson-template.html" >/dev/null
 mkdir -p "$ROOT/fb"
 cat > "$ROOT/fb/f.jsonl" <<'JSON'
@@ -117,6 +120,7 @@ if command -v bun >/dev/null 2>&1 && [ -d "$REPO_DIR/dashboard/node_modules" ]; 
     const bad = d.tasks.filter((t) => !t.scoring || !t.category || t.category === "other" || (t.kind === "rubric" ? !t.rubricItems.length : !t.hiddenTests));
     if (bad.length) { console.error("tasks missing scoring or category:", bad.map((t) => t.task).join(", ")); process.exit(1); }
     if (!d.runs.length || !d.models.length || !d.headline?.pre) { console.error("empty export"); process.exit(1); }
+    if (!d.skills.includes("teachify") || d.entries.some((e) => typeof e.catchNote !== "string") || !d.fieldUsage || d.skills.some((s) => !d.fieldBySkill[s])) { console.error("field evidence export incomplete"); process.exit(1); }
   ' "$REPO_DIR/dashboard/src/data.json" || fail "dashboard data complete"
 fi
 

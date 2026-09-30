@@ -13,7 +13,7 @@ export function Method() {
           <li>Each task is a small real repo with a short git history and a prompt, like a ticket. It's copied into a fresh throwaway folder for every run.</li>
           <li>The model runs as a normal coding agent with real tools (read, edit, shell). No slash commands, no other skills, no memory.</li>
           <li>
-            It runs twice per task: <b>without skills</b>, and <b>with the task's skill</b> loaded into its instructions. Everything else is identical. Each side runs {data.runsPerArm} times.
+            It runs twice per task: <b>without skills</b>, and <b>with the task's skill</b> loaded into its instructions. Everything else is identical. Each side has up to {data.runsPerArm} recorded repetitions.
           </li>
           <li>Each run's final answer and the repo it left behind are scored, then thrown away.</li>
         </ol>
@@ -43,7 +43,10 @@ export function Method() {
           </li>
           <li>Where a task was re-run after a skill changed, the later round replaces the earlier one for that model, task and side.</li>
           <li>Three DeepSeek review runs first failed to grade (the grader hit a usage limit). They were regraded later with the same rubric; the Tasks view marks them.</li>
-          <li>Field verdicts are each agent's own report, not a measurement.</li>
+          <li>Field verdicts and catches are each agent's own report, not independent measurements. Catch rate counts helped entries with a concrete catch divided by all helped entries; missing catches stay unknown and coverage is shown.</li>
+          <li>Tokens per helped run is the median of helped entries with recorded tokens. Missing usage is excluded. When several skills were loaded, the same catch and usage count for each; this cannot establish which skill caused the result.</li>
+          <li>Coding and debugging fixtures already at 1.00 without skills cannot measure further gains. The shipify fast path has no paired cost measurement yet; no new paired runs were funded for skills-v2.</li>
+          <li>teachify remains unmeasured. Interactive teaching needs a human learner; grading lesson text alone cannot establish teaching quality.</li>
         </ul>
       </Card>
       <Card title="Raw data">
