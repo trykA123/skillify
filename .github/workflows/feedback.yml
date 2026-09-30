@@ -11,6 +11,7 @@ on:
       - "evals/results/**"
       - "evals/paired/**"
       - "dashboard/**"
+      - "docs/cinematic-reel-v2/**"
       - ".github/workflows/feedback.yml"
   workflow_dispatch:
 

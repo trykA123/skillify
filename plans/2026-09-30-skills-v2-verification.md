@@ -6,7 +6,7 @@
 - Existing paired results remain unchanged. README numbers and Overview headline use the shared analysis. Teachify and the shipify fast path cost effect remain unmeasured.
 - Final live routing is pending. Completed pre-amendment runs: Sonnet 21/21, Haiku 20/21. Final definitions contain 22 cases; repeated runs aborted on the local subscription limit. Raw evidence: `evals/routing-results/2026-09-30-skills-v2/`.
 - The CLI reports its weekly limit resets October 4, 10:00 Europe/Bucharest. Do not use an API fallback or infer final success from incomplete calls.
-- New field feedback records catches; harness usage remains omitted when unavailable. Observe five real entries under the new guidance, without backfilling old runs.
+- Six real field entries under the new guidance record catches (entries 47–52 in `feedback/field.jsonl`), completing the five-entry observation. Harness usage was unavailable and remains omitted; historical runs were not backfilled.
 
 ## Resume the live routing check
 

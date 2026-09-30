@@ -2,11 +2,13 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-0f766e.svg)](LICENSE)
 
-Ten small engineering skills and four subagents for AI coding assistants. Each skill
+Eleven small engineering skills and four subagents for AI coding assistants. Each skill
 holds the few rules a strong engineer follows and a model tends to skip: trace the
 flow before planning, state the root cause before fixing, verify each step, and judge
 work against its intent. The skills are plain `SKILL.md` folders, so they work in any
 assistant that reads Agent Skills.
+
+**[Watch From signal to certainty](https://tryka123.github.io/skillify/reel/player.html)**: a new 2:10 film with original music, eleven skills, and four agents. [Render source and verification](docs/cinematic-reel-v2/README.md).
 
 [![A cloud of particles crystallises from the words "make it better?" into ten columns, one per skill, under the Skillify title.](docs/reel/preview.webp)](docs/reel/skillify-reel.mp4)
 
