@@ -107,7 +107,7 @@ score are original to this deliverable. No third-party footage, photographs, or 
 are included. Bundled fonts retain their own SIL Open Font License 1.1 terms:
 
 - Rubik: Copyright 2015 The Rubik Project Authors. See `fonts/Rubik-OFL.txt`.
-- JetBrains Mono: Copyright 2020 The JetBrains Mono Project Authors. See `fonts/JetBrainsMono-OFL.txt`.
+- JetBrains Mono Nerd Font (NF Regular 3.5.1): Copyright 2020 The JetBrains Mono Project Authors and Copyright 2014 Ryan L McIntyre. See `fonts/JetBrainsMono-OFL.txt` and `fonts/NerdFonts-LICENSE.txt`, copied from the [Nerd Fonts v3.5.1 license](https://github.com/ryanoasis/nerd-fonts/blob/v3.5.1/LICENSE).
 
 ## Shot map
 
