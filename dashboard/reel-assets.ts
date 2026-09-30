@@ -19,7 +19,7 @@ export const REEL_ASSETS = [
 
 export async function copyReelAssets(source: string, destination: string) {
   try {
-    await stat(join(source, "skillify-cinematic.mp4"));
+    await stat(source);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
     throw error;

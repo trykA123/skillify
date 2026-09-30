@@ -30,6 +30,9 @@ test("absent reel is optional, incomplete reel fails before publication", async 
     const destination = join(root, "dist", "reel");
     expect(await copyReelAssets(source, destination)).toBe(false);
     await mkdir(source);
+    await writeFile(join(source, "player.html"), "fixture");
+    await expect(copyReelAssets(source, destination)).rejects.toThrow();
+    await expect(readdir(destination)).rejects.toThrow();
     await writeFile(join(source, "skillify-cinematic.mp4"), "fixture");
     await expect(copyReelAssets(source, destination)).rejects.toThrow();
     await expect(readdir(destination)).rejects.toThrow();
