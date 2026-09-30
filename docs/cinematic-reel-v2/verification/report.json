@@ -1,0 +1,489 @@
+{
+  "passed": true,
+  "media": {
+    "duration": 130,
+    "width": 1920,
+    "height": 1080,
+    "frameRate": "30/1",
+    "frames": 3900,
+    "bytes": 29020481,
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "audioChannels": 2,
+    "audioSampleRate": 48000
+  },
+  "coverage": {
+    "skills": [
+      "orientify",
+      "undumbify",
+      "researchify",
+      "traceify",
+      "audify",
+      "shapeify",
+      "promptify",
+      "shipify",
+      "reviewify",
+      "releaseify",
+      "teachify"
+    ],
+    "roles": [
+      "scout",
+      "researcher",
+      "worker",
+      "reviewer"
+    ],
+    "scenes": 17,
+    "decodedRepresentativeFrames": 20,
+    "decodedTransitions": 16,
+    "captionAndTranscriptCoverage": true,
+    "briefPointersVerified": true
+  },
+  "luminance": {
+    "decodedFrames": 3900,
+    "sampleWidth": 160,
+    "sampleHeight": 90,
+    "pixelDeltaThreshold": 51,
+    "maxChangedAreaFraction": 0.0015972222222222223,
+    "maxChangedAreaTime": 103,
+    "maxConsecutiveMeanJump": 0.004075708061002187,
+    "maxConsecutiveMeanJumpTime": 1.1,
+    "maxLargeReversalsPerSecond": 0,
+    "areaLimit": 0.25,
+    "meanJumpLimit": 0.1
+  },
+  "audio": {
+    "integratedLUFS": -14.6,
+    "truePeakDBFS": -1.5,
+    "perceptualListening": "Not performed by the text-only rendering environment."
+  },
+  "artifactSizes": [
+    {
+      "file": ".gitignore",
+      "bytes": 20
+    },
+    {
+      "file": "README.md",
+      "bytes": 6428
+    },
+    {
+      "file": "browser-check.mjs",
+      "bytes": 5915
+    },
+    {
+      "file": "captions.vtt",
+      "bytes": 2130
+    },
+    {
+      "file": "contact-sheet.jpg",
+      "bytes": 106882
+    },
+    {
+      "file": "film.mjs",
+      "bytes": 22252
+    },
+    {
+      "file": "fonts/JetBrainsMono-OFL.txt",
+      "bytes": 4399
+    },
+    {
+      "file": "fonts/JetBrainsMono.ttf",
+      "bytes": 2571596
+    },
+    {
+      "file": "fonts/Rubik-OFL.txt",
+      "bytes": 4384
+    },
+    {
+      "file": "fonts/Rubik.ttf",
+      "bytes": 359804
+    },
+    {
+      "file": "index.html",
+      "bytes": 3875
+    },
+    {
+      "file": "package.json",
+      "bytes": 269
+    },
+    {
+      "file": "player.html",
+      "bytes": 4174
+    },
+    {
+      "file": "poster.jpg",
+      "bytes": 113373
+    },
+    {
+      "file": "preview.mp4",
+      "bytes": 806008
+    },
+    {
+      "file": "render-stats.json",
+      "bytes": 328
+    },
+    {
+      "file": "render.mjs",
+      "bytes": 8226
+    },
+    {
+      "file": "score.mjs",
+      "bytes": 5251
+    },
+    {
+      "file": "skillify-cinematic.mp4",
+      "bytes": 29020481
+    },
+    {
+      "file": "stills/agents.jpg",
+      "bytes": 87882
+    },
+    {
+      "file": "stills/audify.jpg",
+      "bytes": 79639
+    },
+    {
+      "file": "stills/method.jpg",
+      "bytes": 79811
+    },
+    {
+      "file": "stills/orientify.jpg",
+      "bytes": 121531
+    },
+    {
+      "file": "stills/power.jpg",
+      "bytes": 224286
+    },
+    {
+      "file": "stills/principles.jpg",
+      "bytes": 99356
+    },
+    {
+      "file": "stills/promptify.jpg",
+      "bytes": 77979
+    },
+    {
+      "file": "stills/releaseify.jpg",
+      "bytes": 81816
+    },
+    {
+      "file": "stills/researcher.jpg",
+      "bytes": 93871
+    },
+    {
+      "file": "stills/researchify.jpg",
+      "bytes": 86086
+    },
+    {
+      "file": "stills/resolve.jpg",
+      "bytes": 82823
+    },
+    {
+      "file": "stills/reviewer.jpg",
+      "bytes": 92528
+    },
+    {
+      "file": "stills/reviewify.jpg",
+      "bytes": 68367
+    },
+    {
+      "file": "stills/scout.jpg",
+      "bytes": 94093
+    },
+    {
+      "file": "stills/shapeify.jpg",
+      "bytes": 105615
+    },
+    {
+      "file": "stills/shipify.jpg",
+      "bytes": 91293
+    },
+    {
+      "file": "stills/system.jpg",
+      "bytes": 87721
+    },
+    {
+      "file": "stills/teachify.jpg",
+      "bytes": 78686
+    },
+    {
+      "file": "stills/traceify.jpg",
+      "bytes": 96506
+    },
+    {
+      "file": "stills/transition-agents.jpg",
+      "bytes": 59445
+    },
+    {
+      "file": "stills/transition-audify.jpg",
+      "bytes": 66991
+    },
+    {
+      "file": "stills/transition-method.jpg",
+      "bytes": 153781
+    },
+    {
+      "file": "stills/transition-orientify.jpg",
+      "bytes": 72278
+    },
+    {
+      "file": "stills/transition-principles.jpg",
+      "bytes": 60984
+    },
+    {
+      "file": "stills/transition-promptify.jpg",
+      "bytes": 77355
+    },
+    {
+      "file": "stills/transition-releaseify.jpg",
+      "bytes": 44859
+    },
+    {
+      "file": "stills/transition-researchify.jpg",
+      "bytes": 93750
+    },
+    {
+      "file": "stills/transition-resolve.jpg",
+      "bytes": 47244
+    },
+    {
+      "file": "stills/transition-reviewify.jpg",
+      "bytes": 63754
+    },
+    {
+      "file": "stills/transition-shapeify.jpg",
+      "bytes": 94425
+    },
+    {
+      "file": "stills/transition-shipify.jpg",
+      "bytes": 46407
+    },
+    {
+      "file": "stills/transition-system.jpg",
+      "bytes": 55923
+    },
+    {
+      "file": "stills/transition-teachify.jpg",
+      "bytes": 54700
+    },
+    {
+      "file": "stills/transition-traceify.jpg",
+      "bytes": 69000
+    },
+    {
+      "file": "stills/transition-undumbify.jpg",
+      "bytes": 112638
+    },
+    {
+      "file": "stills/undumbify.jpg",
+      "bytes": 143413
+    },
+    {
+      "file": "stills/worker.jpg",
+      "bytes": 93497
+    },
+    {
+      "file": "timeline.mjs",
+      "bytes": 3446
+    },
+    {
+      "file": "verification/audio-analysis.txt",
+      "bytes": 454
+    },
+    {
+      "file": "verification/audio-waveform.png",
+      "bytes": 9712
+    },
+    {
+      "file": "verification/browser-report.json",
+      "bytes": 894
+    },
+    {
+      "file": "verification/decoded/audify.jpg",
+      "bytes": 74587
+    },
+    {
+      "file": "verification/decoded/method.jpg",
+      "bytes": 73976
+    },
+    {
+      "file": "verification/decoded/orientify.jpg",
+      "bytes": 110914
+    },
+    {
+      "file": "verification/decoded/power.jpg",
+      "bytes": 206927
+    },
+    {
+      "file": "verification/decoded/principles.jpg",
+      "bytes": 94792
+    },
+    {
+      "file": "verification/decoded/promptify.jpg",
+      "bytes": 72495
+    },
+    {
+      "file": "verification/decoded/releaseify.jpg",
+      "bytes": 77867
+    },
+    {
+      "file": "verification/decoded/researcher.jpg",
+      "bytes": 88828
+    },
+    {
+      "file": "verification/decoded/researchify.jpg",
+      "bytes": 80278
+    },
+    {
+      "file": "verification/decoded/resolve.jpg",
+      "bytes": 80321
+    },
+    {
+      "file": "verification/decoded/reviewer.jpg",
+      "bytes": 87689
+    },
+    {
+      "file": "verification/decoded/reviewify.jpg",
+      "bytes": 63937
+    },
+    {
+      "file": "verification/decoded/scout.jpg",
+      "bytes": 88101
+    },
+    {
+      "file": "verification/decoded/shapeify.jpg",
+      "bytes": 97098
+    },
+    {
+      "file": "verification/decoded/shipify.jpg",
+      "bytes": 84610
+    },
+    {
+      "file": "verification/decoded/system.jpg",
+      "bytes": 82989
+    },
+    {
+      "file": "verification/decoded/teachify.jpg",
+      "bytes": 73599
+    },
+    {
+      "file": "verification/decoded/traceify.jpg",
+      "bytes": 88510
+    },
+    {
+      "file": "verification/decoded/transition-agents.jpg",
+      "bytes": 54868
+    },
+    {
+      "file": "verification/decoded/transition-audify.jpg",
+      "bytes": 53445
+    },
+    {
+      "file": "verification/decoded/transition-method.jpg",
+      "bytes": 139564
+    },
+    {
+      "file": "verification/decoded/transition-orientify.jpg",
+      "bytes": 58467
+    },
+    {
+      "file": "verification/decoded/transition-principles.jpg",
+      "bytes": 56447
+    },
+    {
+      "file": "verification/decoded/transition-promptify.jpg",
+      "bytes": 66206
+    },
+    {
+      "file": "verification/decoded/transition-releaseify.jpg",
+      "bytes": 38368
+    },
+    {
+      "file": "verification/decoded/transition-researchify.jpg",
+      "bytes": 83377
+    },
+    {
+      "file": "verification/decoded/transition-resolve.jpg",
+      "bytes": 43532
+    },
+    {
+      "file": "verification/decoded/transition-reviewify.jpg",
+      "bytes": 54487
+    },
+    {
+      "file": "verification/decoded/transition-shapeify.jpg",
+      "bytes": 76900
+    },
+    {
+      "file": "verification/decoded/transition-shipify.jpg",
+      "bytes": 40426
+    },
+    {
+      "file": "verification/decoded/transition-system.jpg",
+      "bytes": 50717
+    },
+    {
+      "file": "verification/decoded/transition-teachify.jpg",
+      "bytes": 49420
+    },
+    {
+      "file": "verification/decoded/transition-traceify.jpg",
+      "bytes": 56247
+    },
+    {
+      "file": "verification/decoded/transition-undumbify.jpg",
+      "bytes": 91103
+    },
+    {
+      "file": "verification/decoded/undumbify.jpg",
+      "bytes": 129376
+    },
+    {
+      "file": "verification/decoded/worker.jpg",
+      "bytes": 88042
+    },
+    {
+      "file": "verification/decoded-contact.jpg",
+      "bytes": 104788
+    },
+    {
+      "file": "verification/decoded-list.txt",
+      "bytes": 2396
+    },
+    {
+      "file": "verification/decoded-transitions.jpg",
+      "bytes": 61316
+    },
+    {
+      "file": "verification/player-desktop.png",
+      "bytes": 250414
+    },
+    {
+      "file": "verification/player-phone.png",
+      "bytes": 57293
+    },
+    {
+      "file": "verification/report.json",
+      "bytes": 8139
+    },
+    {
+      "file": "verification/source-reduced-motion-phone.png",
+      "bytes": 65868
+    },
+    {
+      "file": "verification/transcript-desktop.png",
+      "bytes": 376982
+    },
+    {
+      "file": "verification/transcript-phone.png",
+      "bytes": 179073
+    },
+    {
+      "file": "verification/transition-list.txt",
+      "bytes": 2096
+    },
+    {
+      "file": "verify.mjs",
+      "bytes": 7925
+    }
+  ]
+}
