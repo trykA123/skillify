@@ -90,7 +90,7 @@ const integrated=Number(summary.match(/I:\s+(-?[\d.]+) LUFS/)?.[1]);
 const truePeak=Number(summary.match(/Peak:\s+(-?[\d.]+) dBFS/)?.[1]);
 check(Number.isFinite(integrated)&&integrated>=-18&&integrated<=-14,'Audio loudness is outside -18 to -14 LUFS.');
 check(Number.isFinite(truePeak)&&truePeak<=-.7,'Audio true peak exceeds -0.7 dBFS.');
-await writeFile(join(out,'audio-analysis.txt'),summary+'\n');
+await writeFile(join(out,'audio-analysis.txt'),summary.split('\n').map(line=>line.trimEnd()).join('\n').trim()+'\n');
 await run('ffmpeg',['-hide_banner','-loglevel','error','-y','-i',film,'-filter_complex','showwavespic=s=1920x280:split_channels=1:colors=0xff603b|0xc8d2dd','-frames:v','1','-update','1',join(out,'audio-waveform.png')]);
 const points=SCENES.filter(scene=>scene.id!=='agents').map(scene=>({id:scene.id,t:scene.id==='system'?94:(scene.start+scene.end)/2}));
 points.push(...ROLES.map(role=>({id:role.name,t:(role.start+role.end)/2})));
