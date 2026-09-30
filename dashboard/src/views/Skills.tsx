@@ -1,4 +1,4 @@
-import { REPO, data, kfmt, modelName, type FieldEvidence } from "../lib";
+import { REPO, data, kfmt, modelName, type Entry, type FieldEvidence } from "../lib";
 import { Card, Chip, Delta, Tip, Verdict } from "../ui";
 
 function Evidence({ e }: { e: FieldEvidence }) {
@@ -20,24 +20,29 @@ function Evidence({ e }: { e: FieldEvidence }) {
   );
 }
 
+function VerdictCounts({ entries }: { entries: Entry[] }) {
+  const count = (v: string) => entries.filter((e) => e.verdict === v).length;
+  return (
+    <div className="row-s">
+      <Verdict v="helped" /> {count("helped")} <Verdict v="neutral" /> {count("neutral")} <Verdict v="hurt" /> {count("hurt")}
+      <span className="muted small">field runs</span>
+    </div>
+  );
+}
+
 export function Skills() {
   const names = data.skills;
-  const none = data.entries.filter((e) => !e.skills.length);
   return (
     <div className="view">
-      <p className="lead">Each skill with what the field said about it and what the paired evals measured. "(none)" is the baseline: runs that loaded no skill.</p>
+      <p className="lead">Skillify's {names.length} engineering skills and {data.agents.length} agent roles, with field reports and measured results.</p>
       <div className="grid3">
         {names.map((s) => {
           const es = data.entries.filter((e) => e.skills.includes(s));
-          const count = (v: string) => es.filter((e) => e.verdict === v).length;
           const tasks = data.tasks.filter((t) => t.skill === s);
           const missing = es.map((e) => e.missing).filter((m) => m && !/^(nothing|none|n\/a)/i.test(m));
           return (
             <Card key={s} title={s} sub={<a href={`${REPO}/blob/main/skills/${s}/SKILL.md`} target="_blank" rel="noreferrer">SKILL.md ↗</a>}>
-              <div className="row-s">
-                <Verdict v="helped" /> {count("helped")} <Verdict v="neutral" /> {count("neutral")} <Verdict v="hurt" /> {count("hurt")}
-                <span className="muted small">field runs</span>
-              </div>
+              <VerdictCounts entries={es} />
               <Evidence e={data.fieldBySkill[s]} />
               {tasks.length ? (
                 <>
@@ -72,14 +77,20 @@ export function Skills() {
             </Card>
           );
         })}
-        <Card title="(none)" sub="Runs that loaded no skill">
-          <div className="row-s">
-            <Verdict v="helped" /> {none.filter((e) => e.verdict === "helped").length} <Verdict v="neutral" /> {none.filter((e) => e.verdict === "neutral").length} <Verdict v="hurt" /> {none.filter((e) => e.verdict === "hurt").length}
-          </div>
-          <Evidence e={data.fieldBySkill["(none)"]} />
-        </Card>
       </div>
-      <Card title="Recurring asks across all runs" sub={`Phrases that show up in the "missing" notes of at least two runs (of ${data.asks.docs}).`}>
+      <h3 className="section">Skillify agents</h3>
+      <div className="grid4">
+        {data.agents.map((a) => (
+          <Card key={a.name} title={a.name} sub={<a href={`${REPO}/blob/main/agents/${a.name}.md`} target="_blank" rel="noreferrer">Agent definition ↗</a>}>
+            <p className="small">{a.description}</p>
+            <div className="row-s">{a.capabilities.map((c) => <Chip key={c}>{({ read: "Read files", shell: "Shell", edit: "Edit files", web: "Web" } as Record<string, string>)[c] ?? c}</Chip>)}</div>
+            {a.skills.length ? <p className="small muted">Preloaded: {a.skills.map((s, i) => <span key={s}>{i ? ", " : ""}<a href={`${REPO}/blob/main/skills/${s}/SKILL.md`} target="_blank" rel="noreferrer">{s}</a></span>)}</p> : null}
+            <VerdictCounts entries={data.entries.filter((e) => e.agent === a.name)} />
+            <Evidence e={a.evidence} />
+          </Card>
+        ))}
+      </div>
+      <Card title="Recurring asks from Skillify runs" sub={`Phrases that show up in the "missing" notes of at least two runs (of ${data.asks.docs}).`}>
         <div className="row-s">
           {data.asks.asks.map(([p, n]) => (
             <Chip key={p}>

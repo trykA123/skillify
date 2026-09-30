@@ -24,7 +24,7 @@ const VIEWS: { id: string; label: string; icon: ReactNode; title: string; sub: s
   { id: "tasks", label: "Tasks", icon: I("M5 4h9M5 8h9M5 12h9M2 4h.01M2 8h.01M2 12h.01"), title: "Tasks", sub: "What each task asks and exactly how it is scored" },
   { id: "categories", label: "Kinds of work", icon: I("M2 3h5l1 2h6v8H2z"), title: "Kinds of work", sub: "Coding, debugging, reviewing, clarifying" },
   { id: "field", label: "Field runs", icon: I("M3 2h10v12H3zM6 5h4M6 8h4M6 11h2"), title: "Field runs", sub: "What agents said about skills on real work" },
-  { id: "skills", label: "Skills", icon: I("M8 2l1.8 3.7 4 .6-2.9 2.8.7 4L8 11.2 4.4 13.1l.7-4L2.2 6.3l4-.6z"), title: "Skills", sub: "Per skill: field verdicts and measured effect" },
+  { id: "skills", label: "Skills", icon: I("M8 2l1.8 3.7 4 .6-2.9 2.8.7 4L8 11.2 4.4 13.1l.7-4L2.2 6.3l4-.6z"), title: "Skills & agents", sub: "Skillify's engineering skills and portable agent roles" },
   { id: "method", label: "Method", icon: I("M8 2a6 6 0 100 12A6 6 0 008 2zM8 7v4M8 5h.01"), title: "Method", sub: "How runs are done, scored and priced" },
 ];
 

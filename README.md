@@ -128,7 +128,8 @@ Entries go to `feedback/field.jsonl`. The dashboard at
 **https://tryka123.github.io/skillify/** is a small app in [`dashboard/`](dashboard/)
 (React, Bun, Base UI): overview, paired evals per model, every task with exactly how it
 is scored (hidden tests or a rubric graded by Codex) and each run's grading, results by
-kind of work (coding, debugging, reviewing, clarifying), field runs, skills, and method.
+kind of work (coding, debugging, reviewing, clarifying), field runs, Skillify's own
+skills and four portable agents, and method.
 Every push to `main` that touches the data or the app rebuilds and redeploys it through
 `.github/workflows/feedback.yml`. Build it locally with
 `cd dashboard && bun install && bun run build` (output in `dashboard/dist`).
