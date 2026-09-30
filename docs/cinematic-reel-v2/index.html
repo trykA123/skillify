@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skillify / Film source</title>
+  <style>
+    @font-face { font-family: Rubik; src: url('./fonts/Rubik.ttf'); font-weight: 300 900; font-display: block; }
+    @font-face { font-family: JetBrains; src: url('./fonts/JetBrainsMono.ttf'); font-display: block; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #080b0f; color: #eff1f2; font: 16px Rubik, sans-serif; }
+    main { max-width: 1600px; margin: 0 auto; padding: 24px; }
+    canvas { display: block; width: 100%; aspect-ratio: 16 / 9; background: #080b0f; }
+    .controls { display: flex; gap: 16px; align-items: center; margin-top: 24px; }
+    button { font: inherit; border: 1px solid #75808a; background: #171d23; color: #fff; padding: 12px 24px; cursor: pointer; }
+    button:focus-visible, input:focus-visible { outline: 2px solid #ff603b; outline-offset: 4px; }
+    input { flex: 1; min-width: 80px; accent-color: #ff603b; }
+    output { font: 14px JetBrains, monospace; }
+    h1 { font-size: clamp(24px, 5vw, 40px); font-weight: 400; }
+    p { color: #bcc5cd; line-height: 1.6; }
+    a { color: #eff1f2; }
+    body.recording main { max-width: none; padding: 0; }
+    body.recording .controls, body.recording .context { display: none; }
+    body.recording canvas { width: 1920px; height: 1080px; }
+    @media (max-width: 600px) { main { padding: 16px; } .controls { gap: 10px; } button { padding: 12px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <canvas id="film" width="1920" height="1080" aria-label="Skillify: From signal to certainty. Deterministic film preview."></canvas>
+    <div class="controls">
+      <button id="play" type="button">Play source</button>
+      <input id="seek" type="range" min="0" max="130" step="0.01" value="0" aria-label="Film time">
+      <output id="time">0:00 / 2:10</output>
+    </div>
+    <div class="context">
+      <h1>From signal to certainty</h1>
+      <p>Deterministic motion source. Sound is included in the <a href="./player.html">finished film</a>.</p>
+      <p id="motion-note" hidden>Reduced motion is enabled. Use the time control to inspect still frames.</p>
+    </div>
+  </main>
+  <script type="module">
+    import {drawFrame} from './film.mjs';
+    await document.fonts.ready;
+    const recording = new URLSearchParams(location.search).has('recording');
+    document.body.classList.toggle('recording', recording);
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const play = document.querySelector('#play');
+    const seek = document.querySelector('#seek');
+    const time = document.querySelector('#time');
+    document.querySelector('#motion-note').hidden = !reduced;
+    play.disabled = reduced;
+    let playing = false;
+    let previous = 0;
+    let value = 0;
+    let frame = 0;
+    const update = t => {
+      value = Math.min(130, t);
+      drawFrame(value);
+      seek.value = value;
+      time.textContent = `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, '0')} / 2:10`;
+    };
+    const tick = now => {
+      if (!playing) return;
+      update(value + (now - previous) / 1000);
+      previous = now;
+      if (value >= 130) { playing = false; play.textContent = 'Replay source'; return; }
+      frame = requestAnimationFrame(tick);
+    };
+    play.addEventListener('click', () => {
+      playing = !playing;
+      play.textContent = playing ? 'Pause source' : 'Play source';
+      cancelAnimationFrame(frame);
+      if (playing) { if (value >= 130) value = 0; previous = performance.now(); frame = requestAnimationFrame(tick); }
+    });
+    seek.addEventListener('input', () => update(Number(seek.value)));
+    window.drawFrame = t => update(t);
+    update(recording ? 0 : 12);
+    window.filmReady = true;
+  </script>
+</body>
+</html>

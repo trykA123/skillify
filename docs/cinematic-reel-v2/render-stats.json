@@ -1,0 +1,17 @@
+{
+  "duration": 130,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "frames": 3900,
+  "bytes": 29020481,
+  "pictureRenderSeconds": 283.907248354,
+  "pictureRenderFps": 13.736880698224176,
+  "score": {
+    "duration": 130,
+    "rate": 48000,
+    "channels": 2,
+    "preMasterPeak": 0.2207614306137735,
+    "events": 630
+  }
+}

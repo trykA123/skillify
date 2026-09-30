@@ -114,6 +114,7 @@ echo '{"verdict":"helped","tools":-1}' > "$ROOT/fb/badc.jsonl"
 if node "$REPO_DIR/scripts/feedback-report.mjs" --input "$ROOT/fb/badc.jsonl" --output "$ROOT/fb/badc.html" >/dev/null 2>&1; then fail "report accepted negative tools"; fi
 
 if command -v bun >/dev/null 2>&1 && [ -d "$REPO_DIR/dashboard/node_modules" ]; then
+  (cd "$REPO_DIR/dashboard" && bun test ./test-reel-assets.ts) || fail "reel publication assets"
   (cd "$REPO_DIR/dashboard" && bun build-data.ts >/dev/null) || fail "dashboard data export"
   bun -e '
     const d = await Bun.file(process.argv[1]).json();

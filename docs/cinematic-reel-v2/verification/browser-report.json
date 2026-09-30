@@ -1,0 +1,45 @@
+{
+  "errors": [],
+  "viewports": [
+    {
+      "name": "phone",
+      "width": 390,
+      "scrollWidth": 390,
+      "autoplay": false,
+      "paused": true,
+      "controls": true,
+      "duration": 130,
+      "videoWidth": 1920,
+      "videoHeight": 1080,
+      "captionTracks": 1
+    },
+    {
+      "name": "desktop",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "autoplay": false,
+      "paused": true,
+      "controls": true,
+      "duration": 130,
+      "videoWidth": 1920,
+      "videoHeight": 1080,
+      "captionTracks": 1,
+      "playback": {
+        "currentTime": 104.835145,
+        "paused": false,
+        "readyState": 4,
+        "error": null,
+        "audioTracks": 1,
+        "videoFrames": 150
+      }
+    }
+  ],
+  "reducedMotion": {
+    "playDisabled": true,
+    "noteVisible": true,
+    "time": 12,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  "passed": true
+}
