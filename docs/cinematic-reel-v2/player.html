@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skillify / From signal to certainty</title>
+  <style>
+    @font-face { font-family: Rubik; src: url('./fonts/Rubik.ttf'); font-weight: 300 900; font-display: swap; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #080b0f; color: #eff1f2; font: 16px Rubik, sans-serif; }
+    main { max-width: 1440px; margin: 0 auto; padding: 32px; }
+    header { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 28px; gap: 24px; }
+    h1 { margin: 0; font-weight: 400; font-size: clamp(26px, 4vw, 48px); letter-spacing: -.04em; }
+    header p { margin: 0; color: #bcc5cd; white-space: nowrap; }
+    video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #080b0f; }
+    .links { display: flex; flex-wrap: wrap; gap: 24px; margin: 28px 0; }
+    a { color: #eff1f2; text-underline-offset: 5px; }
+    a:focus-visible, video:focus-visible, summary:focus-visible { outline: 2px solid #ff603b; outline-offset: 5px; }
+    details { max-width: 800px; color: #bcc5cd; line-height: 1.7; }
+    summary { color: #eff1f2; cursor: pointer; padding: 12px 0; }
+    dl { display: grid; grid-template-columns: 130px 1fr; gap: 12px 24px; }
+    dt { color: #eff1f2; } dd { margin: 0; }
+    @media (max-width: 600px) { main { padding: 20px 16px; } header { display: block; padding-bottom: 24px; } header p { margin-top: 12px; } dl { grid-template-columns: 1fr; gap: 4px; } dd { margin-bottom: 16px; } }
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header><h1>From signal to certainty</h1><p>Skillify / 2 minutes 10 seconds</p></header>
+    <video controls playsinline preload="metadata" poster="poster.jpg" aria-label="Skillify cinematic film, with original electronic music and visual titles">
+      <source src="skillify-cinematic.mp4" type="video/mp4">
+      <track kind="captions" src="captions.vtt" srclang="en" label="English visual transcript">
+      Your browser cannot play this video. Download the film using the link below.
+    </video>
+    <nav class="links" aria-label="Film resources"><a href="skillify-cinematic.mp4" download>Download film</a><a href="contact-sheet.jpg">Contact sheet</a><a href="index.html">Explore source</a><a href="https://github.com/trykA123/skillify">Skillify on GitHub</a></nav>
+    <details><summary>Visual transcript</summary>
+      <p>An agent has power. Give it a method. Skillify: engineering skills for AI coding agents.</p>
+      <dl>
+        <dt>orientify</dt><dd>Trace a real flow. Name the seams and traps.</dd>
+        <dt>undumbify</dt><dd>Supply decisions. Ask only what changes the outcome.</dd>
+        <dt>researchify</dt><dd>Official sources first. State confidence and gaps.</dd>
+        <dt>traceify</dt><dd>Falsify hypotheses before making the smallest fix.</dd>
+        <dt>audify</dt><dd>Set the standard. Reproduce every finding.</dd>
+        <dt>shapeify</dt><dd>Name the files, checks, dependencies and traps.</dd>
+        <dt>promptify</dt><dd>Set outcome, effort, scope and stop rules.</dd>
+        <dt>shipify</dt><dd>Set a baseline. Verify each step and the real result.</dd>
+        <dt>reviewify</dt><dd>Located findings. Concrete fixes. One verdict.</dd>
+        <dt>releaseify</dt><dd>Version from the diff. Rollback before deploy.</dd>
+        <dt>teachify</dt><dd>Match the learner. Explain, practise and check.</dd>
+      </dl>
+      <p>Eleven disciplines. One method. Four roles. Clear boundaries.</p>
+      <dl>
+        <dt>scout</dt><dd>Read only. Return files, flow and the first file to open.</dd>
+        <dt>researcher</dt><dd>Read and web. Return sources, confidence and gaps.</dd>
+        <dt>worker</dt><dd>Edit within scope. Establish a baseline and verify.</dd>
+        <dt>reviewer</dt><dd>Read only. Located findings and one verdict.</dd>
+      </dl>
+      <p>Intent. Evidence. Judgment. Understand before changing. Prove before claiming. Skillify. Better agents. Deliberate engineering.</p>
+    </details>
+  </main>
+</body>
+</html>

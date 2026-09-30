@@ -1,0 +1,13 @@
+{
+  "name": "skillify-cinematic-reel-v2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "node render.mjs",
+    "frames": "node render.mjs --frames",
+    "verify": "node verify.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.63.0"
+  }
+}
