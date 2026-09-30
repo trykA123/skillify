@@ -6,6 +6,8 @@ on:
     paths:
       - "feedback/**"
       - "scripts/feedback-report.mjs"
+      - "scripts/readme-evidence.mjs"
+      - "README.md"
       - "evals/results/**"
       - "evals/paired/**"
       - "dashboard/**"
@@ -30,6 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
+      - run: node scripts/readme-evidence.mjs --check
       - run: bun install --frozen-lockfile
         working-directory: dashboard
       - run: bun run build

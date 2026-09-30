@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode, type RefObject } from "react";
 import { Dialog } from "@base-ui/react/dialog";
-import { data, dur, kfmt, median, type Entry } from "../lib";
+import { data, dur, kfmt, type Entry } from "../lib";
 import { Card, Chip, Verdict } from "../ui";
 
 const uniq = (xs: string[]) => [...new Set(xs.filter(Boolean))].sort();
@@ -20,6 +20,7 @@ function useWide() {
 function Detail({ e, Title }: { e: Entry; Title: (p: { className: string; children: string }) => ReactNode }) {
   return (
     <>
+      <p className="row-catch"><b>Catch:</b> {e.catchNote}</p>
       <Title className="sheet-t">{e.task}</Title>
       <div className="row-s">
         <Verdict v={e.verdict} />
@@ -38,7 +39,7 @@ function Detail({ e, Title }: { e: Entry; Title: (p: { className: string; childr
         <p>{e.missing || "—"}</p>
       </Card>
       <p className="small muted">
-        Cost: {e.tokens !== undefined ? `${kfmt(e.tokens)} tokens · ${e.tools ?? "?"} tool calls · ${e.ms !== undefined ? dur(e.ms) : "?"}` : "not recorded"}
+        Tokens: {e.tokens === undefined ? "not recorded" : kfmt(e.tokens)} · Tool calls: {e.tools ?? "not recorded"} · Duration: {e.ms === undefined ? "not recorded" : dur(e.ms)}
       </p>
     </>
   );
@@ -61,11 +62,15 @@ export function Field({ search }: { search: RefObject<HTMLInputElement | null> }
         .filter(({ e }) => !verdict || e.verdict === verdict)
         .filter(({ e }) => !skill || (skill === "(none)" ? !e.skills.length : e.skills.includes(skill)))
         .filter(({ e }) => !agent || e.agent === agent)
-        .filter(({ e }) => !q || [e.task, e.helped, e.hindered, e.missing, e.agent, e.model, e.skills.join(" ")].join(" ").toLowerCase().includes(q.toLowerCase()))
+        .filter(({ e }) => !q || [e.catch, e.task, e.helped, e.hindered, e.missing, e.agent, e.model, e.skills.join(" ")].join(" ").toLowerCase().includes(q.toLowerCase()))
         .reverse(),
     [q, verdict, skill, agent],
   );
-  const withCost = data.entries.filter((e) => e.tokens !== undefined);
+  const costs = [
+    { key: "tokens" as const, label: "tokens", format: kfmt },
+    { key: "tools" as const, label: "tool calls", format: (n: number) => String(n) },
+    { key: "ms" as const, label: "duration", format: dur },
+  ].map((c) => ({ ...c, ...data.fieldUsage[c.key] }));
   const wide = useWide();
   const shown = open ?? (wide ? rows[0]?.e ?? null : null);
   return (
@@ -97,9 +102,9 @@ export function Field({ search }: { search: RefObject<HTMLInputElement | null> }
           {rows.length} of {data.entries.length}
         </span>
       </div>
-      {withCost.length ? (
+      {costs.some((c) => c.recorded) ? (
         <p className="small muted">
-          Cost recorded on {withCost.length} of {data.entries.length} runs · median {kfmt(median(withCost.map((e) => e.tokens!)))} tokens, {Math.round(median(withCost.map((e) => e.tools ?? 0)))} tool calls, {dur(median(withCost.map((e) => e.ms ?? 0)))}.
+          {costs.map((c) => `${c.label}: ${c.recorded ? `median ${c.format(c.median!)} (${c.recorded}/${data.entries.length} recorded)` : "not recorded"}`).join(" · ")}
         </p>
       ) : null}
       <div className="split">
@@ -107,6 +112,7 @@ export function Field({ search }: { search: RefObject<HTMLInputElement | null> }
         {rows.map(({ e, i }) => (
           <button key={i} className={`row${wide && shown === e ? " sel" : ""}`} onClick={() => setOpen(e)}>
             <div className="row-main">
+              <div className="row-catch small"><b>Catch:</b> {e.catchNote}</div>
               <div className="row-t">{e.task}</div>
               <div className="row-s">
                 <Verdict v={e.verdict} />

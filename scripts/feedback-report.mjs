@@ -32,6 +32,7 @@ export function parseEntries(text) {
       throw new Error(`field.jsonl line ${n}: invalid JSON`);
     }
     if (!VERDICTS.includes(r.verdict)) throw new Error(`field.jsonl line ${n}: bad verdict "${r.verdict}"`);
+    if (r.catch !== undefined && (typeof r.catch !== "string" || !r.catch.trim())) throw new Error(`field.jsonl line ${n}: catch must be a non-empty string or none`);
     for (const k of COST_KEYS) if (r[k] !== undefined && !(Number.isInteger(r[k]) && r[k] >= 0)) throw new Error(`field.jsonl line ${n}: ${k} must be a non-negative integer`);
     return { date: "", agent: "", model: "", harness: "", task: "", helped: "", hindered: "", missing: "", ...r, skills: Array.isArray(r.skills) ? r.skills : [] };
   });
@@ -199,13 +200,51 @@ const fmtMs = (ms) => {
 const FMT = { tokens: fmtNum, tools: fmtNum, ms: fmtMs };
 const NOREC = `<span class="norec">not recorded</span>`;
 
+export function catchNote(row) {
+  if (row.catch === undefined) return "Not recorded.";
+  return NONE.test(row.catch.trim()) ? "None reported." : row.catch.trim();
+}
+
+export function fieldEvidence(rows) {
+  const helped = rows.filter((r) => r.verdict === "helped");
+  const catches = helped.filter((r) => r.catch !== undefined);
+  const real = catches.filter((r) => !NONE.test(r.catch.trim()));
+  const tokens = helped.filter((r) => r.tokens !== undefined).map((r) => r.tokens);
+  return {
+    helped: helped.length,
+    catchCount: real.length,
+    catchRecorded: catches.length,
+    catchRate: helped.length ? real.length / helped.length : null,
+    medianTokens: median(tokens),
+    tokensRecorded: tokens.length,
+  };
+}
+
+export function usageSummary(rows) {
+  return Object.fromEntries(COST_KEYS.map((key) => {
+    const values = rows.filter((r) => r[key] !== undefined).map((r) => r[key]);
+    return [key, { median: median(values), recorded: values.length }];
+  }));
+}
+
+function skillEvidence(rows, names) {
+  const body = names.map((name) => {
+    const e = fieldEvidence(rows.filter((r) => name === "(none)" ? !r.skills.length : r.skills.includes(name)));
+    const rate = e.catchRecorded ? `${pct(e.catchCount, e.helped)}%<small>${e.catchCount} of ${e.helped} helped; ${e.catchRecorded} recorded</small>` : NOREC;
+    const tokens = e.medianTokens === null ? NOREC : `${fmtNum(e.medianTokens)}<small>${e.tokensRecorded} of ${e.helped} helped</small>`;
+    return `<tr><th scope="row">${esc(name)}</th><td class="n">${rate}</td><td class="n">${tokens}</td></tr>`;
+  }).join("");
+  return `<h3>Evidence per helped run</h3><p class="ch-d">Catch rate is helped entries with a concrete catch divided by all helped entries. Missing catches stay unknown; recorded coverage is shown. Tokens are the median of helped entries that recorded usage. A shared catch counts for every skill loaded, so it cannot establish which skill caused it.</p><div class="scroll"><table class="cpp costt"><thead><tr><th>Skill</th><th class="n">Catch rate</th><th class="n">Tokens / helped run</th></tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
 function costGroup(rows, keyOf, title) {
   const m = new Map();
   for (const r of rows) m.set(keyOf(r), [...(m.get(keyOf(r)) ?? []), r]);
   const body = [...m].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0])).map(([k, rs]) => {
+    const usage = usageSummary(rs);
     const cells = COST_KEYS.map((c) => {
-      const v = rs.filter((r) => r[c] !== undefined).map((r) => r[c]);
-      return `<td class="n" data-cost="${c}">${v.length ? `${FMT[c](median(v))}<small>${v.length} of ${rs.length}</small>` : NOREC}</td>`;
+      const v = usage[c];
+      return `<td class="n" data-cost="${c}">${v.recorded ? `${FMT[c](v.median)}<small>${v.recorded} of ${rs.length}</small>` : NOREC}</td>`;
     }).join("");
     return `<tr><th scope="row">${esc(k)}</th><td class="n">${rs.length}</td>${cells}</tr>`;
   }).join("");
@@ -437,7 +476,7 @@ function quote(kind, text) {
 }
 
 function card(r, i) {
-  return `<article class="run ${r.verdict}" id="run-${i}" data-verdict="${r.verdict}" data-agent="${esc(r.agent)}" data-skills="${esc(r.skills.length ? r.skills.join("|") : "(none)")}"><header><div class="run-top"><span class="badge ${r.verdict}">${glyph(r.verdict, 14)}${label(r.verdict)}</span><time>${esc(r.date)}</time></div><h3>${esc(r.task)}</h3><div class="meta"><span>${esc(r.agent)}</span><span>${esc(r.model)}</span><span>${esc(r.harness)}</span></div><div class="skills">${(r.skills.length ? r.skills : ["(none)"]).map((s) => `<span class="chip-s${s === "(none)" ? " nn" : ""}">${esc(s)}</span>`).join("")}</div></header>${quote("helped", r.helped)}${quote("hindered", r.hindered)}${quote("missing", r.missing)}${cardCost(r)}</article>`;
+  return `<article class="run ${r.verdict}" id="run-${i}" data-verdict="${r.verdict}" data-agent="${esc(r.agent)}" data-skills="${esc(r.skills.length ? r.skills.join("|") : "(none)")}"><header><div class="run-top"><span class="badge ${r.verdict}">${glyph(r.verdict, 14)}${label(r.verdict)}</span><time>${esc(r.date)}</time></div><h3>${esc(r.task)}</h3><div class="meta"><span>${esc(r.agent)}</span><span>${esc(r.model)}</span><span>${esc(r.harness)}</span></div><div class="skills">${(r.skills.length ? r.skills : ["(none)"]).map((s) => `<span class="chip-s${s === "(none)" ? " nn" : ""}">${esc(s)}</span>`).join("")}</div></header><blockquote class="q catch"><span class="ql">Catch</span><p>${esc(catchNote(r))}</p></blockquote>${quote("helped", r.helped)}${quote("hindered", r.hindered)}${quote("missing", r.missing)}${cardCost(r)}</article>`;
 }
 
 const CSS = `
@@ -663,7 +702,7 @@ ${facts}
 
 ${measured(evals)}
 
-<section class="ch"><div class="ch-h"><span class="no">CH 01</span><h2>Verdicts per skill</h2></div><p class="ch-d">Each bar is one skill. Length is runs, on one shared scale. A run that loaded several skills counts once for each. "(none)" is the runs that loaded no skill.</p><div class="panel">${legend()}${skillBars(bySkill)}${tableView(["Skill", "Helped", "Neutral", "Hurt", "Total"], bySkill.map(([k, t]) => [k, t.helped, t.neutral, t.hurt, total(t)]))}</div></section>
+<section class="ch"><div class="ch-h"><span class="no">CH 01</span><h2>Verdicts per skill</h2></div><p class="ch-d">Each bar is one skill. Length is runs, on one shared scale. A run that loaded several skills counts once for each. "(none)" is the runs that loaded no skill.</p><div class="panel">${legend()}${skillBars(bySkill)}${skillEvidence(rows, bySkill.map(([name]) => name))}${tableView(["Skill", "Helped", "Neutral", "Hurt", "Total"], bySkill.map(([k, t]) => [k, t.helped, t.neutral, t.hurt, total(t)]))}</div></section>
 
 <section class="ch"><div class="ch-h"><span class="no">CH 02</span><h2>The run log</h2></div><p class="ch-d">Every run is one mark, in log order, placed on the lane of its verdict. Shape repeats the verdict so colour is never the only cue. Select a mark to jump to its card.</p><div class="panel">${legend()}${river(chrono)}${tableView(["Week of", "Helped", "Neutral", "Hurt", "Total"], ws.map(([k, t]) => [k, t.helped, t.neutral, t.hurt, total(t)]))}</div></section>
 
@@ -680,6 +719,7 @@ ${measured(evals)}
   --agent worker --model sonnet-5.5 --harness claude \\
   --tokens 48000 --tools 32 --ms 210000 \\
   --task "what you did" --skills shipify,reviewify \\
+  --catch "one concrete catch, or none" \\
   --helped "..." --hindered "..." --missing "..." \\
   --verdict helped</pre></div><div><h2>Source</h2><p>Skills and this recorder live at <a href="https://github.com/trykA123/skillify">github.com/trykA123/skillify</a>. The page is rebuilt from feedback/field.jsonl on each push.</p><p class="gen">Generated ${esc(generated)}</p></div></footer>
 </main><script>${JS}</script></body></html>

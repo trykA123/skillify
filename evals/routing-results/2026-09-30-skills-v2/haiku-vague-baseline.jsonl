@@ -1,0 +1,3 @@
+{"suite":"undumbify","case":"vague-idea","repetition":1,"adapter":"claude","model":"haiku","revision":"4402a1f","passed":true,"answer":"undumbify","expected":["undumbify"]}
+{"suite":"undumbify","case":"vague-idea","repetition":2,"adapter":"claude","model":"haiku","revision":"4402a1f","passed":true,"answer":"undumbify","expected":["undumbify"]}
+{"suite":"undumbify","case":"vague-idea","repetition":3,"adapter":"claude","model":"haiku","revision":"4402a1f","passed":true,"answer":"undumbify","expected":["undumbify"]}

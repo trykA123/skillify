@@ -45,11 +45,21 @@ export type Entry = {
   hindered: string;
   missing: string;
   verdict: "helped" | "neutral" | "hurt";
+  catch?: string;
+  catchNote: string;
   tokens?: number;
   tools?: number;
   ms?: number;
 };
 export type Category = { id: string; label: string; blurb: string };
+export type FieldEvidence = {
+  helped: number;
+  catchCount: number;
+  catchRecorded: number;
+  catchRate: number | null;
+  medianTokens: number | null;
+  tokensRecorded: number;
+};
 
 export const data = raw as unknown as {
   generated: string;
@@ -62,6 +72,9 @@ export const data = raw as unknown as {
   headline: { pre: string; em: string };
   runs: Run[];
   entries: Entry[];
+  skills: string[];
+  fieldBySkill: Record<string, FieldEvidence>;
+  fieldUsage: Record<"tokens" | "tools" | "ms", { median: number | null; recorded: number }>;
   asks: { docs: number; asks: [string, number][] };
 };
 

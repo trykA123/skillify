@@ -1,12 +1,20 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { analyzeResults, evalHeadline, loadResults, parseEntries, recurringAsks } from "../scripts/feedback-report.mjs";
+import { analyzeResults, catchNote, evalHeadline, fieldEvidence, loadResults, parseEntries, recurringAsks, usageSummary } from "../scripts/feedback-report.mjs";
 import cats from "./categories.json";
 
 const repo = join(import.meta.dir, "..");
 const read = (p: string) => readFile(join(repo, p), "utf8");
 
 const entries = parseEntries(await read("feedback/field.jsonl").catch(() => ""));
+const skills = [...new Set([
+  ...(await readdir(join(repo, "skills"), { withFileTypes: true })).filter((d) => d.isDirectory()).map((d) => d.name),
+  ...entries.flatMap((e: any) => e.skills),
+])].sort();
+const fieldBySkill = Object.fromEntries([...skills, "(none)"].map((name) => [
+  name,
+  fieldEvidence(entries.filter((e: any) => name === "(none)" ? !e.skills.length : e.skills.includes(name))),
+]));
 
 const pairedDir = join(repo, "evals", "paired");
 const kinds: Record<string, { skill: string; kind: string }> = {};
@@ -74,7 +82,10 @@ const data = {
   fixtures: analysis.fixtures,
   headline,
   runs,
-  entries,
+  skills,
+  fieldBySkill,
+  fieldUsage: usageSummary(entries),
+  entries: entries.map((e: any) => ({ ...e, catchNote: catchNote(e) })),
   asks: recurringAsks(entries),
 };
 

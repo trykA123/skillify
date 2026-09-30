@@ -1,0 +1,3 @@
+{"suite":"traceify","case":"feature-not-bug","repetition":1,"adapter":"claude","model":"sonnet","revision":"4402a1f","passed":true,"answer":"undumbify","expected":["undumbify","shapeify","shipify","none"]}
+{"suite":"traceify","case":"feature-not-bug","repetition":2,"adapter":"claude","model":"sonnet","revision":"4402a1f","passed":false,"answer":"orientify","expected":["undumbify","shapeify","shipify","none"]}
+{"suite":"traceify","case":"feature-not-bug","repetition":3,"adapter":"claude","model":"sonnet","revision":"4402a1f","passed":true,"answer":"undumbify","expected":["undumbify","shapeify","shipify","none"]}

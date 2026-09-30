@@ -14,6 +14,9 @@ which path, how often), timeline (when it started, what changed near then), and 
 does and does not reproduce. If the report is thin, ask one question: "What is the
 smallest thing I can do to see this myself?"
 
+If the reported repro passes, say so and look for adjacent defects that fit the symptom.
+Keep the reported cause unconfirmed; a confirmed adjacent defect does not prove it.
+
 Intermittent: widen the timeline to the first occurrence, capture the conditions
 (input, state, concurrency, environment, timing), and add instrumentation before
 bisecting. Get a reliable trigger first.

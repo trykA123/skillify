@@ -232,6 +232,11 @@ main { overflow-y: auto; min-width: 0; }
 .row.sel { background: color-mix(in srgb, var(--lime) 9%, transparent); }
 .row.sel::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--lime); }
 .row-main { flex: 1; min-width: 0; display: grid; gap: 5px; }
+.field-evidence { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0; padding-top: 12px; border-top: 1px solid var(--line); }
+.field-evidence dt, .field-evidence small { color: var(--muted); font-size: 11px; }
+.field-evidence dd { margin: 4px 0; font: 600 15px var(--disp); font-variant-numeric: tabular-nums; }
+.field-evidence small { display: block; }
+.row-catch { color: var(--text); overflow-wrap: anywhere; }
 .row-t { font-weight: 550; color: var(--text); overflow-wrap: anywhere; }
 .row-s { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; font-size: 12px; }
 .row-side { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: flex-end; }

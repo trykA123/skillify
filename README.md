@@ -83,31 +83,28 @@ Claude Code plugin:
 
 ## Does it help?
 
-`scripts/run-paired.mjs` runs each task in a real throwaway repo with real tools, once
-without skills and once with the task's skill loaded, and scores the result with hidden
-tests or, for open-ended tasks, a rubric graded by a different model (Codex). Six tasks,
-three runs per arm (2026-09-28):
+Generated from existing results by `node scripts/readme-evidence.mjs`; the dashboard uses the same analysis. No new paired runs are needed to refresh this section.
 
-| Model | Score without skills | Score with skills | Cost per run |
-|---|---:|---:|---|
-| Claude Haiku | 0.78 | **0.95** | $0.079 → $0.090 (+13%) |
-| Claude Sonnet | 0.97 | 0.99 | $0.156 → $0.219 (+41%) |
-| DeepSeek-V4.1-Flash | 0.93 | **0.99** | about $0.01 per run billed (24% more turns) |
+`scripts/run-paired.mjs` runs each task in a throwaway repo with real tools, without skills and with the task's skill loaded. Hidden tests grade coding tasks; a separate model grades open-ended tasks against a rubric.
 
-- The skills matter most on smaller models. Haiku with the skills scored close to Sonnet
-  without them, at about 58% of the cost. DeepSeek-V4.1-Flash with the skills scored 0.99
-  (1.00 on five of six tasks) at roughly a twentieth of Sonnet's cost.
-- The biggest gains were clarifying a vague feature (undumbify: Haiku 0.13 → 0.87,
-  Sonnet 0.80 → 0.93) and reviewing a PR against its intent (reviewify: Haiku 0.73 → 1.00).
-- On small, well-specified coding tasks Sonnet already scores 1.00 without help; there the
-  skills cost more turns and add nothing measurable.
-- Evals also changed the skills: a refactor rule that stopped to ask, a review rule that
-  invited filler findings, and a missing "find every place the change touches" step were
-  all found this way and fixed. Release routing failed inside shipify, so releaseify is a
-  separate skill again.
+Haiku with skills scores close to Sonnet without them (0.95 vs 0.97), at ~58% of the cost.
 
-The sample is small (six fixtures, n=3). Treat it as direction, not proof. The raw runs are in
-[`evals/results/`](evals/results/2026-09-28/) and the dashboard recomputes every number from them.
+| Model | Score without skills | Score with skills | Cost per run | Cost per score point |
+|---|---:|---:|---|---|
+| Claude Haiku | 0.78 | 0.95 | $0.079 → $0.090 (+13%) | $0.102 → $0.094 (−8%) |
+| Claude Sonnet | 0.97 | 0.99 | $0.156 → $0.219 (+41%) | $0.161 → $0.222 (+38%) |
+| DeepSeek Flash | 0.93 | 0.99 | $0.481 → $0.667 (CLI estimate) | not comparable |
+
+- [clarify-invites](evals/paired/clarify-invites/task.json) (undumbify): Claude Haiku 0.13 → 0.87 (+73 pts); Claude Sonnet 0.80 → 0.93 (+13 pts); DeepSeek Flash 0.73 → 1.00 (+27 pts).
+- [review-ratelimit](evals/paired/review-ratelimit/task.json) (reviewify): Claude Haiku 0.73 → 1.00 (+27 pts); DeepSeek Flash 0.85 → 0.95 (+10 pts).
+- [feature-softdelete](evals/paired/feature-softdelete/task.json) (shipify): Claude Haiku 0.81 → 0.86 (+5 pts).
+- Coding and debugging baselines already score 1.00 on 11 model/task comparisons. These fixtures cannot measure further score gains at that ceiling.
+
+The sample is small: 6 fixtures, up to 3 runs per arm. Means are per recorded run. Later rounds replace earlier results for the same model, task and arm. Treat these scores as direction, not proof. CLI cost estimates are not invoices; DeepSeek estimates use Anthropic prices and are excluded from cost comparisons.
+
+`teachify` remains unmeasured: interactive teaching needs a human learner. Grading lesson text alone cannot establish teaching quality. The shipify fast path's cost effect also remains unmeasured.
+
+Raw runs: [evals/results/](evals/results/). The dashboard recomputes its Overview headline and Evals numbers from the same files.
 
 ### Field feedback
 
@@ -117,9 +114,15 @@ The caller logs each block, so real work adds to the evidence alongside the eval
 
 ```bash
 node scripts/log-feedback.mjs --agent worker --model sonnet-5.5 --harness claude \
-  --task "radio server" --skills shipify --helped "…" --hindered "…" --missing "…" --verdict helped
+  --task "radio server" --skills shipify --catch "one concrete catch, or none" \
+  --helped "…" --hindered "…" --missing "…" --verdict helped
 node scripts/log-feedback.mjs --summary   # verdict counts per skill
 ```
+
+Add `--tokens N --tools N --ms N` when the harness reports them; omit unknown usage.
+Catch rate is concrete catches on helped entries divided by all helped entries, with
+recorded coverage shown. Tokens per helped run is the median of recorded values.
+Missing catches and usage stay unknown; older entries are never filled with guesses.
 
 Entries go to `feedback/field.jsonl`. The dashboard at
 **https://tryka123.github.io/skillify/** is a small app in [`dashboard/`](dashboard/)
