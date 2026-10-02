@@ -52,9 +52,13 @@ export function Field({ search }: { search: RefObject<HTMLInputElement | null> }
   const [verdict, setVerdict] = useState("");
   const [skill, setSkill] = useState("");
   const [agent, setAgent] = useState("");
+  const [model, setModel] = useState("");
+  const [harness, setHarness] = useState("");
   const [open, setOpen] = useState<Entry | null>(null);
   const skills = uniq(data.entries.flatMap((e) => (e.skills.length ? e.skills : ["(none)"])));
   const agents = uniq(data.entries.map((e) => e.agent));
+  const models = uniq(data.entries.map((e) => e.model));
+  const harnesses = uniq(data.entries.map((e) => e.harness));
   const rows = useMemo(
     () =>
       data.entries
@@ -62,9 +66,11 @@ export function Field({ search }: { search: RefObject<HTMLInputElement | null> }
         .filter(({ e }) => !verdict || e.verdict === verdict)
         .filter(({ e }) => !skill || (skill === "(none)" ? !e.skills.length : e.skills.includes(skill)))
         .filter(({ e }) => !agent || e.agent === agent)
-        .filter(({ e }) => !q || [e.catch, e.task, e.helped, e.hindered, e.missing, e.agent, e.model, e.skills.join(" ")].join(" ").toLowerCase().includes(q.toLowerCase()))
+        .filter(({ e }) => !model || e.model === model)
+        .filter(({ e }) => !harness || e.harness === harness)
+        .filter(({ e }) => !q || [e.catch, e.task, e.helped, e.hindered, e.missing, e.agent, e.model, e.harness, e.skills.join(" ")].join(" ").toLowerCase().includes(q.toLowerCase()))
         .reverse(),
-    [q, verdict, skill, agent],
+    [q, verdict, skill, agent, model, harness],
   );
   const costs = [
     { key: "tokens" as const, label: "tokens", format: kfmt },
@@ -98,7 +104,15 @@ export function Field({ search }: { search: RefObject<HTMLInputElement | null> }
             <option key={s}>{s}</option>
           ))}
         </select>
-        <span className="muted small">
+        <select value={model} onChange={(e) => setModel(e.target.value)} aria-label="Model">
+          <option value="">All models</option>
+          {models.map((m) => <option key={m}>{m}</option>)}
+        </select>
+        <select value={harness} onChange={(e) => setHarness(e.target.value)} aria-label="Harness">
+          <option value="">All harnesses</option>
+          {harnesses.map((h) => <option key={h}>{h}</option>)}
+        </select>
+        <span className="muted small" role="status">
           {rows.length} of {data.entries.length}
         </span>
       </div>

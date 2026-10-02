@@ -38,6 +38,33 @@ export function parseEntries(text) {
   });
 }
 
+export function modelCoverage(rows, models = []) {
+  const grouped = new Map();
+  for (const row of rows) {
+    const model = row.model || "(unknown)";
+    const group = grouped.get(model) ?? { fieldRuns: 0, harnesses: new Set() };
+    group.fieldRuns++;
+    if (row.harness) group.harnesses.add(row.harness);
+    grouped.set(model, group);
+  }
+  const paired = new Map(models.map((model) => [model.model, model]));
+  return [...new Set([...grouped.keys(), ...paired.keys()])].sort().map((model) => {
+    const field = grouped.get(model);
+    const evaluation = paired.get(model);
+    return {
+      model,
+      fieldRuns: field?.fieldRuns ?? 0,
+      harnesses: [...(field?.harnesses ?? [])].sort(),
+      paired: Boolean(evaluation?.base?.n && evaluation?.skill?.n),
+    };
+  });
+}
+
+function coverageTable(rows, models) {
+  const body = modelCoverage(rows, models).map((m) => `<tr><td>${esc(modelName(m.model))}</td><td>${esc(m.harnesses.join(", ") || "Not recorded")}</td><td class="n">${m.fieldRuns}</td><td>${m.paired ? "Recorded" : "Not recorded"}</td></tr>`).join("");
+  return `<section class="ch" id="model-coverage"><div class="ch-h"><span class="no">COVERAGE</span><h2>Model coverage</h2></div><p class="ch-d">Field feedback and paired benchmarks are separate evidence. Models without paired results have no comparison score. Model IDs and versions remain separate.</p><div class="panel scroll"><table><thead><tr><th>Model</th><th>Harness</th><th class="n">Field runs</th><th>Paired evals</th></tr></thead><tbody>${body}</tbody></table></div></section>`;
+}
+
 export async function loadResults(dir) {
   const found = [];
   const walk = async (d) => {
@@ -476,7 +503,7 @@ function quote(kind, text) {
 }
 
 function card(r, i) {
-  return `<article class="run ${r.verdict}" id="run-${i}" data-verdict="${r.verdict}" data-agent="${esc(r.agent)}" data-skills="${esc(r.skills.length ? r.skills.join("|") : "(none)")}"><header><div class="run-top"><span class="badge ${r.verdict}">${glyph(r.verdict, 14)}${label(r.verdict)}</span><time>${esc(r.date)}</time></div><h3>${esc(r.task)}</h3><div class="meta"><span>${esc(r.agent)}</span><span>${esc(r.model)}</span><span>${esc(r.harness)}</span></div><div class="skills">${(r.skills.length ? r.skills : ["(none)"]).map((s) => `<span class="chip-s${s === "(none)" ? " nn" : ""}">${esc(s)}</span>`).join("")}</div></header><blockquote class="q catch"><span class="ql">Catch</span><p>${esc(catchNote(r))}</p></blockquote>${quote("helped", r.helped)}${quote("hindered", r.hindered)}${quote("missing", r.missing)}${cardCost(r)}</article>`;
+  return `<article class="run ${r.verdict}" id="run-${i}" data-verdict="${r.verdict}" data-agent="${esc(r.agent)}" data-model="${esc(r.model || "(unknown)")}" data-harness="${esc(r.harness || "(unknown)")}" data-skills="${esc(r.skills.length ? r.skills.join("|") : "(none)")}"><header><div class="run-top"><span class="badge ${r.verdict}">${glyph(r.verdict, 14)}${label(r.verdict)}</span><time>${esc(r.date)}</time></div><h3>${esc(r.task)}</h3><div class="meta"><span>${esc(r.agent)}</span><span>${esc(r.model)}</span><span>${esc(r.harness)}</span></div><div class="skills">${(r.skills.length ? r.skills : ["(none)"]).map((s) => `<span class="chip-s${s === "(none)" ? " nn" : ""}">${esc(s)}</span>`).join("")}</div></header><blockquote class="q catch"><span class="ql">Catch</span><p>${esc(catchNote(r))}</p></blockquote>${quote("helped", r.helped)}${quote("hindered", r.hindered)}${quote("missing", r.missing)}${cardCost(r)}</article>`;
 }
 
 const CSS = `
@@ -655,9 +682,9 @@ table.cpp{margin-top:6px}table.cpp th[scope=row]{font:400 1.1rem var(--disp);tex
 const JS = `
 (()=>{
 const cards=[...document.querySelectorAll(".run")],q=document.getElementById("q"),c=document.getElementById("count"),none=document.getElementById("none"),clr=document.getElementById("clear");
-const sel={verdict:new Set(),skill:new Set(),agent:new Set()};
-function apply(){const s=q.value.toLowerCase().trim();let n=0;for(const r of cards){const sk=r.dataset.skills.split("|");const ok=(!s||r.textContent.toLowerCase().includes(s))&&(!sel.verdict.size||sel.verdict.has(r.dataset.verdict))&&(!sel.agent.size||sel.agent.has(r.dataset.agent))&&(!sel.skill.size||sk.some(x=>sel.skill.has(x)));r.hidden=!ok;if(ok)n++}
-c.textContent=n+" of "+cards.length+" runs shown";none.style.display=n?"none":"block";clr.hidden=!(s||sel.verdict.size||sel.skill.size||sel.agent.size)}
+const sel={verdict:new Set(),skill:new Set(),agent:new Set(),model:new Set(),harness:new Set()};
+function apply(){const s=q.value.toLowerCase().trim();let n=0;for(const r of cards){const sk=r.dataset.skills.split("|");const ok=(!s||r.textContent.toLowerCase().includes(s))&&["verdict","agent","model","harness"].every(k=>!sel[k].size||sel[k].has(r.dataset[k]))&&(!sel.skill.size||sk.some(x=>sel.skill.has(x)));r.hidden=!ok;if(ok)n++}
+c.textContent=n+" of "+cards.length+" runs shown";none.style.display=n?"none":"block";clr.hidden=!(s||Object.values(sel).some(set=>set.size))}
 q.addEventListener("input",apply);
 for(const b of document.querySelectorAll(".chip")){b.addEventListener("click",()=>{const set=sel[b.dataset.k],on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);on?set.add(b.dataset.v):set.delete(b.dataset.v);apply()})}
 clr.addEventListener("click",()=>{q.value="";for(const k in sel)sel[k].clear();for(const b of document.querySelectorAll(".chip"))b.setAttribute("aria-pressed","false");apply()});
@@ -685,6 +712,8 @@ export function render(rows, evals = null) {
   const hero = heroText(N, withSkill.length, tw.helped, tw.neutral, tw.hurt);
   const skillsAll = [...new Set(rows.flatMap((r) => (r.skills.length ? r.skills : ["(none)"])))].sort();
   const agentsAll = [...new Set(rows.map((r) => r.agent))].sort();
+  const modelsAll = [...new Set(rows.map((r) => r.model || "(unknown)"))].sort();
+  const harnessesAll = [...new Set(rows.map((r) => r.harness || "(unknown)"))].sort();
   const chip = (k, v, n, extra = "") => `<button type="button" class="chip" data-k="${k}" data-v="${esc(v)}" aria-pressed="false">${extra}${esc(v)} <span class="muted">${n}</span></button>`;
 
   const stat = (v, l, cls = "") => `<div class="stat ${cls}"><b>${v}</b><span>${l}</span></div>`;
@@ -700,6 +729,7 @@ export function render(rows, evals = null) {
 ${facts}
 <div class="compare">${split(tw, withSkill.length, "with")}${split(tn, noSkill.length, "without")}</div>
 
+${coverageTable(rows, evals?.models ?? [])}
 ${measured(evals)}
 
 <section class="ch"><div class="ch-h"><span class="no">CH 01</span><h2>Verdicts per skill</h2></div><p class="ch-d">Each bar is one skill. Length is runs, on one shared scale. A run that loaded several skills counts once for each. "(none)" is the runs that loaded no skill.</p><div class="panel">${legend()}${skillBars(bySkill)}${skillEvidence(rows, bySkill.map(([name]) => name))}${tableView(["Skill", "Helped", "Neutral", "Hurt", "Total"], bySkill.map(([k, t]) => [k, t.helped, t.neutral, t.hurt, total(t)]))}</div></section>
@@ -711,7 +741,7 @@ ${measured(evals)}
 <section class="ch"><div class="ch-h"><span class="no">CH 04</span><h2>Recurring asks</h2></div><p class="ch-d">Phrases that appear in the "missing" note of at least 2 runs. Size follows the count. The count is runs, not mentions, out of ${asks.docs} runs with a "missing" note.</p><div class="panel">${cloud(asks)}</div></section>
 
 <section class="ch"><div class="ch-h"><span class="no">CH 05</span><h2>Transcripts</h2></div><p class="ch-d">The full note from every run, newest first.</p>
-<div class="filters"><input id="q" type="search" placeholder="Search tasks and notes" aria-label="Search entries"><div class="fg"><span>Verdict</span>${VERDICTS.map((v) => chip("verdict", v, totals[v], glyph(v))).join("")}</div><div class="fg"><span>Skill</span>${skillsAll.map((s) => chip("skill", s, bySkill.find(([k]) => k === s)?.[1] ? total(bySkill.find(([k]) => k === s)[1]) : 0)).join("")}</div><div class="fg"><span>Agent</span>${agentsAll.map((a) => chip("agent", a, rows.filter((r) => r.agent === a).length)).join("")}<button type="button" class="clear" id="clear" hidden>Clear filters</button></div></div>
+<div class="filters"><input id="q" type="search" placeholder="Search tasks and notes" aria-label="Search entries"><div class="fg"><span>Verdict</span>${VERDICTS.map((v) => chip("verdict", v, totals[v], glyph(v))).join("")}</div><div class="fg"><span>Skill</span>${skillsAll.map((s) => chip("skill", s, bySkill.find(([k]) => k === s)?.[1] ? total(bySkill.find(([k]) => k === s)[1]) : 0)).join("")}</div><div class="fg"><span>Agent</span>${agentsAll.map((a) => chip("agent", a, rows.filter((r) => r.agent === a).length)).join("")}</div><div class="fg"><span>Model</span>${modelsAll.map((m) => chip("model", m, rows.filter((r) => (r.model || "(unknown)") === m).length)).join("")}</div><div class="fg"><span>Harness</span>${harnessesAll.map((h) => chip("harness", h, rows.filter((r) => (r.harness || "(unknown)") === h).length)).join("")}<button type="button" class="clear" id="clear" hidden>Clear filters</button></div></div>
 <p id="count" role="status">${N} of ${N} runs shown</p>
 <div class="runs">${sorted.map((r) => card(r, chrono.indexOf(r))).join("")}</div><div class="empty-s" id="none">No run matches these filters.</div></section>
 

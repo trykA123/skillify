@@ -1,6 +1,7 @@
 import { categoryStats, data, dir, modelName, pctChange, pts, signedPct } from "../lib";
 import { Card, CountUp, Delta, Dumbbell, PairBars, Ring, Score, Tip } from "../ui";
 import { HeroArt, KIND_ICONS } from "../art";
+import { ModelCoverage } from "../ModelCoverage";
 
 export function Overview({ go }: { go: (h: string) => void }) {
   const e = data.entries;
@@ -63,6 +64,8 @@ export function Overview({ go }: { go: (h: string) => void }) {
           </div>
         </div>
       </div>
+
+      <ModelCoverage />
 
       <div className="grid2">
         <Card title="Score without → with skills" sub="Mean over all tasks, one row per model. Hover a number for how it's computed.">

@@ -138,6 +138,11 @@ Every push to `main` that touches the data or the app rebuilds and redeploys it 
 The older single-page report is still built as `one-page.html`, and locally by
 `log-feedback.mjs` as `feedback/index.html`.
 
+Model coverage includes every recorded field-feedback model, including Codex models,
+alongside models with paired results. Field runs can be filtered by model and harness.
+Missing paired benchmarks are marked as not recorded; field feedback does not supply
+comparison scores. Exact model IDs and versions stay separate.
+
 ## Token cost
 
 Only the skill descriptions are always in context: about 2.8 KB for all eleven. A skill

@@ -1,5 +1,6 @@
 import { catById, data, dir, modelName, pctChange, s2, signedPct, usd } from "../lib";
 import { Card, Chip, Delta, PairBars, Score, Tip } from "../ui";
+import { ModelCoverage } from "../ModelCoverage";
 
 export function Evals() {
   return (
@@ -7,6 +8,7 @@ export function Evals() {
       <p className="lead">
         Each model ran {data.fixtures} tasks, {data.runsPerArm} times per side: once with no skills, once with the task's skill loaded. Everything else was the same: the repo, the prompt, the tools. The difference is what the skill bought.
       </p>
+      <ModelCoverage />
       <div className="grid3">
         {data.models.map((m) => {
           const d = m.skill.score - m.base.score;

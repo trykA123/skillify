@@ -3,6 +3,7 @@ import raw from "./data.json";
 export type Arm = { n: number; score: number; cost: number; turns: number; seconds: number };
 export type ModelTask = { task: string; base: Arm; skill: Arm };
 export type Model = { model: string; estimate: boolean; base: Arm; skill: Arm; files: string[]; tasks: ModelTask[] };
+export type ModelCoverage = { model: string; fieldRuns: number; harnesses: string[]; paired: boolean };
 export type Task = {
   task: string;
   skill: string;
@@ -74,6 +75,7 @@ export const data = raw as unknown as {
   categories: Category[];
   tasks: Task[];
   models: Model[];
+  modelCoverage: ModelCoverage[];
   runsPerArm: number;
   fixtures: number;
   headline: { pre: string; em: string };

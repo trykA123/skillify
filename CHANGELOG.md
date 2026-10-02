@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-02
+
+- Show recorded Codex models in dashboard and HTML model coverage; add model and harness filters to field feedback and mark missing paired benchmarks explicitly.
+
 ## 2026-09-30
 
 - Add film-specific transition, caption timing, and decode checks after repeated reviewer feedback; regenerate all four native agent formats.

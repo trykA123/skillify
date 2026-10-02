@@ -1,6 +1,6 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { analyzeResults, catchNote, evalHeadline, fieldEvidence, loadResults, parseEntries, recurringAsks, usageSummary } from "../scripts/feedback-report.mjs";
+import { analyzeResults, catchNote, evalHeadline, fieldEvidence, loadResults, modelCoverage, parseEntries, recurringAsks, usageSummary } from "../scripts/feedback-report.mjs";
 import cats from "./categories.json";
 
 const repo = join(import.meta.dir, "..");
@@ -92,6 +92,7 @@ const data = {
   categories: cats.categories,
   tasks,
   models: analysis.models.map((m: any) => ({ model: m.model, estimate: m.estimate, base: m.base, skill: m.skill, files: m.files, tasks: m.tasks })),
+  modelCoverage: modelCoverage(entries, analysis.models),
   runsPerArm: analysis.runsPerArm,
   fixtures: analysis.fixtures,
   headline,

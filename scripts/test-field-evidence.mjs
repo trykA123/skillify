@@ -4,7 +4,7 @@ import { cp, mkdtemp, mkdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { catchNote, fieldEvidence, parseEntries, render, usageSummary } from "./feedback-report.mjs";
+import { catchNote, fieldEvidence, modelCoverage, parseEntries, render, usageSummary } from "./feedback-report.mjs";
 
 const entry = (extra = {}) => ({ verdict: "helped", skills: ["shipify"], ...extra });
 
@@ -53,6 +53,30 @@ test("invalid catch fields fail with a located error", () => {
   const html = render(parseEntries(JSON.stringify(entry({ catch: "Found <script>" }))));
   assert.match(html, /Found &lt;script&gt;/);
   assert.doesNotMatch(html, /<p>Found <script>/);
+});
+
+test("field-only Codex models show coverage without fabricated paired scores", () => {
+  const rows = parseEntries(JSON.stringify(entry({ model: "gpt-6", harness: "codex" })));
+  const html = render(rows);
+  assert.match(html, /id="model-coverage"/);
+  assert.match(html, /<td>gpt-6<\/td><td>codex<\/td><td class="n">1<\/td><td>Not recorded<\/td>/);
+  assert.match(html, /data-k="model" data-v="gpt-6"/);
+  assert.match(html, /data-k="harness" data-v="codex"/);
+  assert.match(html, /data-model="gpt-6" data-harness="codex"/);
+  assert.doesNotMatch(html, /class="mcard" data-model="gpt-6"/);
+});
+
+test("coverage keeps exact model identities and distinguishes paired results from field counts", () => {
+  const rows = [{ model: "gpt-6", harness: "codex" }, { model: "gpt-6", harness: "codex" }, { model: "sonnet-5.5", harness: "claude" }];
+  const models = [{ model: "sonnet", base: { n: 3 }, skill: { n: 3 } }, { model: "gpt-6-astra", base: { n: 1 }, skill: { n: 2 } }];
+  assert.deepEqual(modelCoverage(rows, models), [
+    { model: "gpt-6", fieldRuns: 2, harnesses: ["codex"], paired: false },
+    { model: "gpt-6-astra", fieldRuns: 0, harnesses: [], paired: true },
+    { model: "sonnet", fieldRuns: 0, harnesses: [], paired: true },
+    { model: "sonnet-5.5", fieldRuns: 1, harnesses: ["claude"], paired: false },
+  ]);
+  assert.deepEqual(modelCoverage([]), []);
+  assert.equal(modelCoverage([], [{ model: "gpt-6", base: { n: 1 } }])[0].paired, false);
 });
 
 test("logger carries catch, accepts legacy entries, and rejects empty catch without appending", async () => {
