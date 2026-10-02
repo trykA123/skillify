@@ -1,4 +1,4 @@
-import { REPO, data, modelName } from "../lib";
+import { REPO, data, modelById, modelName } from "../lib";
 import { Card } from "../ui";
 import { MethodDiagram } from "../art";
 
@@ -35,6 +35,7 @@ export function Method() {
         <p>Cost per run, turns and time come from the CLI's own usage report for each run. Cost per score point = mean cost ÷ mean score.</p>
         <p>For DeepSeek, the CLI prices tokens at Anthropic rates because it doesn't know DeepSeek's, so those dollar figures are estimates and are left out of comparisons. The DeepSeek account was actually billed about $0.01 per run.</p>
         <p>Field runs record tokens, tool calls and time when the harness reports them. Older entries didn't, and show "not recorded", never 0.</p>
+        <p>Codex field runs update model cards and usage summaries after they are logged and published. Field tokens do not establish a dollar cost or a score improvement. Those comparisons require paired measurements.</p>
       </Card>
       <Card title="Honest limits">
         <ul>
@@ -44,6 +45,7 @@ export function Method() {
           <li>Where a task was re-run after a skill changed, the later round replaces the earlier one for that model, task and side.</li>
           <li>Three DeepSeek review runs first failed to grade (the grader hit a usage limit). They were regraded later with the same rubric; the Tasks view marks them.</li>
           <li>Field verdicts and catches are each agent's own report, not independent measurements. Catch rate counts helped entries with a concrete catch divided by all helped entries; missing catches stay unknown and coverage is shown.</li>
+          <li>Field feedback and grading runs do not supply paired results. Models enter numeric comparisons when both sides have recorded measurements.</li>
           <li>Tokens per helped run is the median of helped entries with recorded tokens. Missing usage is excluded. When several skills were loaded, the same catch and usage count for each; this cannot establish which skill caused the result.</li>
           <li>Coding and debugging fixtures already at 1.00 without skills cannot measure further gains. The shipify fast path has no paired cost measurement yet; no new paired runs were funded for skills-v2.</li>
           <li>teachify remains unmeasured. Interactive teaching needs a human learner; grading lesson text alone cannot establish teaching quality.</li>
@@ -51,19 +53,20 @@ export function Method() {
       </Card>
       <Card title="Raw data">
         <ul>
-          {data.models.map((m) => (
-            <li key={m.model}>
-              {modelName(m.model)}:{" "}
-              {m.files.map((f, i) => (
+          {data.modelCoverage.map((coverage) => {
+            const m = modelById(coverage.model);
+            return <li key={coverage.model}>
+              {modelName(coverage.model)}:{" "}
+              {m ? m.files.map((f, i) => (
                 <span key={f}>
                   {i ? ", " : ""}
                   <a href={`${REPO}/blob/main/evals/results/${f}`} target="_blank" rel="noreferrer">
                     {f}
                   </a>
                 </span>
-              ))}
-            </li>
-          ))}
+              )) : <><a href={`${REPO}/blob/main/feedback/field.jsonl`} target="_blank" rel="noreferrer">{coverage.fieldRuns} field runs</a> · paired results not recorded</>}
+            </li>;
+          })}
           <li>
             Tasks: <a href={`${REPO}/tree/main/evals/paired`} target="_blank" rel="noreferrer">evals/paired</a> · runner: <a href={`${REPO}/blob/main/scripts/run-paired.mjs`} target="_blank" rel="noreferrer">scripts/run-paired.mjs</a> · field log: <a href={`${REPO}/blob/main/feedback/field.jsonl`} target="_blank" rel="noreferrer">feedback/field.jsonl</a>
           </li>

@@ -4,6 +4,8 @@ export type Arm = { n: number; score: number; cost: number; turns: number; secon
 export type ModelTask = { task: string; base: Arm; skill: Arm };
 export type Model = { model: string; estimate: boolean; base: Arm; skill: Arm; files: string[]; tasks: ModelTask[] };
 export type ModelCoverage = { model: string; fieldRuns: number; harnesses: string[]; paired: boolean };
+export type Usage = Record<"tokens" | "tools" | "ms", { median: number | null; recorded: number }>;
+export type FieldModel = ModelCoverage & { verdicts: Record<"helped" | "neutral" | "hurt", number>; evidence: FieldEvidence; usage: Usage };
 export type Task = {
   task: string;
   skill: string;
@@ -76,6 +78,7 @@ export const data = raw as unknown as {
   tasks: Task[];
   models: Model[];
   modelCoverage: ModelCoverage[];
+  fieldModels: FieldModel[];
   runsPerArm: number;
   fixtures: number;
   headline: { pre: string; em: string };
@@ -84,13 +87,19 @@ export const data = raw as unknown as {
   skills: string[];
   agents: Agent[];
   fieldBySkill: Record<string, FieldEvidence>;
-  fieldUsage: Record<"tokens" | "tools" | "ms", { median: number | null; recorded: number }>;
+  fieldUsage: Usage;
   asks: { docs: number; asks: [string, number][] };
 };
 
 export const REPO = "https://github.com/trykA123/skillify";
 export const MODEL_NAMES: Record<string, string> = { haiku: "Claude Haiku", sonnet: "Claude Sonnet", "deepseek-flash": "DeepSeek Flash" };
 export const modelName = (m: string) => MODEL_NAMES[m] ?? m;
+export const estimatedCostNote = (model: string) => model === "deepseek-flash" ? "Claude Code estimated this at Anthropic prices; it doesn't know DeepSeek's. The DeepSeek account was billed about $0.01 per run." : "Cost is a CLI estimate, not a provider invoice. Estimated costs are excluded from comparisons.";
+export const modelById = (id: string) => data.models.find((m) => m.model === id);
+export const missingModels = (tasks?: string[]) => data.modelCoverage.filter((m) => {
+  const model = modelById(m.model);
+  return !model || (tasks !== undefined && !model.tasks.some((t) => tasks.includes(t.task)));
+});
 
 export const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
 export const median = (xs: number[]) => {
@@ -113,13 +122,14 @@ export const catById = (id: string) => data.categories.find((c) => c.id === id);
 
 export function categoryStats(catId: string) {
   const ids = data.tasks.filter((t) => t.category === catId).map((t) => t.task);
-  return data.models.map((m) => {
+  return data.models.flatMap((m) => {
     const ts = m.tasks.filter((t) => ids.includes(t.task));
+    if (!ts.length) return [];
     const base = mean(ts.map((t) => t.base.score));
     const skill = mean(ts.map((t) => t.skill.score));
     const costBase = mean(ts.map((t) => t.base.cost));
     const costSkill = mean(ts.map((t) => t.skill.cost));
-    return { model: m.model, estimate: m.estimate, n: ts.length, base, skill, costBase, costSkill };
+    return [{ model: m.model, estimate: m.estimate, n: ts.length, base, skill, costBase, costSkill }];
   });
 }
 

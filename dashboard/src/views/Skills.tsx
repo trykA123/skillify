@@ -1,5 +1,6 @@
 import { REPO, data, kfmt, modelName, type Entry, type FieldEvidence } from "../lib";
 import { Card, Chip, Delta, Tip, Verdict } from "../ui";
+import { MissingMeasurements } from "../MissingMeasurements";
 
 function Evidence({ e }: { e: FieldEvidence }) {
   return (
@@ -60,6 +61,7 @@ export function Skills() {
                       })}
                     </div>
                   ))}
+                  <MissingMeasurements tasks={tasks.map((t) => t.task)} />
                 </>
               ) : (
                 <p className="small muted">{s === "teachify" ? "Unmeasured: interactive teaching needs a human learner. Lesson text alone cannot establish teaching quality." : "No paired eval yet."}</p>

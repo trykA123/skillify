@@ -143,6 +143,12 @@ alongside models with paired results. Field runs can be filtered by model and ha
 Missing paired benchmarks are marked as not recorded; field feedback does not supply
 comparison scores. Exact model IDs and versions stay separate.
 
+Every field model also gets a card with verdicts, catches, and recorded usage. New logged
+and published runs refresh those cards. When paired results are added for the same model
+ID, its card displays the measured scores and costs. Task and cost comparisons list
+unmeasured models explicitly. Ordinary Codex sessions do not produce paired benchmarks
+or dollar costs automatically.
+
 ## Token cost
 
 Only the skill descriptions are always in context: about 2.8 KB for all eleven. A skill

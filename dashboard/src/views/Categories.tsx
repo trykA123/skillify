@@ -1,4 +1,4 @@
-import { categoryStats, data, modelName, pctChange, signedPct, usd } from "../lib";
+import { categoryStats, data, missingModels, modelName, pctChange, signedPct, usd } from "../lib";
 import { Card, Chip, Delta, PairBars } from "../ui";
 
 export function Categories({ focus }: { focus?: string }) {
@@ -26,7 +26,7 @@ export function Categories({ focus }: { focus?: string }) {
                 </a>
               ))}
             </div>
-            <table className="tbl">
+            <div className="scroll-x"><table className="tbl" aria-label={`${c.label} model comparison`}>
               <thead>
                 <tr>
                   <th>Model</th>
@@ -48,8 +48,16 @@ export function Categories({ focus }: { focus?: string }) {
                     <td className="n">{s.estimate ? <span className="muted">est. only</span> : `${signedPct(pctChange(s.costBase, s.costSkill))} (${usd(s.costBase)} → ${usd(s.costSkill)})`}</td>
                   </tr>
                 ))}
+                {missingModels(tasks.map((t) => t.task)).map((m) => (
+                  <tr key={m.model}>
+                    <td>{modelName(m.model)}</td>
+                    <td className="muted">Not measured</td>
+                    <td className="muted">Not measured</td>
+                    <td className="muted">Not recorded</td>
+                  </tr>
+                ))}
               </tbody>
-            </table>
+            </table></div>
           </Card>
         );
       })}

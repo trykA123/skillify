@@ -124,6 +124,7 @@ export function analyzeResults(results, kinds = {}) {
 }
 
 export function evalHeadline(models) {
+  if (!models.length) return { pre: "No paired results have been recorded.", em: "" };
   let best = null;
   for (const a of models) for (const b of models) {
     if (a.estimate || b.estimate) continue;
@@ -137,7 +138,7 @@ export function evalHeadline(models) {
     return { pre: `${modelName(best.a.model, true)} with skills ${verb} ${modelName(best.b.model, true)} without them (${best.a.skill.score.toFixed(2)} vs ${best.b.base.score.toFixed(2)}), `, em: `at ~${Math.round(best.ratio * 100)}% of the cost.` };
   }
   const gain = [...models].sort((x, y) => y.skill.score - y.base.score - (x.skill.score - x.base.score))[0];
-  if (gain && gain.skill.score > gain.base.score) return { pre: `Skills lifted ${modelName(gain.model, true)} from ${gain.base.score.toFixed(2)} to ${gain.skill.score.toFixed(2)}, `, em: `for ${signed(change(gain.base.cost, gain.skill.cost))} cost per run.` };
+  if (gain && gain.skill.score > gain.base.score) return { pre: `Skills lifted ${modelName(gain.model, true)} from ${gain.base.score.toFixed(2)} to ${gain.skill.score.toFixed(2)}, `, em: gain.estimate ? "with estimated costs excluded from comparisons." : `for ${signed(change(gain.base.cost, gain.skill.cost))} cost per run.` };
   return { pre: "Skills did not raise the mean score for any model in this run.", em: "" };
 }
 
@@ -164,55 +165,70 @@ function modelCard(m, kinds = {}) {
   const allTop = flat.length && flat.every((t) => t.base.score >= 0.995);
   const costLine = m.estimate ? "" : `<p class="wc-cost">Each run cost ${signed(change(m.base.cost, m.skill.cost))} (${usd(m.base.cost)} \u2192 ${usd(m.skill.cost)}), took ${(m.skill.turns - m.base.turns).toFixed(1)} more turns and ${Math.round(m.skill.seconds - m.base.seconds)} s longer.</p>`;
   const what = `<div class="wc"><p class="wc-sum">Scored <b>${m.skill.score.toFixed(2)}</b> of 1.00 with skills vs <b>${m.base.score.toFixed(2)}</b> without: <b class="${dir(d)}">${pts(d)}</b>.</p>${up.length ? `<h4>Improved</h4><ul>${up.map(li).join("")}</ul>` : ""}${down.length ? `<h4>Got worse</h4><ul>${down.map(li).join("")}</ul>` : ""}${flat.length ? `<h4>No change</h4><p class="wc-flat">${flat.map(label).join(", ")}${allTop ? " \u2014 already 1.00 without skills" : ""}</p>` : ""}${costLine}</div>`;
-  return `<article class="mcard" data-model="${esc(m.model)}"><h3>${esc(modelName(m.model))}</h3><p class="mn">${m.base.n} runs no skills / ${m.skill.n} runs with skills</p><div class="score2" aria-label="Mean score ${m.base.score.toFixed(2)} without skills, ${m.skill.score.toFixed(2)} with skills"><span>${m.base.score.toFixed(2)}</span><i>\u2192</i><b class="${dir(d)}">${m.skill.score.toFixed(2)}</b><em class="${dir(d)}">${arrow(d)} ${pts(d)}</em></div>${bars(m.base.score, m.skill.score)}<dl class="kv">${kv("Cost per run", m.base.cost, m.skill.cost, usd)}${kv("Turns", m.base.turns, m.skill.turns, (v) => v.toFixed(1))}${kv("Time", m.base.seconds, m.skill.seconds, (v) => `${Math.round(v)} s`)}</dl>${what}${m.estimate ? `<p class="mn est">Cost here is Claude Code's estimate at Anthropic prices, not the provider's bill. DeepSeek actually billed about $0.01 per run (account balance before and after).</p>` : ""}</article>`;
+  const estimateNote = m.model === "deepseek-flash" ? "Cost here is Claude Code's estimate at Anthropic prices, not the provider's bill. DeepSeek actually billed about $0.01 per run (account balance before and after)." : "Cost is a CLI estimate, not a provider invoice. Estimated costs are excluded from comparisons.";
+  const cost = m.estimate ? `<div class="kv-r"><dt>Cost per run</dt><dd>${usd(m.base.cost)} \u2192 ${usd(m.skill.cost)} <span class="muted">CLI estimate</span></dd></div>` : kv("Cost per run", m.base.cost, m.skill.cost, usd);
+  return `<article class="mcard" data-model="${esc(m.model)}"><h3>${esc(modelName(m.model))}</h3><p class="mn">${m.base.n} runs no skills / ${m.skill.n} runs with skills</p><div class="score2" aria-label="Mean score ${m.base.score.toFixed(2)} without skills, ${m.skill.score.toFixed(2)} with skills"><span>${m.base.score.toFixed(2)}</span><i>\u2192</i><b class="${dir(d)}">${m.skill.score.toFixed(2)}</b><em class="${dir(d)}">${arrow(d)} ${pts(d)}</em></div>${bars(m.base.score, m.skill.score)}<dl class="kv">${cost}${kv("Turns", m.base.turns, m.skill.turns, (v) => v.toFixed(1))}${kv("Time", m.base.seconds, m.skill.seconds, (v) => `${Math.round(v)} s`)}</dl>${what}${m.estimate ? `<p class="mn est">${estimateNote}</p>` : ""}</article>`;
 }
 
-function taskCard(t) {
+function fieldModelCard(m) {
+  const kv = (label, value) => `<div class="kv-r"><dt>${label}</dt><dd>${value}</dd></div>`;
+  const usage = COST_KEYS.map((key) => {
+    const value = m.usage[key];
+    const labels = { tokens: "Tokens / run", tools: "Tool calls / run", ms: "Time / run" };
+    return kv(labels[key], value.recorded ? `${FMT[key](value.median)} <small>${value.recorded} of ${m.fieldRuns} recorded</small>` : "Not recorded");
+  }).join("");
+  return `<article class="mcard" data-model="${esc(m.model)}" data-evidence="field"><h3>${esc(modelName(m.model))}</h3><p class="mn">${m.fieldRuns} field runs / ${esc(m.harnesses.join(", ") || "harness not recorded")}</p><p class="mn">No paired benchmark</p><dl class="kv">${kv("Cost per run", "Not recorded")}${kv("Score improvement", "Not measured")}${kv("Field verdicts", `${m.verdicts.helped} helped / ${m.verdicts.neutral} neutral / ${m.verdicts.hurt} hurt`)}${kv("Catches reported", `${m.evidence.catchCount} concrete / ${m.evidence.catchRecorded} of ${m.evidence.helped} helped runs recorded`)}${usage}</dl><p class="wc muted">Field verdicts are agent reports. Cost and score comparisons appear when paired results are recorded.</p></article>`;
+}
+
+function taskCard(t, models) {
   const rows = t.per.map((c) => {
     const d = c.skill.score - c.base.score;
     const cls = d >= 0.25 ? " win" : d <= -0.25 ? " loss" : "";
-    return `<div class="tk-r${cls}" data-model="${esc(c.model)}" data-delta="${d.toFixed(2)}"><span class="tm">${esc(modelName(c.model, true))}</span><div class="tb"><span class="tv">${c.base.score.toFixed(2)} \u2192 ${c.skill.score.toFixed(2)}</span>${bars(c.base.score, c.skill.score, "mini")}</div><span class="td ${dir(d)}">${arrow(d)} ${pts(d)}</span><span class="tc">${signed(change(c.base.cost, c.skill.cost))}</span></div>`;
-  }).join("");
+    const cost = models.find((m) => m.model === c.model)?.estimate ? "est. only" : signed(change(c.base.cost, c.skill.cost));
+    return `<div class="tk-r${cls}" data-model="${esc(c.model)}" data-delta="${d.toFixed(2)}"><span class="tm">${esc(modelName(c.model, true))}</span><div class="tb"><span class="tv">${c.base.score.toFixed(2)} \u2192 ${c.skill.score.toFixed(2)}</span>${bars(c.base.score, c.skill.score, "mini")}</div><span class="td ${dir(d)}">${arrow(d)} ${pts(d)}</span><span class="tc">${cost}</span></div>`;
+  }).join("") + models.filter((m) => !t.per.some((c) => c.model === m.model)).map((m) => `<div class="tk-r pending" data-model="${esc(m.model)}"><span class="tm">${esc(modelName(m.model, true))}</span><span class="tb">Score not measured / cost not recorded</span></div>`).join("");
   const grader = t.kind === "rubric" ? "rubric graded by Codex" : t.kind === "tests" ? "hidden tests" : "";
   return `<article class="tkcard" data-task="${esc(t.task)}"><h3>${esc(t.task)}</h3><p class="mn">${[t.skill && `skill: ${esc(t.skill)}`, grader].filter(Boolean).join(" / ") || "&nbsp;"}</p><div class="tk-h"><span></span><span>score</span><span>score change</span><span>cost change</span></div>${rows}</article>`;
 }
 
-function costPoint(models) {
+function costPoint(models, pending = []) {
   const cpp = (s) => (s.score > 0 ? s.cost / s.score : null);
   const cell = (m, arm) => {
     const v = cpp(m[arm]);
     return `<td class="n" data-cpp="${esc(m.model)}|${arm}">${v === null ? "n/a" : usd(v)}</td>`;
   };
   const body = models.map((m) => {
-    if (m.estimate) return `<tr><th scope="row">${esc(modelName(m.model))}</th><td class="n" colspan="3">not comparable: estimated at Anthropic prices, billed about $0.01 per run</td></tr>`;
+    if (m.estimate) return `<tr><th scope="row">${esc(modelName(m.model))}</th><td class="n" colspan="3">${m.model === "deepseek-flash" ? "not comparable: estimated at Anthropic prices, billed about $0.01 per run" : "not comparable: CLI estimate"}</td></tr>`;
     const a = cpp(m.base), b = cpp(m.skill);
     return `<tr><th scope="row">${esc(modelName(m.model))}</th>${cell(m, "base")}${cell(m, "skill")}<td class="n">${a && b ? signed(change(a, b)) : "n/a"}</td></tr>`;
-  }).join("");
+  }).join("") + pending.map((m) => `<tr><th scope="row">${esc(modelName(m.model))}</th><td class="n">Not recorded</td><td class="n">Not recorded</td><td class="n">Not measured</td></tr>`).join("");
   return `<div class="scroll"><table class="cpp"><thead><tr><th>Model</th><th class="n">No skills</th><th class="n">With skills</th><th class="n">Change</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
-function methodNote(ev) {
+function methodNote(ev, pending) {
   const kinds = Object.values(ev.kinds);
   const tests = kinds.filter((k) => k.kind === "tests").length;
   const rubric = kinds.filter((k) => k.kind === "rubric").length;
   const graders = kinds.length ? `${tests} tasks are graded by hidden tests and ${rubric} by a rubric graded by Codex.` : "Grader type is not recorded for these tasks.";
-  const links = ev.models.map((m) => `<li><b>${esc(modelName(m.model))}</b> ${m.files.map((f) => `<a href="${BLOB_URL}/${esc(f)}">${esc(f.split("/").pop())}</a>`).join(", ")}</li>`).join("");
-  return `<p>${ev.fixtures} ${ev.fixtures === 1 ? "fixture" : "fixtures"}, up to ${ev.runsPerArm} ${ev.runsPerArm === 1 ? "run" : "runs"} per arm per task. ${esc(graders)} Each task runs in a throwaway repo, once with no skills and once with the task's skill loaded.</p><p>Results are read from <a href="${RAW_URL}">evals/results</a> in file-name order. When a later round re-ran a model, task and arm, the later round supersedes the earlier one (r2 supersedes r1). Means are per run. Cost is the CLI's own usage report, not an invoice.</p><ul class="raw">${links}</ul>`;
+  const links = ev.models.map((m) => `<li><b>${esc(modelName(m.model))}</b> ${m.files.map((f) => `<a href="${BLOB_URL}/${esc(f)}">${esc(f.split("/").pop())}</a>`).join(", ")}</li>`).join("") + pending.map((m) => `<li><b>${esc(modelName(m.model))}</b> <a href="https://github.com/trykA123/skillify/blob/main/feedback/field.jsonl">${m.fieldRuns} field runs</a>; paired results not recorded</li>`).join("");
+  return `<p>${ev.fixtures} ${ev.fixtures === 1 ? "fixture" : "fixtures"}, up to ${ev.runsPerArm} ${ev.runsPerArm === 1 ? "run" : "runs"} per arm per task. ${esc(graders)} Each task runs in a throwaway repo, once with no skills and once with the task's skill loaded.</p><p>Results are read from <a href="${RAW_URL}">evals/results</a> in file-name order. When a later round re-ran a model, task and arm, the later round supersedes the earlier one (r2 supersedes r1). Means are per run. Cost is the CLI's own usage report, not an invoice.</p><p>Logged and published field runs update model cards and usage summaries. Field tokens and agent verdicts do not establish dollar costs or score improvements. Numeric comparisons require paired results; estimated costs are excluded from cost comparisons.</p><ul class="raw">${links}</ul>`;
 }
 
-function measured(ev) {
-  if (!ev || !ev.models.length) return "";
+function measured(ev, rows) {
+  const pending = fieldModels(rows, ev?.models ?? []);
+  const fieldCards = pending.map(fieldModelCard).join("");
+  if (!ev || !ev.models.length) return fieldCards ? `<section class="ch" id="measured"><div class="ch-h"><span class="no">MODELS</span><h2>Model cards</h2></div><p class="ch-d">Field cards summarize recorded feedback and usage. Dollar costs and score improvements require paired runs with and without skills.</p><div class="ev-grid">${fieldCards}</div></section>` : "";
   const h = evalHeadline(ev.models);
   const worse = ev.models.filter((m) => m.skill.score < m.base.score - 0.005).map((m) => {
     const t = [...m.tasks].sort((a, b) => a.skill.score - a.base.score - (b.skill.score - b.base.score))[0];
     return `${modelName(m.model, true)} scored lower with skills (${m.base.score.toFixed(2)} \u2192 ${m.skill.score.toFixed(2)}), mostly on ${t.task} (${t.base.score.toFixed(2)} \u2192 ${t.skill.score.toFixed(2)}).`;
   });
-  return `<section class="ch" id="measured"><div class="ch-h"><span class="no">PAIRED EVALS</span><h2>Measured, not claimed</h2></div><p class="ch-d">Does it help, and what does it cost? The same tasks ran twice per model, once without skills and once with them. Every number below is computed from the raw result files.</p><p class="ch-d how"><b>How to read it.</b> A score runs from 0 to 1: the share of hidden tests passed, or the rubric credit an independent grader (Codex) gave. \u201cpts\u201d are score points out of 100, so <b>+18 pts</b> means the mean score rose by 0.18, for example 0.78 \u2192 0.95 (the 0.01 difference is rounding). Cost change is the percent change in dollars per run.</p>
-<p class="ev-head">${esc(h.pre)}${h.em ? `<em>${esc(h.em)}</em>` : ""}</p>${worse.map((w) => `<p class="ev-warn">${esc(w)}</p>`).join("")}
-<div class="ev-grid">${ev.models.map((m) => modelCard(m, ev.kinds)).join("")}</div>
-<div class="panel sub"><h3>Per task</h3><p class="ch-d">Small bars: grey is without skills, colour is with skills. Rows tinted green gained 0.25 or more; red lost 0.25 or more. Tasks are sorted by their biggest gain.</p><div class="tk-grid">${ev.tasks.map(taskCard).join("")}</div></div>
-<div class="panel sub"><h3>Cost per score point</h3><p class="ch-d">Mean cost per run divided by mean score. Lower is cheaper for the same quality. It answers whether the extra spend buys anything.</p>${costPoint(ev.models)}</div>
-<div class="panel sub method"><h3>Method</h3>${methodNote(ev)}</div></section>`;
+  return `<section class="ch" id="measured"><div class="ch-h"><span class="no">MODELS</span><h2>Model cards</h2></div><p class="ch-d">Paired cards compare the same tasks with and without skills using raw evaluation results. Field cards summarize recorded feedback and usage until paired measurements exist.</p><p class="ch-d how"><b>How to read it.</b> A score runs from 0 to 1: the share of hidden tests passed, or the rubric credit an independent grader (Codex) gave. \u201cpts\u201d are score points out of 100, so <b>+18 pts</b> means the mean score rose by 0.18, for example 0.78 \u2192 0.95 (the 0.01 difference is rounding). Cost change is the percent change in dollars per run.</p>
+<p class="ev-head">Among paired models: ${esc(h.pre)}${h.em ? `<em>${esc(h.em)}</em>` : ""}</p>${worse.map((w) => `<p class="ev-warn">${esc(w)}</p>`).join("")}
+<div class="ev-grid">${ev.models.map((m) => modelCard(m, ev.kinds)).join("")}${fieldCards}</div>
+<div class="panel sub"><h3>Per task</h3><p class="ch-d">Small bars: grey is without skills, colour is with skills. Rows tinted green gained 0.25 or more; red lost 0.25 or more. Tasks are sorted by their biggest gain. Models without paired results show missing measurements.</p><div class="tk-grid">${ev.tasks.map((t) => taskCard(t, [...ev.models, ...pending])).join("")}</div></div>
+<div class="panel sub"><h3>Cost per score point</h3><p class="ch-d">Mean cost per run divided by mean score. Lower is cheaper for the same quality. It answers whether the extra spend buys anything.</p>${costPoint(ev.models, pending)}</div>
+<div class="panel sub method"><h3>Method</h3>${methodNote(ev, pending)}</div></section>`;
 }
 
 const median = (a) => {
@@ -252,6 +268,15 @@ export function usageSummary(rows) {
     const values = rows.filter((r) => r[key] !== undefined).map((r) => r[key]);
     return [key, { median: median(values), recorded: values.length }];
   }));
+}
+
+export function fieldModels(rows, models = []) {
+  return modelCoverage(rows, models).filter((m) => m.fieldRuns && !m.paired).map((m) => {
+    const entries = rows.filter((r) => (r.model || "(unknown)") === m.model);
+    const verdicts = { helped: 0, neutral: 0, hurt: 0 };
+    for (const entry of entries) verdicts[entry.verdict]++;
+    return { ...m, verdicts, evidence: fieldEvidence(entries), usage: usageSummary(entries) };
+  });
 }
 
 function skillEvidence(rows, names) {
@@ -661,6 +686,7 @@ footer a{color:var(--accent)}
 .tk-r{padding:8px 6px;border-radius:8px;border-top:1px solid var(--line);font:.74rem var(--mono)}
 .tk-r.win{background:color-mix(in srgb,var(--helped) 14%,transparent)}.tk-r.loss{background:color-mix(in srgb,var(--hurt) 14%,transparent)}
 .tk-r .tv{white-space:nowrap;color:var(--muted);font-variant-numeric:tabular-nums}.tk-r .td{text-align:right;font-weight:600;white-space:nowrap}.tk-r .tc{text-align:right;color:var(--neutral)}.tk-r .tm{overflow-wrap:anywhere}
+.tk-r.pending .tb{grid-column:2/-1;color:var(--muted)}
 .tk-r.win .td{font-size:.86rem}
 table.cpp{margin-top:6px}table.cpp th[scope=row]{font:400 1.1rem var(--disp);text-transform:none;color:var(--text)}
 .costt{margin-top:14px}.costt small{display:block;font:.64rem var(--mono);color:var(--muted)}
@@ -730,7 +756,7 @@ ${facts}
 <div class="compare">${split(tw, withSkill.length, "with")}${split(tn, noSkill.length, "without")}</div>
 
 ${coverageTable(rows, evals?.models ?? [])}
-${measured(evals)}
+${measured(evals, rows)}
 
 <section class="ch"><div class="ch-h"><span class="no">CH 01</span><h2>Verdicts per skill</h2></div><p class="ch-d">Each bar is one skill. Length is runs, on one shared scale. A run that loaded several skills counts once for each. "(none)" is the runs that loaded no skill.</p><div class="panel">${legend()}${skillBars(bySkill)}${skillEvidence(rows, bySkill.map(([name]) => name))}${tableView(["Skill", "Helped", "Neutral", "Hurt", "Total"], bySkill.map(([k, t]) => [k, t.helped, t.neutral, t.hurt, total(t)]))}</div></section>
 

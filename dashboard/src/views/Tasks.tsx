@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { REPO, catById, data, dur, modelName, pctChange, signedPct, taskById, usd } from "../lib";
+import { REPO, catById, data, dur, missingModels, modelById, modelName, pctChange, signedPct, taskById, usd } from "../lib";
 import { Card, Chip, Delta, PairBars, Score } from "../ui";
+import { MissingMeasurements } from "../MissingMeasurements";
 
 export function TaskList() {
   return (
     <div className="view">
-      <p className="lead">Six tasks in throwaway repos. Coding and debugging tasks are scored by hidden tests; reviewing and clarifying tasks by a rubric that a separate model grades. Open a task to see exactly how.</p>
+      <p className="lead">{data.tasks.length} tasks in throwaway repos. Coding and debugging tasks are scored by hidden tests; reviewing and clarifying tasks by a rubric that a separate model grades. Open a task to see exactly how.</p>
+      <MissingMeasurements />
       <div className="list">
         {data.tasks.map((t) => {
           const per = data.models.map((m) => ({ m, c: m.tasks.find((x) => x.task === t.task) })).filter((x) => x.c);
@@ -25,6 +27,7 @@ export function TaskList() {
                     <span className="muted">{modelName(m.model).replace("Claude ", "")}</span> <Delta d={c!.skill.score - c!.base.score} />
                   </span>
                 ))}
+                {missingModels([t.task]).length ? <span className="muted small">{missingModels([t.task]).length} models unmeasured</span> : null}
               </div>
             </a>
           );
@@ -115,6 +118,7 @@ function CreditMatrix({ task }: { task: string }) {
           </div>
         ))}
       </div>
+      <MissingMeasurements tasks={[task]} />
     </Card>
   );
 }
@@ -176,9 +180,10 @@ export function TaskDetail({ id }: { id: string }) {
       </div>
       <CreditMatrix task={t.task} />
       <h3 className="section">Results</h3>
-      {data.models.map((m) => {
-        const c = m.tasks.find((x) => x.task === t.task);
-        if (!c) return null;
+      {data.modelCoverage.map((coverage) => {
+        const m = modelById(coverage.model);
+        const c = m?.tasks.find((x) => x.task === t.task);
+        if (!m || !c) return <Card key={coverage.model} title={modelName(coverage.model)} sub="No paired benchmark for this task"><p className="muted small">Score improvement: Not measured · Cost per run: Not recorded</p></Card>;
         const key = m.model;
         return (
           <Card key={key} title={modelName(m.model)}>
@@ -187,7 +192,7 @@ export function TaskDetail({ id }: { id: string }) {
               <Delta d={c.skill.score - c.base.score} big />
               <span className="muted small">
                 cost {m.estimate ? "est. " : ""}
-                {usd(c.base.cost)} → {usd(c.skill.cost)} ({signedPct(pctChange(c.base.cost, c.skill.cost))}) · turns {c.base.turns.toFixed(1)} → {c.skill.turns.toFixed(1)}
+                {usd(c.base.cost)} → {usd(c.skill.cost)}{m.estimate ? "" : ` (${signedPct(pctChange(c.base.cost, c.skill.cost))})`} · turns {c.base.turns.toFixed(1)} → {c.skill.turns.toFixed(1)}
               </span>
               <button className="btn" onClick={() => setOpen(open === key ? null : key)} aria-expanded={open === key}>
                 {open === key ? "Hide runs" : "Show every run"}

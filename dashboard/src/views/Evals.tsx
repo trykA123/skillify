@@ -1,12 +1,13 @@
-import { catById, data, dir, modelName, pctChange, s2, signedPct, usd } from "../lib";
+import { catById, data, dir, estimatedCostNote, modelById, modelName, pctChange, s2, signedPct, usd } from "../lib";
 import { Card, Chip, Delta, PairBars, Score, Tip } from "../ui";
 import { ModelCoverage } from "../ModelCoverage";
+import { FieldModelCards } from "../FieldModelCards";
 
 export function Evals() {
   return (
     <div className="view">
       <p className="lead">
-        Each model ran {data.fixtures} tasks, {data.runsPerArm} times per side: once with no skills, once with the task's skill loaded. Everything else was the same: the repo, the prompt, the tools. The difference is what the skill bought.
+        Models with paired results ran {data.fixtures} tasks, up to {data.runsPerArm} times per side, with and without skills. Other cards summarize field feedback until paired measurements are recorded.
       </p>
       <ModelCoverage />
       <div className="grid3">
@@ -28,7 +29,7 @@ export function Evals() {
                 <dt>Cost per run</dt>
                 <dd>
                   {m.estimate ? (
-                    <Tip content="Claude Code estimated this at Anthropic prices; it doesn't know DeepSeek's. The DeepSeek account was billed about $0.01 per run.">
+                    <Tip content={estimatedCostNote(m.model)}>
                       <span>
                         {usd(m.base.cost)} → {usd(m.skill.cost)} <span className="muted">est.</span>
                       </span>
@@ -93,6 +94,7 @@ export function Evals() {
             </Card>
           );
         })}
+        <FieldModelCards />
       </div>
       <Card title="Every task, every model" sub="Mean score without → with the task's skill. Green cells gained 10 pts or more; red lost 10 or more. Open a task to see each run and how it was graded.">
         <div className="scroll-x">
@@ -101,7 +103,7 @@ export function Evals() {
               <tr>
                 <th>Task</th>
                 <th>Kind</th>
-                {data.models.map((m) => (
+                {data.modelCoverage.map((m) => (
                   <th key={m.model}>{modelName(m.model)}</th>
                 ))}
               </tr>
@@ -116,9 +118,10 @@ export function Evals() {
                   <td>
                     <Chip tone={t.category}>{catById(t.category)?.label}</Chip>
                   </td>
-                  {data.models.map((m) => {
-                    const c = m.tasks.find((x) => x.task === t.task);
-                    if (!c) return <td key={m.model} className="muted">—</td>;
+                  {data.modelCoverage.map((coverage) => {
+                    const m = modelById(coverage.model);
+                    const c = m?.tasks.find((x) => x.task === t.task);
+                    if (!m || !c) return <td key={coverage.model} className="muted">Not measured</td>;
                     const d = c.skill.score - c.base.score;
                     return (
                       <td key={m.model} className={d >= 0.1 ? "hot" : d <= -0.1 ? "cold" : ""}>

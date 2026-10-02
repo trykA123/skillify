@@ -2,6 +2,7 @@
 
 ## 2026-10-02
 
+- Add cards for field-only models, including GPT; show missing measurements throughout overview, task, category, skill, cost, and methodology views in both dashboards.
 - Show recorded Codex models in dashboard and HTML model coverage; add model and harness filters to field feedback and mark missing paired benchmarks explicitly.
 
 ## 2026-09-30

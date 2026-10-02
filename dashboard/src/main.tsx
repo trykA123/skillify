@@ -20,7 +20,7 @@ const I = (d: string) => (
 );
 const VIEWS: { id: string; label: string; icon: ReactNode; title: string; sub: string }[] = [
   { id: "overview", label: "Overview", icon: I("M2 2h5v5H2zM9 2h5v3H9zM9 7h5v7H9zM2 9h5v5H2z"), title: "Overview", sub: "Do skills help AI agents, and what do they cost?" },
-  { id: "evals", label: "Evals", icon: I("M2 14V8M6 14V4M10 14V9M14 14V2"), title: "Paired evals", sub: "Same tasks, with and without skills, per model" },
+  { id: "evals", label: "Evals", icon: I("M2 14V8M6 14V4M10 14V9M14 14V2"), title: "Model results", sub: "Paired measurements and recorded field feedback, per model" },
   { id: "tasks", label: "Tasks", icon: I("M5 4h9M5 8h9M5 12h9M2 4h.01M2 8h.01M2 12h.01"), title: "Tasks", sub: "What each task asks and exactly how it is scored" },
   { id: "categories", label: "Kinds of work", icon: I("M2 3h5l1 2h6v8H2z"), title: "Kinds of work", sub: "Coding, debugging, reviewing, clarifying" },
   { id: "field", label: "Field runs", icon: I("M3 2h10v12H3zM6 5h4M6 8h4M6 11h2"), title: "Field runs", sub: "What agents said about skills on real work" },

@@ -1,7 +1,8 @@
-import { categoryStats, data, dir, modelName, pctChange, pts, signedPct } from "../lib";
+import { categoryStats, data, dir, estimatedCostNote, modelName, pctChange, pts, signedPct } from "../lib";
 import { Card, CountUp, Delta, Dumbbell, PairBars, Ring, Score, Tip } from "../ui";
 import { HeroArt, KIND_ICONS } from "../art";
 import { ModelCoverage } from "../ModelCoverage";
+import { MissingMeasurements } from "../MissingMeasurements";
 
 export function Overview({ go }: { go: (h: string) => void }) {
   const e = data.entries;
@@ -22,8 +23,9 @@ export function Overview({ go }: { go: (h: string) => void }) {
             <span className="accent">{data.headline.em}</span>
           </h2>
           <p>
-            Every model ran the same tasks twice: once plain, once with the task's skill loaded. The rings show the score gain in points out of 100. <button className="link" onClick={() => go("method")}>How it's measured →</button>
+            Paired models ran the same tasks with and without skills. The rings show their score gain in points out of 100. <button className="link" onClick={() => go("method")}>How it's measured →</button>
           </p>
+          <MissingMeasurements />
         </div>
         <div className="rings">
           {data.models.map((m) => (
@@ -38,14 +40,14 @@ export function Overview({ go }: { go: (h: string) => void }) {
             <CountUp value={data.runs.length} />
           </div>
           <div className="stat-l">Paired eval runs</div>
-          <div className="stat-h">{data.models.length} models · 2 sides</div>
+          <div className="stat-h">{data.models.length} paired models · 2 sides</div>
         </div>
         <div className="stat">
           <div className="stat-v">
             <CountUp value={e.length} />
           </div>
           <div className="stat-l">Field runs logged</div>
-          <div className="stat-h">{loaded.length} loaded a skill</div>
+          <div className="stat-h">{new Set(e.map((entry) => entry.model)).size} field models · {loaded.length} loaded a skill</div>
         </div>
         <div className="stat">
           <div className="stat-v accent">
@@ -57,10 +59,10 @@ export function Overview({ go }: { go: (h: string) => void }) {
           </div>
         </div>
         <div className="stat">
-          <div className="stat-v">{pts(best.d)}</div>
+          <div className="stat-v">{best.t ? pts(best.d) : "Not measured"}</div>
           <div className="stat-l">Biggest single gain</div>
           <div className="stat-h">
-            <button className="link" onClick={() => go(`tasks/${best.t}`)}>{best.t}</button> · {short(best.m)}
+            {best.t ? <><button className="link" onClick={() => go(`tasks/${best.t}`)}>{best.t}</button> · {short(best.m)}</> : "No paired results"}
           </div>
         </div>
       </div>
@@ -68,11 +70,12 @@ export function Overview({ go }: { go: (h: string) => void }) {
       <ModelCoverage />
 
       <div className="grid2">
-        <Card title="Score without → with skills" sub="Mean over all tasks, one row per model. Hover a number for how it's computed.">
+        <Card title="Score without → with skills" sub="Paired models only. Mean over all tasks; hover a number for how it's computed.">
           <Dumbbell rows={data.models.map((m) => ({ label: modelName(m.model).replace("Claude ", ""), base: m.base.score, skill: m.skill.score }))} />
+          <MissingMeasurements />
         </Card>
         <Card title="What skills changed, per model" sub="Score in points out of 100; cost per run from the CLI's usage report.">
-          <table className="tbl">
+          <div className="scroll-x"><table className="tbl" aria-label="Model comparison">
             <thead>
               <tr>
                 <th>Model</th>
@@ -93,8 +96,8 @@ export function Overview({ go }: { go: (h: string) => void }) {
                   </td>
                   <td className="n">
                     {m.estimate ? (
-                      <Tip content="The CLI prices DeepSeek at Anthropic rates. DeepSeek billed about $0.01 per run.">
-                        <span className="muted">≈$0.01 billed</span>
+                      <Tip content={estimatedCostNote(m.model)}>
+                        <span className="muted">{m.model === "deepseek-flash" ? "≈$0.01 billed" : "CLI estimate"}</span>
                       </Tip>
                     ) : (
                       <span className={dir(-(m.skill.cost - m.base.cost))}>{signedPct(pctChange(m.base.cost, m.skill.cost))}</span>
@@ -102,16 +105,25 @@ export function Overview({ go }: { go: (h: string) => void }) {
                   </td>
                 </tr>
               ))}
+              {data.fieldModels.map((m) => (
+                <tr key={m.model}>
+                  <td>{modelName(m.model)}</td>
+                  <td className="muted">Not measured</td>
+                  <td className="muted">Not measured</td>
+                  <td className="muted">Not recorded</td>
+                </tr>
+              ))}
             </tbody>
-          </table>
+          </table></div>
         </Card>
       </div>
 
       <h3 className="section">Where skills pay off</h3>
+      <MissingMeasurements />
       <div className="grid4">
         {data.categories.map((c) => {
           const st = categoryStats(c.id);
-          const top = Math.max(...st.map((s) => s.skill - s.base));
+          const top = st.length ? Math.max(...st.map((s) => s.skill - s.base)) : null;
           return (
             <Card key={c.id} className={`clickable kind ${c.id}`}>
               <button className="cover" onClick={() => go(`categories/${c.id}`)} aria-label={`Open ${c.label}`} />
@@ -123,9 +135,9 @@ export function Overview({ go }: { go: (h: string) => void }) {
                   </div>
                   <p className="muted small">{c.blurb}</p>
                 </div>
-                <div className={`k-gain ${dir(top)}`}>
-                  {pts(top).replace(" pts", "")}
-                  <small>best gain · pts</small>
+                <div className={`k-gain ${top === null ? "flat" : dir(top)}`}>
+                  {top === null ? "Not measured" : pts(top).replace(" pts", "")}
+                  <small>{top === null ? "no paired results" : "best gain · pts"}</small>
                 </div>
               </div>
               {st.map((s) => (
